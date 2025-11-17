@@ -26,15 +26,28 @@
           { "label": "意思", "key": "definition" },
           { "label": "詞性", "key": "type" }
         ]
+      },
+      "mcq": {
+        "enabled": true,
+        "q_field": "kanji",
+        "a_field": "hiragana",
+        "back_fields": [
+          { "label": "平假名", "key": "hiragana" },
+          { "label": "音調", "key": "pitch" },
+          { "label": "意思", "key": "definition" },
+          { "label": "詞性", "key": "type" },
+          { "label": "漢字", "key": "kanji" }
+        ]
       }
     },
     {
       "id": "doben17",
-      "name": "讀本課文17課",
+      "name": "讀本17課課文",
       "enabled": true,
       "review": {
         "enabled": true,
         "q_field": "japanese",
+        "a_field": "chinese",
         "back_fields": [
           { "label": "日文", "key": "japanese" },
           { "label": "中文", "key": "chinese" }
@@ -42,14 +55,15 @@
       },
       "quiz": {
         "enabled": false,
-        "q_field": "hiragana",
-        "a_field": "definition",
+        "q_field": "japanese",
+        "a_field": "chinese",
         "back_fields": [
-          { "label": "意思", "key": "definition" },
-          { "label": "漢字", "key": "kanji" },
-          { "label": "詞性", "key": "type" },
-          { "label": "平假名", "key": "hiragana" }
+          { "label": "日文", "key": "japanese" },
+          { "label": "中文", "key": "chinese" }
         ]
+      },
+      "mcq": {
+        "enabled": false
       }
     }
   ]
