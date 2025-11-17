@@ -12,11 +12,12 @@
       "q_field": "definition",
       "a_field": "kanji",
       "back_fields": [
+        { "label": "漢字", "key": "kanji" },
         { "label": "平假名", "key": "hiragana" },
         { "label": "音調", "key": "pitch" },
         { "label": "意思", "key": "definition" },
-        { "label": "詞性", "key": "type" },
-        { "label": "漢字", "key": "kanji" }
+        { "label": "詞性", "key": "type" }
+        
       ]
     },
     {
