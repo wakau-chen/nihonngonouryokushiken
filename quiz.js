@@ -7,6 +7,24 @@ const answerInput = document.getElementById('answer-input');
 const quizInputArea = document.getElementById('quiz-input-section');
 const mcqOptionsArea = document.getElementById('mcq-options-section');
 
+// 獲取「區域」元素
+const setupArea = document.getElementById('quiz-setup-area');
+const mainArea = document.getElementById('quiz-main-area');
+const resultsArea = document.getElementById('exam-results-area');
+
+// 獲取「設定」元素
+const setupTitle = document.getElementById('setup-title');
+const startExamBtn = document.getElementById('start-exam-btn');
+const examProgress = document.getElementById('exam-progress-bar');
+
+// 考試模式變數
+let isExamMode = false; // ⭐️ 關鍵！由 URL 決定
+let examTotalQuestions = 0;
+let examCurrentQuestion = 0;
+let examIncorrectCount = 0;
+let testedIndices = new Set(); 
+let currentCardMarkedWrong = false; 
+
 // 全局變數
 let QUESTION_FIELD = '';
 let ANSWER_FIELD = '';
@@ -25,15 +43,17 @@ function normalizeString(str) {
     return str.replace(/・/g, '').replace(/\./g, '').replace(/\s/g, '');
 }
 
-// --- 2. 非同步讀取 (不變) ---
+// --- 2. ⭐️ 非同步讀取 (已重寫) ⭐️ ---
 async function loadVocabulary() {
     try {
         const params = new URLSearchParams(window.location.search);
         const listName = params.get('list'); 
         currentMode = params.get('mode') || 'review'; 
+        isExamMode = params.get('exam') === 'true'; // ⭐️ 讀取 "考試" 參數
 
         if (!listName) {
-            cardFront.textContent = '錯誤：未指定單字庫';
+            setupTitle.textContent = '錯誤：未指定單字庫';
+            setupArea.style.display = 'block'; // 顯示錯誤
             return;
         }
 
@@ -67,19 +87,62 @@ async function loadVocabulary() {
         vocabulary = await response.json(); 
         
         if (vocabulary.length > 0) {
-            setupApp();
+            // ⭐️ 關鍵：決定要顯示「設定區」還是「主體區」
+            if (isExamMode) {
+                // --- 進入考試設定流程 ---
+                setupTitle.textContent = `${listConfig.name} - 考試設定`;
+                setupArea.style.display = 'block';
+                startExamBtn.addEventListener('click', startGame);
+            } else {
+                // --- 進入練習流程 ---
+                setupArea.style.display = 'none';
+                mainArea.style.display = 'flex'; // ⭐️ 注意：設為 'flex'
+                setupApp(); // 直接開始練習
+            }
         } else {
-            cardFront.textContent = '單字庫為空！';
+            setupTitle.textContent = '單字庫為空！';
+            setupArea.style.display = 'block';
         }
     } catch (error) {
         console.error('加載單字庫失敗:', error);
-        cardFront.textContent = `加載失敗 (${error.message})`;
+        setupTitle.textContent = `加載失敗 (${error.message})`;
+        setupArea.style.display = 'block';
     }
 }
 // ---------------------------------
 
-// --- 3. 設置主要功能 (不變) ---
+// --- 3. ⭐️ 啟動遊戲 (原 "startGame") ⭐️ ---
+function startGame() {
+    // 1. 切換顯示區域
+    setupArea.style.display = 'none';
+    mainArea.style.display = 'flex'; // ⭐️ 注意：設為 'flex'
+
+    // 2. 讀取考試設定
+    const selectedLength = document.querySelector('input[name="exam-length"]:checked').value;
+    if (selectedLength === 'all') {
+        examTotalQuestions = vocabulary.length;
+    } else {
+        examTotalQuestions = parseInt(selectedLength);
+    }
+    
+    if (examTotalQuestions > vocabulary.length) {
+        examTotalQuestions = vocabulary.length;
+    }
+
+    // 3. 重設計數器
+    examCurrentQuestion = 0;
+    examIncorrectCount = 0;
+    testedIndices.clear();
+    updateExamProgress(); 
+    
+    // 4. 綁定主程式事件 (原 "setupApp")
+    setupApp();
+}
+
+
+// --- 4. 設置主要功能 (原 "setupApp") ---
 function setupApp() {
+    // (移除了 loadVocabulary)
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
 
@@ -92,18 +155,16 @@ function setupApp() {
     
     document.addEventListener('keydown', handleGlobalKey);
     
+    // 根據模式顯示/隱藏 UI
     if (currentMode === 'quiz') {
         if(quizInputArea) quizInputArea.style.display = 'block';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'none';
-        
         const answerLabelData = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD);
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
-        
     } else if (currentMode === 'mcq') {
         if(quizInputArea) quizInputArea.style.display = 'none';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'grid'; 
-        
     } else { // review 模式
         if(quizInputArea) quizInputArea.style.display = 'none';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'none';
@@ -112,35 +173,62 @@ function setupApp() {
     loadNextCard();
 }
 
-// --- 4. 顯示新卡片 (不變) ---
+// --- 5. ⭐️ 顯示新卡片 (已升級考試邏輯) ⭐️ ---
 async function loadNextCard() {
+    // 1. 檢查考試是否結束
+    if (isExamMode && examCurrentQuestion >= examTotalQuestions) {
+        showExamResults();
+        return; 
+    }
+    
+    // 2. (修復閃爍 - 不變)
     if (flashcard.classList.contains('is-flipped')) {
         flashcard.classList.remove('is-flipped');
         await new Promise(resolve => setTimeout(resolve, 610));
     }
     
-    // (抽卡邏輯 - 不變)
-    const oldIndex = currentCardIndex;
-    if (vocabulary.length <= 1) { currentCardIndex = 0; }
-    else {
-        do { currentCardIndex = Math.floor(Math.random() * vocabulary.length); }
-        while (currentCardIndex === oldIndex);
+    // 3. 抽卡邏輯
+    let card;
+    if (isExamMode) {
+        // --- 考試模式：抽不重複的卡 ---
+        examCurrentQuestion++;
+        updateExamProgress();
+        currentCardMarkedWrong = false; 
+
+        let newIndex;
+        if (examTotalQuestions === vocabulary.length) {
+            newIndex = examCurrentQuestion - 1; 
+        } else {
+            do { 
+                newIndex = Math.floor(Math.random() * vocabulary.length); 
+            } while (testedIndices.has(newIndex));
+        }
+        testedIndices.add(newIndex);
+        card = vocabulary[newIndex];
+
+    } else {
+        // --- 練習模式：隨機抽卡 (可重複) ---
+        const oldIndex = currentCardIndex;
+        if (vocabulary.length <= 1) { currentCardIndex = 0; }
+        else {
+            do { currentCardIndex = Math.floor(Math.random() * vocabulary.length); }
+            while (currentCardIndex === oldIndex);
+        }
+        card = vocabulary[currentCardIndex];
     }
     
-    const card = vocabulary[currentCardIndex];
     if (!card) return; 
 
+    // 4. 填入卡片內容
     cardFront.textContent = card[QUESTION_FIELD] || "";
     currentCorrectAnswer = card[ANSWER_FIELD] || "";
 
     let backHtml = '';
     for (const field of BACK_CARD_FIELDS) {
         const value = card[field.key];
-        
         if (value !== undefined && value !== null && value !== "") {
             const isAnswer = (field.key === ANSWER_FIELD);
             const valueClass = isAnswer ? "back-value answer" : "back-value";
-            
             backHtml += `
                 <div class="back-item">
                     <span class="back-label">${field.label}:</span>
@@ -151,27 +239,25 @@ async function loadNextCard() {
     }
     cardBack.innerHTML = backHtml;
     
-    // ⭐️ 根據模式重設 UI (MCQ 模式除外)
+    // 5. 重設 UI
     if (currentMode === 'quiz') {
         answerInput.value = ""; 
         answerInput.disabled = false; 
         answerInput.classList.remove('correct', 'incorrect');
         nextButton.textContent = "檢查答案"; 
-        nextButton.disabled = false; // 確保按鈕可用
         if (answerInput) answerInput.focus(); 
         
     } else if (currentMode === 'mcq') {
         generateMcqOptions();
         nextButton.textContent = "下一張"; 
-        nextButton.disabled = true; // ⭐️ 答對前禁用
+        nextButton.disabled = true; // 答對前禁用
         
     } else { // review 模式
         nextButton.textContent = "顯示答案"; 
-        nextButton.disabled = false; // 確保按鈕可用
     }
 }
 
-// --- 5. 檢查答案 (輸入測驗) (不變) ---
+// --- 6. ⭐️ 檢查答案 (已升級考試邏輯) ⭐️ ---
 function checkAnswer() {
     const userInputRaw = answerInput.value.trim();
     if (!userInputRaw) {
@@ -188,7 +274,7 @@ function checkAnswer() {
         answerInput.classList.remove('incorrect');
         answerInput.disabled = true; 
         nextButton.textContent = "下一張"; 
-        nextButton.disabled = false; 
+        nextButton.disabled = false;
         answerInput.value = currentCorrectAnswer; 
         flipCard(); 
     } else {
@@ -196,10 +282,16 @@ function checkAnswer() {
         answerInput.classList.remove('correct');
         answerInput.classList.add('shake');
         setTimeout(() => answerInput.classList.remove('shake'), 500);
+        
+        if (isExamMode && !currentCardMarkedWrong) {
+            examIncorrectCount++;
+            currentCardMarkedWrong = true;
+            updateExamProgress();
+        }
     }
 }
 
-// --- 6. 處理按鈕點擊 (不變) ---
+// --- 7. 處理按鈕點擊 (不變) ---
 function handleButtonPress() {
     const buttonState = nextButton.textContent;
 
@@ -217,43 +309,36 @@ function handleButtonPress() {
             loadNextCard(); 
         }
     } else if (currentMode === 'mcq') {
-        // (MCQ 模式的按鈕點擊只會是 "下一張")
         loadNextCard();
     }
 }
 
-// --- 7. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
+// --- 8. 處理 Enter / Shift 鍵 (不變) ---
 function handleGlobalKey(event) {
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
 
-    // 1. "Enter" 鍵
     if (event.key === 'Enter') {
         event.preventDefault();
-        
-        // ⭐️ 關鍵修正！
-        // 只要「下一張」按鈕不是「禁用」狀態 (例如 MCQ 答題前)，
-        // Enter 鍵就應該觸發它。
-        if (!nextButton.disabled) {
+        if (nextButton.textContent === "下一張" || nextButton.textContent === "檢查答案") {
              handleButtonPress();
         }
         return; 
     }
 
-    // 2. "Shift" 鍵
     if (event.key === 'Shift') {
-        if (isTyping) return; // 打字時禁用
+        if (isTyping) return;
         event.preventDefault();
         flipCard();
         return; 
     }
 }
 
-// --- 8. 翻轉卡片 (不變) ---
+// --- 9. 翻轉卡片 (不變) ---
 function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// --- 9. ⭐️ 滑動手勢處理 (已修正) ⭐️ ---
+// --- 10. 滑動手勢處理 (不變) ---
 function handleTouchStart(event) {
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
@@ -279,14 +364,12 @@ function handleTouchEnd(event) {
     touchStartY = 0;
 }
 function triggerNextCardAction() {
-    // ⭐️ 關鍵修正！
-    // 滑動手勢的邏輯必須和 Enter 鍵完全一樣
-    if (!nextButton.disabled) {
+    if (nextButton.textContent === "下一張") {
         handleButtonPress();
     }
 }
 
-// --- 10. MCQ 相關函式 (不變) ---
+// --- 11. MCQ 相關函式 (已升級考試邏輯) ---
 function generateMcqOptions() {
     const correctAnswer = currentCorrectAnswer;
     let distractors = [];
@@ -348,7 +431,7 @@ function handleMcqAnswer(event) {
     flipCard();
 }
 
-// --- 11. 考試專用函式 (不變) ---
+// --- ⭐️ 12. 考試專用函式 (不變) ⭐️ ---
 function updateExamProgress() {
     if (!isExamMode) {
         examProgress.style.display = 'none';
@@ -357,6 +440,7 @@ function updateExamProgress() {
     
     examProgress.style.display = 'flex';
     let score = 'N/A';
+    // ⭐️ 修正：在 "第 0 題" 時不要計算
     if (examCurrentQuestion > 0) {
         const correctCount = (examCurrentQuestion - examIncorrectCount);
         score = Math.round((correctCount / examCurrentQuestion) * 100);
@@ -395,4 +479,5 @@ function showExamResults() {
 }
 
 // --- 啟動程式 ---
+// (不再呼叫 setupApp 或 loadNextCard)
 loadVocabulary();
