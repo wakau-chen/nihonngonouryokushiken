@@ -28,31 +28,6 @@
           { "label": "詞性", "key": "type" }
         ]
       }
-    },
-    {
-      "id": "doben17",
-      "name": "讀本17課課文",
-      "enabled": true,
-      
-      "review": {
-        "enabled": true,
-        "q_field": "definition",
-        "a_field": "kanji",
-        "back_fields": [
-          { "label": "日文", "key": "kanji" },          
-          { "label": "意思", "key": "definition" },
-        
-        ]
-      },
-      "quiz": {
-        "enabled": false,
-        "q_field": "japanese",
-        "a_field": "chinese",
-        "back_fields": [
-          { "label": "日文", "key": "japanese" },
-          { "label": "中文", "key": "chinese" }
-        ]
-      }
     }
   ]
 }
