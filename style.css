@@ -92,10 +92,14 @@ h1 { color: #444; }
     perspective: 1000px; 
     margin: 20px; 
 }
-/* 翻轉卡片：本體 */
+
+/* ⭐️ 翻轉卡片：本體 (已修改為自動高度) ⭐️ */
 .flashcard {
     width: 320px;
-    height: 220px;
+    min-height: 220px; /* ⭐️ 1. 從 'height' 改為 'min-height' */
+    height: auto; /* ⭐️ 2. 允許高度自動增長 */
+    display: grid; /* ⭐️ 3. 使用 Grid 佈局來堆疊正面和背面 */
+    
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.6s;
@@ -103,11 +107,16 @@ h1 { color: #444; }
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border-radius: 10px;
 }
-/* 翻轉卡片：正面與背面的通用設定 */
+/* ⭐️ 翻轉卡片：正面與背面的通用設定 (已修改) ⭐️ */
 .card-face {
-    position: absolute;
+    /* ⭐️ 4. 移除 'position: absolute' */
+    /* ⭐️ 5. 使用 Grid 技巧將正面和背面放在同一個格子 (1/1) */
+    grid-row-start: 1;
+    grid-column-start: 1;
+
+    /* (以下為舊有樣式，保持不變) */
     width: 100%;
-    height: 100%;
+    height: 100%; /* ⭐️ 6. 這裡的 100% 會自動填滿 Grid 單元格 */
     backface-visibility: hidden;
     display: flex;
     justify-content: center;
@@ -122,6 +131,8 @@ h1 { color: #444; }
     border: 1px solid #ddd;
     font-size: 28px;
     font-weight: bold;
+    /* ⭐️ 7. 允許長句子換行 */
+    word-break: break-word;
 }
 /* 卡片背面 (排版設定在下方的 #4) */
 .card-back {
@@ -130,7 +141,7 @@ h1 { color: #444; }
     transform: rotateY(180deg);
 }
 
-/* ⭐️ 核心翻轉動畫：被點擊時的狀態 (上次遺漏的) ⭐️ */
+/* 核心翻轉動畫：被點擊時的狀態 (不變) */
 .flashcard.is-flipped {
     transform: rotateY(180deg);
 }
@@ -160,39 +171,34 @@ button#next-button:hover { background-color: #409182; }
     align-items: stretch;  /* 水平填滿 */
     text-align: left;
     padding: 15px 20px; /* 微調 padding */
+    word-break: break-word; /* ⭐️ 8. 允許長句子換行 */
 }
 
-/* 背面每一行的容器 */
+/* 背面每一行的容器 (不變) */
 .back-item {
-    display: flex; /* 讓 標籤 和 值 並排 */
+    display: flex;
     font-size: 18px;
     margin-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* 淺色分隔線 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     padding-bottom: 8px;
 }
-
-/* 標籤 (例如 "平假名:") */
 .back-label {
     font-size: 16px;
-    color: #cceeff; /* 淺藍色 */
-    width: 70px; /* 固定寬度，讓標籤對齊 */
-    flex-shrink: 0; /* 防止標籤被壓縮 */
+    color: #cceeff;
+    width: 70px; 
+    flex-shrink: 0; 
 }
-
-/* 值 (例如 "あい") */
 .back-value {
     font-size: 18px;
     color: #ffffff;
     font-weight: bold;
 }
-
-/* ⭐️ 主要答案的特殊樣式 (例如 "hiragana") ⭐️ */
 .back-value.answer {
-    color: #ffff00; /* 亮黃色突顯 */
+    color: #ffff00;
     font-size: 20px;
 }
 
-/* --- 5. 測驗輸入框樣式 --- */
+/* --- 5. 測驗輸入框樣式 (不變) --- */
 .quiz-input-section {
     display: none; 
     width: 100%;
@@ -215,7 +221,7 @@ button#next-button:hover { background-color: #409182; }
     outline: none;
 }
 
-/* --- 6. 對錯反饋樣式 --- */
+/* --- 6. 對錯反饋樣式 (不變) --- */
 #answer-input.correct {
     background-color: #e6ffed;
     border-color: #50b3a2;
