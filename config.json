@@ -38,6 +38,7 @@
         "back_fields": [
           { "label": "日文", "key": "japanese" },
           { "label": "中文", "key": "chinese" }
+        ]
       },
       "quiz": {
         "enabled": false,
