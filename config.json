@@ -28,18 +28,19 @@
           { "label": "詞性", "key": "type" }
         ]
       }
-    }
+    },
     {
-      "id": "N2",
-      "name": "N2 單字庫",
+      "id": "讀本17課課文",
+      "name": "讀本17課課文",
       "enabled": true,
       
       "review": {
         "enabled": true,
         "q_field": "hiragana",
         "back_fields": [
-          { "label": "意思", "key": "definition" },
-          { "label": "漢字", "key": "kanji" }
+          { "label": "日文", "key": "japanese" },
+          { "label": "中文", "key": "chinese
+            " }
         ]
       },
       "quiz": {
