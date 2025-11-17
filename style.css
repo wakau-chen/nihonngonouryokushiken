@@ -117,17 +117,7 @@ h1 { color: #444; }
     font-size: 28px;
     font-weight: bold;
 }
-.card-back {
-    background-color: #4a90e2;
-    color: white;
-    transform: rotateY(180deg);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    text-align: left;
-}
-.flashcard.is-flipped { transform: rotateY(180deg); }
+/* (卡片背面樣式 - 已移到下方 #4) */
 
 /* 下一張按鈕 */
 button#next-button {
@@ -144,34 +134,54 @@ button#next-button {
 }
 button#next-button:hover { background-color: #409182; }
 
-/* --- 4. 卡片背面 ( | 分隔) 樣式 --- */
-.card-back .back-pronunciation {
-    font-size: 20px;
-    color: #cceeff;
-    margin-bottom: 8px;
+/* --- 4. ⭐️ 卡片背面 (新版) 樣式 ⭐️ --- */
+
+/* 卡片背面排版 */
+.card-back {
+    background-color: #4a90e2;
+    color: white;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 垂直靠上 */
+    align-items: stretch;  /* 水平填滿 */
+    text-align: left;
+    padding: 15px 20px; /* 微調 padding */
 }
-.back-pronunciation .pitch-accent-number {
-    font-weight: bold;
-    color: #fff;
-    font-style: normal;
-}
-.card-back .back-definition {
-    font-size: 28px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 15px;
-}
-.card-back .back-type {
+
+/* 背面每一行的容器 */
+.back-item {
+    display: flex; /* 讓 標籤 和 值 並排 */
     font-size: 18px;
-    font-style: italic;
-    color: #eeeeee;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* 淺色分隔線 */
+    padding-bottom: 8px;
+}
+
+/* 標籤 (例如 "平假名:") */
+.back-label {
+    font-size: 16px;
+    color: #cceeff; /* 淺藍色 */
+    width: 70px; /* 固定寬度，讓標籤對齊 */
+    flex-shrink: 0; /* 防止標籤被壓縮 */
+}
+
+/* 值 (例如 "あい") */
+.back-value {
+    font-size: 18px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* ⭐️ 主要答案的特殊樣式 (例如 "hiragana") ⭐️ */
+.back-value.answer {
+    color: #ffff00; /* 亮黃色突顯 */
+    font-size: 20px;
 }
 
 /* --- 5. 測驗輸入框樣式 --- */
-
-/* ⭐️ 關鍵：預設隱藏輸入框區塊 ⭐️ */
 .quiz-input-section {
-    display: none; /* JS 會在 quiz 模式下把它改成 'block' */
+    display: none; 
     width: 100%;
     max-width: 320px; 
     margin: 15px 0;
