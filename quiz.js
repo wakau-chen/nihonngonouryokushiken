@@ -1,3 +1,24 @@
+/* --- ⭐️ 1. 全局設定 (您要的「在程式中選擇」) ⭐️ --- */
+
+// 選擇「題目」欄位 (會顯示在正面)
+// (可選： 'kanji', 'hiragana', 'definition')
+const QUESTION_FIELD = 'kanji';
+
+// 選擇「主要答案」欄位 (用於 "輸入測驗" 模式的比對)
+// (可選： 'kanji', 'hiragana', 'definition')
+const ANSWER_FIELD = 'hiragana';
+
+// 選擇「背面」要顯示哪些資訊 (答案 + 補充資訊)
+// (您可以自由排序、新增、刪除。 label 是顯示的標籤, key 是 JSON 的欄位)
+const BACK_CARD_FIELDS = [
+    { label: "平假名", key: "hiragana" },
+    { label: "音調", key: "pitch" },
+    { label: "意思", key: "definition" },
+    { label: "詞性", key: "type" },
+    { label: "漢字", key: "kanji" }
+];
+/* --------------------------------------------------- */
+
 // 獲取 HTML 元素
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
@@ -8,21 +29,20 @@ const quizInputArea = document.getElementById('quiz-input-section');
 
 let vocabulary = []; 
 let currentCardIndex = 0; 
-let currentCorrectAnswer = ""; 
+let currentCorrectAnswer = ""; // 儲存 "主要答案" 
 let currentMode = 'review'; 
 let touchStartX = 0;
 let touchStartY = 0;
 
-// --- ⭐️ 1. 新增：正規化字串的輔助函式 ⭐️ ---
-// 這個函式會移除所有用於比較的干擾字元
+// 輔助函式：正規化字串 (移除 ・. 和空白)
 function normalizeString(str) {
+    if (typeof str !== 'string') str = String(str);
     if (!str) return "";
     return str
-        .replace(/・/g, '') // 移除 日文中間點 (・)
-        .replace(/\./g, '') // 移除 英文句點 (.)
-        .replace(/\s/g, ''); // 移除 所有空白 (包含全形/半形)
+        .replace(/・/g, '') // 移除 日文中間點
+        .replace(/\./g, '') // 移除 英文句點
+        .replace(/\s/g, ''); // 移除 所有空白
 }
-// ---------------------------------
 
 // --- 2. 非同步讀取 JSON 檔案 (不變) ---
 async function loadVocabulary() {
@@ -70,6 +90,9 @@ function setupApp() {
     if (currentMode === 'quiz') {
         if(quizInputArea) quizInputArea.style.display = 'block'; 
         answerInput.addEventListener('keypress', handleEnterKey);
+        // (更新 placeholder)
+        const answerLabel = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD)?.label || "答案";
+        answerInput.placeholder = `請輸入 ${answerLabel}`;
     } else {
         if(quizInputArea) quizInputArea.style.display = 'none'; 
     }
@@ -77,7 +100,7 @@ function setupApp() {
     loadNextCard();
 }
 
-// --- 4. 顯示新卡片 (⭐️ 修改 ⭐️) ---
+// --- 4. ⭐️ 顯示新卡片 (已重寫) ⭐️ ---
 async function loadNextCard() {
     // (修復閃爍的邏輯 - 不變)
     if (flashcard.classList.contains('is-flipped')) {
@@ -96,33 +119,32 @@ async function loadNextCard() {
     }
     
     const card = vocabulary[currentCardIndex];
-    cardFront.textContent = card.front;
+    if (!card) return; // 安全檢查
+
+    // 1. ⭐️ 根據全局設定，設置「正面 (題目)」
+    cardFront.textContent = card[QUESTION_FIELD] || "";
     
-    const backString = card.back || ""; 
-    const parts = backString.split('|');
-    
-    // ⭐️ 關鍵：儲存正確答案時，只 trim()，不正規化
-    // 我們保留原始答案，正規化只在 "比較" 時才做
-    currentCorrectAnswer = parts[1] ? parts[1].trim() : (parts[0] ? parts[0].trim() : "");
-    
-    // (組合 HTML 邏輯 - 不變)
-    let pronunciationHtml = '';
-    if (parts[1]) { 
-        pronunciationHtml += parts[1];
-    }
-    if (parts[2] || parts[2] === 0) { 
-        pronunciationHtml += ` <span class="pitch-accent-number">(${parts[2]})</span>`;
-    }
-    
+    // 2. ⭐️ 根據全局設定，設置「主要答案」
+    currentCorrectAnswer = card[ANSWER_FIELD] || "";
+
+    // 3. ⭐️ 根據全局設定，產生「背面 (答案+補充)」的 HTML
     let backHtml = '';
-    if (pronunciationHtml) {
-        backHtml += `<div class="back-pronunciation">${pronunciationHtml}</div>`;
-    }
-    if (parts[0]) { 
-        backHtml += `<div class="back-definition">${parts[0]}</div>`;
-    }
-    if (parts[3]) { 
-        backHtml += `<div class="back-type">${parts[3]}</div>`;
+    for (const field of BACK_CARD_FIELDS) {
+        const value = card[field.key];
+        
+        // 如果值存在 (且不為空)
+        if (value !== undefined && value !== null && value !== "") {
+            // 判斷這個欄位是不是「主要答案」，是的話給它一個特殊樣式
+            const isAnswer = (field.key === ANSWER_FIELD);
+            const valueClass = isAnswer ? "back-value answer" : "back-value";
+            
+            backHtml += `
+                <div class="back-item">
+                    <span class="back-label">${field.label}:</span>
+                    <span class="${valueClass}">${value}</span>
+                </div>
+            `;
+        }
     }
     cardBack.innerHTML = backHtml;
     
@@ -138,24 +160,19 @@ async function loadNextCard() {
     }
 }
 
-// --- 5. 檢查答案 (⭐️ 這是修改的重點 ⭐️) ---
+// --- 5. ⭐️ 檢查答案 (已重寫) ⭐️ ---
 function checkAnswer() {
-    // 1. 取得使用者輸入
     const userInputRaw = answerInput.value.trim();
-
     if (!userInputRaw) {
         answerInput.classList.add('shake');
         setTimeout(() => answerInput.classList.remove('shake'), 500);
         return;
     }
 
-    // 2. ⭐️ 比較「正規化」後的答案 ⭐️
-    // "あいて" 會變成 "あいて"
+    // 比較「正規化」後的答案
     const normalizedInput = normalizeString(userInputRaw);
-    // "あい・て" 也會變成 "あいて"
     const normalizedAnswer = normalizeString(currentCorrectAnswer);
 
-    // 3. 比較
     if (normalizedInput === normalizedAnswer) {
         // --- 答對了 ---
         answerInput.classList.add('correct');
@@ -163,11 +180,10 @@ function checkAnswer() {
         answerInput.disabled = true; 
         nextButton.textContent = "下一張"; 
         
-        // ⭐️ 答對時，在輸入框顯示「正確」的原始答案 (包含・)
-        // 這樣使用者就知道這個字原來是有點的
+        // 答對時，在輸入框顯示「正確」的原始答案
         answerInput.value = currentCorrectAnswer; 
         
-        flipCard(); 
+        flipCard(); // 自動翻開卡片
     } else {
         // --- 答錯了 ---
         answerInput.classList.add('incorrect');
