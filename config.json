@@ -10,9 +10,9 @@
         "enabled": true,
         "q_field": "kanji",
         "back_fields": [
-          { "label": "平假名", "key": "hiragana" },
-          { "label": "音調", "key": "pitch" },
           { "label": "意思", "key": "definition" },
+          { "label": "平假名", "key": "hiragana" },
+          { "label": "音調", "key": "pitch" },          
           { "label": "詞性", "key": "type" }
         ]
       },
