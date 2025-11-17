@@ -10,34 +10,29 @@ async function loadConfig() {
         }
         const config = await response.json();
 
-        // 2. 找到 HTML 中要放置按鈕的容器
         const container = document.getElementById('list-options-container');
-        if (!container) {
-            console.error('找不到 #list-options-container');
-            return;
-        }
+        if (!container) return;
 
-        // (選用) 更新網頁標題
+        // 更新網頁標題
         document.title = config.siteTitle || '單字卡練習';
         const mainTitle = document.getElementById('main-title');
         if (mainTitle) {
             mainTitle.textContent = config.siteTitle;
         }
 
-        let allHtml = ''; // 準備一個空字串來組合所有 HTML
+        let allHtml = ''; 
 
         // 3. 遍歷 config.json 中的 "lists"
         for (const list of config.lists) {
             
-            // 如果 "enabled": false，就跳過這個單字庫
             if (!list.enabled) {
                 continue;
             }
 
-            let buttonHtml = ''; // 這個單字庫的按鈕
+            let buttonHtml = ''; 
 
-            // 檢查 "review" 模式是否開啟
-            if (list.modes.review) {
+            // ⭐️ 檢查 "review" 物件是否存在且 "enabled": true
+            if (list.review && list.review.enabled) {
                 buttonHtml += `
                     <a href="quiz.html?list=${list.id}&mode=review" class="option-button review-mode">
                         翻卡複習
@@ -45,8 +40,8 @@ async function loadConfig() {
                 `;
             }
 
-            // 檢查 "quiz" 模式是否開啟
-            if (list.modes.quiz) {
+            // ⭐️ 檢查 "quiz" 物件是否存在且 "enabled": true
+            if (list.quiz && list.quiz.enabled) {
                 buttonHtml += `
                     <a href="quiz.html?list=${list.id}&mode=quiz" class="option-button quiz-mode">
                         輸入測驗
@@ -54,7 +49,6 @@ async function loadConfig() {
                 `;
             }
 
-            // 如果兩個按鈕都關閉，也不要顯示
             if (buttonHtml === '') {
                 continue;
             }
