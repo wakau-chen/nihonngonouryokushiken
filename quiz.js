@@ -1,6 +1,3 @@
-/* --- ⭐️ 1. 移除全局設定 (不再需要) ⭐️ --- */
-// (舊的 QUESTION_FIELD, ANSWER_FIELD, BACK_CARD_FIELDS 已被刪除)
-
 // 獲取 HTML 元素
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
@@ -9,7 +6,7 @@ const nextButton = document.getElementById('next-button');
 const answerInput = document.getElementById('answer-input');
 const quizInputArea = document.getElementById('quiz-input-section'); 
 
-// ⭐️ 這些將從 config.json 動態載入
+// 這些將從 config.json 動態載入
 let QUESTION_FIELD = '';
 let ANSWER_FIELD = '';
 let BACK_CARD_FIELDS = [];
@@ -32,7 +29,6 @@ function normalizeString(str) {
 }
 
 // --- 2. ⭐️ 非同步讀取 (已重寫) ⭐️ ---
-// (現在它會先讀 config.json，再讀 words.json)
 async function loadVocabulary() {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -44,25 +40,40 @@ async function loadVocabulary() {
             return;
         }
 
-        // 1. ⭐️ 先抓取 config.json
+        // 1. 抓取 config.json
         const configResponse = await fetch('config.json?v=' + new Date().getTime());
         if (!configResponse.ok) {
             throw new Error('無法讀取 config.json');
         }
         const config = await configResponse.json();
 
-        // 2. ⭐️ 找到這個單字庫的「專屬設定」
+        // 2. 找到這個單字庫的「專屬設定」
         const listConfig = config.lists.find(list => list.id === listName);
         if (!listConfig) {
             throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`);
         }
 
-        // 3. ⭐️ 把「專屬設定」存到全局變數
-        QUESTION_FIELD = listConfig.q_field || 'kanji';
-        ANSWER_FIELD = listConfig.a_field || 'hiragana';
-        BACK_CARD_FIELDS = listConfig.back_fields || [];
+        // 3. ⭐️ 根據 currentMode 載入「獨立」的設定
+        if (currentMode === 'review') {
+            if (!listConfig.review || !listConfig.review.enabled) {
+                throw new Error('此單字庫的「翻卡複習」模式未啟用');
+            }
+            // 載入 "review" 專用的設定
+            QUESTION_FIELD = listConfig.review.q_field || 'kanji';
+            ANSWER_FIELD = ''; // 複習模式沒有 "主要答案"
+            BACK_CARD_FIELDS = listConfig.review.back_fields || [];
 
-        // 4. ⭐️ 再抓取對應的單字庫檔案
+        } else if (currentMode === 'quiz') {
+            if (!listConfig.quiz || !listConfig.quiz.enabled) {
+                throw new Error('此單字庫的「輸入測驗」模式未啟用');
+            }
+            // 載入 "quiz" 專用的設定
+            QUESTION_FIELD = listConfig.quiz.q_field || 'kanji';
+            ANSWER_FIELD = listConfig.quiz.a_field || 'hiragana';
+            BACK_CARD_FIELDS = listConfig.quiz.back_fields || [];
+        }
+
+        // 4. 抓取對應的單字庫檔案
         const filePath = `words/${listName}.json?v=${new Date().getTime()}`;
         const response = await fetch(filePath); 
         if (!response.ok) {
@@ -84,6 +95,10 @@ async function loadVocabulary() {
 // ---------------------------------
 
 // --- 3. 設置主要功能 (不變) ---
+// (這個函式以下的 *所有* 程式碼都不需要修改，
+// 因為它們都依賴我們在上面第 3 步動態設定好的
+// QUESTION_FIELD, ANSWER_FIELD, BACK_CARD_FIELDS)
+
 function setupApp() {
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
@@ -98,8 +113,10 @@ function setupApp() {
     if (currentMode === 'quiz') {
         if(quizInputArea) quizInputArea.style.display = 'block'; 
         answerInput.addEventListener('keypress', handleEnterKey);
+        
         // (更新 placeholder)
-        const answerLabel = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD)?.label || "答案";
+        const answerLabelData = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD);
+        const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
     } else {
         if(quizInputArea) quizInputArea.style.display = 'none'; 
@@ -109,7 +126,6 @@ function setupApp() {
 }
 
 // --- 4. 顯示新卡片 (不變) ---
-// (這個函式不需要修改，因為它已經是讀取全局變數了)
 async function loadNextCard() {
     if (flashcard.classList.contains('is-flipped')) {
         flashcard.classList.remove('is-flipped');
@@ -128,19 +144,16 @@ async function loadNextCard() {
     const card = vocabulary[currentCardIndex];
     if (!card) return; 
 
-    // 1. 根據全局設定，設置「正面 (題目)」
     cardFront.textContent = card[QUESTION_FIELD] || "";
-    
-    // 2. 根據全局設定，設置「主要答案」
     currentCorrectAnswer = card[ANSWER_FIELD] || "";
 
-    // 3. 根據全局設定，產生「背面 (答案+補充)」的 HTML
     let backHtml = '';
     for (const field of BACK_CARD_FIELDS) {
         const value = card[field.key];
         
         if (value !== undefined && value !== null && value !== "") {
-            const isAnswer = (field.key === ANSWER_FIELD);
+            // 在 "quiz" 模式下，才需要突顯答案
+            const isAnswer = (currentMode === 'quiz' && field.key === ANSWER_FIELD);
             const valueClass = isAnswer ? "back-value answer" : "back-value";
             
             backHtml += `
@@ -153,7 +166,6 @@ async function loadNextCard() {
     }
     cardBack.innerHTML = backHtml;
     
-    // (重設 UI 邏輯 - 不變)
     if (currentMode === 'quiz') {
         answerInput.value = ""; 
         answerInput.disabled = false; 
