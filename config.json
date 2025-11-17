@@ -18,10 +18,10 @@
       },
       "quiz": {
         "enabled": true,
-        "q_field": "hiragana",
+        "q_field": "definition",
         "a_field": "kanji",
         "back_fields": [
-          { "label": "漢字", "key": "kanji" },
+          { "label": "日文", "key": "kanji" },
           { "label": "平假名", "key": "hiragana" },
           { "label": "音調", "key": "pitch" },
           { "label": "意思", "key": "definition" },
