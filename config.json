@@ -27,7 +27,23 @@
           { "label": "意思", "key": "definition" },
           { "label": "詞性", "key": "type" }
         ]
-      }
+      },
+      {
+      "id": "N2",
+      "name": "N2 單字庫",
+      "enabled": true,
+      "modes": {
+        "review": true,
+        "quiz": false
+      },
+      "q_field": "hiragana",
+      "a_field": "definition",
+      "back_fields": [
+        { "label": "意思", "key": "definition" },
+        { "label": "漢字", "key": "kanji" },
+        { "label": "詞性", "key": "type" },
+        { "label": "平假名", "key": "hiragana" }
+      ]
     }
   ]
 }
