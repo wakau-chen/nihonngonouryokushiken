@@ -8,16 +8,33 @@
       "modes": {
         "review": true,
         "quiz": true
-      }
+      },
+      "q_field": "kanji",
+      "a_field": "hiragana",
+      "back_fields": [
+        { "label": "平假名", "key": "hiragana" },
+        { "label": "音調", "key": "pitch" },
+        { "label": "意思", "key": "definition" },
+        { "label": "詞性", "key": "type" },
+        { "label": "漢字", "key": "kanji" }
+      ]
     },
     {
       "id": "N2",
       "name": "N2 單字庫",
-      "enabled": false,
+      "enabled": true,
       "modes": {
-        "review": false,
+        "review": true,
         "quiz": false
-      }
+      },
+      "q_field": "hiragana",
+      "a_field": "definition",
+      "back_fields": [
+        { "label": "意思", "key": "definition" },
+        { "label": "漢字", "key": "kanji" },
+        { "label": "詞性", "key": "type" },
+        { "label": "平假名", "key": "hiragana" }
+      ]
     },
     {
       "id": "N1",
@@ -26,7 +43,10 @@
       "modes": {
         "review": false,
         "quiz": false
-      }
+      },
+      "q_field": "kanji",
+      "a_field": "hiragana",
+      "back_fields": []
     }
   ]
 }
