@@ -1,23 +1,5 @@
-/* --- ⭐️ 1. 全局設定 (您要的「在程式中選擇」) ⭐️ --- */
-
-// 選擇「題目」欄位 (會顯示在正面)
-// (可選： 'kanji', 'hiragana', 'definition')
-const QUESTION_FIELD = 'kanji';
-
-// 選擇「主要答案」欄位 (用於 "輸入測驗" 模式的比對)
-// (可選： 'kanji', 'hiragana', 'definition')
-const ANSWER_FIELD = 'hiragana';
-
-// 選擇「背面」要顯示哪些資訊 (答案 + 補充資訊)
-// (您可以自由排序、新增、刪除。 label 是顯示的標籤, key 是 JSON 的欄位)
-const BACK_CARD_FIELDS = [
-    { label: "平假名", key: "hiragana" },
-    { label: "音調", key: "pitch" },
-    { label: "意思", key: "definition" },
-    { label: "詞性", key: "type" },
-    { label: "漢字", key: "kanji" }
-];
-/* --------------------------------------------------- */
+/* --- ⭐️ 1. 移除全局設定 (不再需要) ⭐️ --- */
+// (舊的 QUESTION_FIELD, ANSWER_FIELD, BACK_CARD_FIELDS 已被刪除)
 
 // 獲取 HTML 元素
 const flashcard = document.getElementById('flashcard');
@@ -27,9 +9,14 @@ const nextButton = document.getElementById('next-button');
 const answerInput = document.getElementById('answer-input');
 const quizInputArea = document.getElementById('quiz-input-section'); 
 
+// ⭐️ 這些將從 config.json 動態載入
+let QUESTION_FIELD = '';
+let ANSWER_FIELD = '';
+let BACK_CARD_FIELDS = [];
+
 let vocabulary = []; 
 let currentCardIndex = 0; 
-let currentCorrectAnswer = ""; // 儲存 "主要答案" 
+let currentCorrectAnswer = ""; 
 let currentMode = 'review'; 
 let touchStartX = 0;
 let touchStartY = 0;
@@ -44,7 +31,8 @@ function normalizeString(str) {
         .replace(/\s/g, ''); // 移除 所有空白
 }
 
-// --- 2. 非同步讀取 JSON 檔案 (不變) ---
+// --- 2. ⭐️ 非同步讀取 (已重寫) ⭐️ ---
+// (現在它會先讀 config.json，再讀 words.json)
 async function loadVocabulary() {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -56,6 +44,25 @@ async function loadVocabulary() {
             return;
         }
 
+        // 1. ⭐️ 先抓取 config.json
+        const configResponse = await fetch('config.json?v=' + new Date().getTime());
+        if (!configResponse.ok) {
+            throw new Error('無法讀取 config.json');
+        }
+        const config = await configResponse.json();
+
+        // 2. ⭐️ 找到這個單字庫的「專屬設定」
+        const listConfig = config.lists.find(list => list.id === listName);
+        if (!listConfig) {
+            throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`);
+        }
+
+        // 3. ⭐️ 把「專屬設定」存到全局變數
+        QUESTION_FIELD = listConfig.q_field || 'kanji';
+        ANSWER_FIELD = listConfig.a_field || 'hiragana';
+        BACK_CARD_FIELDS = listConfig.back_fields || [];
+
+        // 4. ⭐️ 再抓取對應的單字庫檔案
         const filePath = `words/${listName}.json?v=${new Date().getTime()}`;
         const response = await fetch(filePath); 
         if (!response.ok) {
@@ -63,6 +70,7 @@ async function loadVocabulary() {
         }
         vocabulary = await response.json(); 
         
+        // 5. 啟動 App
         if (vocabulary.length > 0) {
             setupApp();
         } else {
@@ -100,15 +108,14 @@ function setupApp() {
     loadNextCard();
 }
 
-// --- 4. ⭐️ 顯示新卡片 (已重寫) ⭐️ ---
+// --- 4. 顯示新卡片 (不變) ---
+// (這個函式不需要修改，因為它已經是讀取全局變數了)
 async function loadNextCard() {
-    // (修復閃爍的邏輯 - 不變)
     if (flashcard.classList.contains('is-flipped')) {
         flashcard.classList.remove('is-flipped');
         await new Promise(resolve => setTimeout(resolve, 610));
     }
     
-    // (抽卡邏輯 - 不變)
     const oldIndex = currentCardIndex;
     if (vocabulary.length <= 1) {
         currentCardIndex = 0;
@@ -119,22 +126,20 @@ async function loadNextCard() {
     }
     
     const card = vocabulary[currentCardIndex];
-    if (!card) return; // 安全檢查
+    if (!card) return; 
 
-    // 1. ⭐️ 根據全局設定，設置「正面 (題目)」
+    // 1. 根據全局設定，設置「正面 (題目)」
     cardFront.textContent = card[QUESTION_FIELD] || "";
     
-    // 2. ⭐️ 根據全局設定，設置「主要答案」
+    // 2. 根據全局設定，設置「主要答案」
     currentCorrectAnswer = card[ANSWER_FIELD] || "";
 
-    // 3. ⭐️ 根據全局設定，產生「背面 (答案+補充)」的 HTML
+    // 3. 根據全局設定，產生「背面 (答案+補充)」的 HTML
     let backHtml = '';
     for (const field of BACK_CARD_FIELDS) {
         const value = card[field.key];
         
-        // 如果值存在 (且不為空)
         if (value !== undefined && value !== null && value !== "") {
-            // 判斷這個欄位是不是「主要答案」，是的話給它一個特殊樣式
             const isAnswer = (field.key === ANSWER_FIELD);
             const valueClass = isAnswer ? "back-value answer" : "back-value";
             
@@ -160,7 +165,7 @@ async function loadNextCard() {
     }
 }
 
-// --- 5. ⭐️ 檢查答案 (已重寫) ⭐️ ---
+// --- 5. 檢查答案 (不變) ---
 function checkAnswer() {
     const userInputRaw = answerInput.value.trim();
     if (!userInputRaw) {
@@ -169,23 +174,17 @@ function checkAnswer() {
         return;
     }
 
-    // 比較「正規化」後的答案
     const normalizedInput = normalizeString(userInputRaw);
     const normalizedAnswer = normalizeString(currentCorrectAnswer);
 
     if (normalizedInput === normalizedAnswer) {
-        // --- 答對了 ---
         answerInput.classList.add('correct');
         answerInput.classList.remove('incorrect');
         answerInput.disabled = true; 
         nextButton.textContent = "下一張"; 
-        
-        // 答對時，在輸入框顯示「正確」的原始答案
         answerInput.value = currentCorrectAnswer; 
-        
-        flipCard(); // 自動翻開卡片
+        flipCard(); 
     } else {
-        // --- 答錯了 ---
         answerInput.classList.add('incorrect');
         answerInput.classList.remove('correct');
         answerInput.classList.add('shake');
