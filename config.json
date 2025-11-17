@@ -16,6 +16,7 @@
           { "label": "詞性", "key": "type" }
         ]
       },
+      {
       "quiz": {
         "enabled": true,
         "q_field": "definition",
