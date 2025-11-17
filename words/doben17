@@ -1,11 +1,33 @@
 [
-  {
-    "kanji": "A1",
-    "definition": "A2"
-  },
-  {
-    "kanji": "B1",
-    "definition": "B2"
-  }
+ {
+  "kanji": "愛",
+  "definition": "愛",
+  "hiragana": "あい",
+  "pitch": 1,
+  "type": "名詞"
+ },
+ {
+  "kanji": "愛情",
+  "definition": "愛情",
+  "hiragana": "あい.じょう",
+  "pitch": 0,
+  "type": "名詞"
+ },
+ {
+  "kanji": "合図",
+  "definition": "信號、標誌",
+  "hiragana": "あい.ず",
+  "pitch": 1,
+  "type": "名詞／自動三"
+ },
+ {
+  "kanji": "アイスクリーム",
+  "definition": "冰淇淋",
+  "hiragana": "無",
+  "pitch": 5,
+  "type": "名詞"
+ }
 ]
-       
+
+
+
