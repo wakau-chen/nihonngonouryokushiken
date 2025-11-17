@@ -10,12 +10,21 @@ let vocabulary = [];
 let currentCardIndex = 0; 
 let currentCorrectAnswer = ""; 
 let currentMode = 'review'; 
-
-// 滑動偵測變數
 let touchStartX = 0;
 let touchStartY = 0;
 
-// --- 1. 非同步讀取 JSON 檔案 (不變) ---
+// --- ⭐️ 1. 新增：正規化字串的輔助函式 ⭐️ ---
+// 這個函式會移除所有用於比較的干擾字元
+function normalizeString(str) {
+    if (!str) return "";
+    return str
+        .replace(/・/g, '') // 移除 日文中間點 (・)
+        .replace(/\./g, '') // 移除 英文句點 (.)
+        .replace(/\s/g, ''); // 移除 所有空白 (包含全形/半形)
+}
+// ---------------------------------
+
+// --- 2. 非同步讀取 JSON 檔案 (不變) ---
 async function loadVocabulary() {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -46,12 +55,11 @@ async function loadVocabulary() {
 }
 // ---------------------------------
 
-// --- 2. 設置主要功能 (修改) ---
+// --- 3. 設置主要功能 (不變) ---
 function setupApp() {
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
 
-    // 綁定滑動手勢
     const cardContainer = document.querySelector('.flashcard-container');
     if (cardContainer) {
         cardContainer.addEventListener('touchstart', handleTouchStart, false);
@@ -59,7 +67,6 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // 根據模式決定 UI
     if (currentMode === 'quiz') {
         if(quizInputArea) quizInputArea.style.display = 'block'; 
         answerInput.addEventListener('keypress', handleEnterKey);
@@ -67,29 +74,18 @@ function setupApp() {
         if(quizInputArea) quizInputArea.style.display = 'none'; 
     }
     
-    // ⭐️ 注意： loadNextCard() 現在是 async，但 setupApp 
-    // 不需要 'await' 它，讓它在背景載入即可。
     loadNextCard();
 }
 
-// --- 3. 顯示新卡片 (⭐️ 這是修改的重點 ⭐️) ---
-// 1. 函式必須宣告為 "async"
+// --- 4. 顯示新卡片 (⭐️ 修改 ⭐️) ---
 async function loadNextCard() {
-    
-    // 2. 檢查卡片是否已經是翻開的
+    // (修復閃爍的邏輯 - 不變)
     if (flashcard.classList.contains('is-flipped')) {
-        // 如果是，先命令它翻回去
         flashcard.classList.remove('is-flipped');
-        
-        // 3. 關鍵：等待 0.6 秒 (600ms) 讓動畫跑完
-        // (我們用 610ms 確保動畫 100% 結束)
         await new Promise(resolve => setTimeout(resolve, 610));
     }
     
-    // 4. 到了這裡，卡片 100% 是在正面，
-    //    現在我們可以"安全地"更新內容了。
-    
-    // (原有的抽卡邏輯)
+    // (抽卡邏輯 - 不變)
     const oldIndex = currentCardIndex;
     if (vocabulary.length <= 1) {
         currentCardIndex = 0;
@@ -100,14 +96,16 @@ async function loadNextCard() {
     }
     
     const card = vocabulary[currentCardIndex];
-    
-    // (原有的更新內容邏輯)
     cardFront.textContent = card.front;
     
     const backString = card.back || ""; 
     const parts = backString.split('|');
+    
+    // ⭐️ 關鍵：儲存正確答案時，只 trim()，不正規化
+    // 我們保留原始答案，正規化只在 "比較" 時才做
     currentCorrectAnswer = parts[1] ? parts[1].trim() : (parts[0] ? parts[0].trim() : "");
     
+    // (組合 HTML 邏輯 - 不變)
     let pronunciationHtml = '';
     if (parts[1]) { 
         pronunciationHtml += parts[1];
@@ -128,7 +126,7 @@ async function loadNextCard() {
     }
     cardBack.innerHTML = backHtml;
     
-    // 5. 重設 UI (注意：.remove('is-flipped') 已在函式最上方)
+    // (重設 UI 邏輯 - 不變)
     if (currentMode === 'quiz') {
         answerInput.value = ""; 
         answerInput.disabled = false; 
@@ -140,22 +138,38 @@ async function loadNextCard() {
     }
 }
 
-// --- 4. 檢查答案 (不變) ---
+// --- 5. 檢查答案 (⭐️ 這是修改的重點 ⭐️) ---
 function checkAnswer() {
-    const userInput = answerInput.value.trim();
-    if (!userInput) {
+    // 1. 取得使用者輸入
+    const userInputRaw = answerInput.value.trim();
+
+    if (!userInputRaw) {
         answerInput.classList.add('shake');
         setTimeout(() => answerInput.classList.remove('shake'), 500);
         return;
     }
 
-    if (userInput === currentCorrectAnswer) {
+    // 2. ⭐️ 比較「正規化」後的答案 ⭐️
+    // "あいて" 會變成 "あいて"
+    const normalizedInput = normalizeString(userInputRaw);
+    // "あい・て" 也會變成 "あいて"
+    const normalizedAnswer = normalizeString(currentCorrectAnswer);
+
+    // 3. 比較
+    if (normalizedInput === normalizedAnswer) {
+        // --- 答對了 ---
         answerInput.classList.add('correct');
         answerInput.classList.remove('incorrect');
         answerInput.disabled = true; 
         nextButton.textContent = "下一張"; 
+        
+        // ⭐️ 答對時，在輸入框顯示「正確」的原始答案 (包含・)
+        // 這樣使用者就知道這個字原來是有點的
+        answerInput.value = currentCorrectAnswer; 
+        
         flipCard(); 
     } else {
+        // --- 答錯了 ---
         answerInput.classList.add('incorrect');
         answerInput.classList.remove('correct');
         answerInput.classList.add('shake');
@@ -163,10 +177,8 @@ function checkAnswer() {
     }
 }
 
-// --- 5. 處理按鈕點擊 (不變) ---
+// --- 6. 處理按鈕點擊 (不變) ---
 function handleButtonPress() {
-    // JS 會自動處理 async 函式，
-    // 這裡不需要做任何改變
     if (currentMode === 'quiz') {
         const buttonState = nextButton.textContent;
         if (buttonState === "檢查答案") {
@@ -179,7 +191,7 @@ function handleButtonPress() {
     }
 }
 
-// --- 6. 處理 Enter 鍵 (不變) ---
+// --- 7. 處理 Enter 鍵 (不變) ---
 function handleEnterKey(event) {
     if (currentMode === 'quiz' && event.key === 'Enter') {
         event.preventDefault();
@@ -187,53 +199,39 @@ function handleEnterKey(event) {
     }
 }
 
-// --- 7. 翻轉卡片 (不變) ---
+// --- 8. 翻轉卡片 (不變) ---
 function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// --- 8. 滑動手勢處理 (不變) ---
-
+// --- 9. 滑動手勢處理 (不變) ---
 function handleTouchStart(event) {
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
 }
-
 function handleTouchMove(event) {
     let diffX = Math.abs(event.changedTouches[0].screenX - touchStartX);
     let diffY = Math.abs(event.changedTouches[0].screenY - touchStartY);
-
     if (diffX > diffY) {
         event.preventDefault();
     }
 }
-
 function handleTouchEnd(event) {
     let touchEndX = event.changedTouches[0].screenX;
     let touchEndY = event.changedTouches[0].screenY;
-
     let swipeDistanceX = touchStartX - touchEndX; 
     let swipeDistanceY = touchStartY - touchEndY; 
-    
     const minSwipeThreshold = 50; 
-
     if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
         if (swipeDistanceX > 0) {
-            triggerNextCardAction(); // 向左滑
-        } else {
-            // (向右滑)
+            triggerNextCardAction(); 
         }
     }
-    
     touchStartX = 0;
     touchStartY = 0;
 }
-
-// (滑動的安全檢查)
 function triggerNextCardAction() {
     if (currentMode === 'review' || (currentMode === 'quiz' && nextButton.textContent === "下一張")) {
-        // 這裡也不需要 'await'，
-        // 讓 loadNextCard 自己去執行異步操作
         loadNextCard();
     }
 }
