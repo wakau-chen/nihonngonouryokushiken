@@ -6,7 +6,7 @@ const nextButton = document.getElementById('next-button');
 const answerInput = document.getElementById('answer-input');
 const quizInputArea = document.getElementById('quiz-input-section'); 
 
-// 全局變數 (不變)
+// 全局變數
 let QUESTION_FIELD = '';
 let ANSWER_FIELD = '';
 let BACK_CARD_FIELDS = [];
@@ -17,7 +17,7 @@ let currentMode = 'review';
 let touchStartX = 0;
 let touchStartY = 0;
 
-// 輔助函式：正規化字串 (不變)
+// 輔助函式：正規化字串
 function normalizeString(str) {
     if (typeof str !== 'string') str = String(str);
     if (!str) return "";
@@ -72,13 +72,11 @@ async function loadVocabulary() {
 }
 // ---------------------------------
 
-// --- 3. ⭐️ 設置主要功能 (已修改) ⭐️ ---
+// --- 3. 設置主要功能 (您修改的版本) ---
 function setupApp() {
-    // 綁定點擊事件
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
 
-    // 綁定滑動手勢 (不變)
     const cardContainer = document.querySelector('.flashcard-container');
     if (cardContainer) {
         cardContainer.addEventListener('touchstart', handleTouchStart, false);
@@ -86,14 +84,10 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ 關鍵：新增「全局 Enter 鍵」監聽
-    // 我們不再只監聽 input，而是監聽整個頁面
     document.addEventListener('keydown', handleGlobalKey);
     
-    // 根據模式決定 UI (不變)
     if (currentMode === 'quiz') {
         if(quizInputArea) quizInputArea.style.display = 'block'; 
-        // ⭐️ (移除 answerInput.addEventListener)
         const answerLabelData = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD);
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
@@ -104,7 +98,7 @@ function setupApp() {
     loadNextCard();
 }
 
-// --- 4. ⭐️ 顯示新卡片 (已修改) ⭐️ ---
+// --- 4. 顯示新卡片 (您修改的版本) ---
 async function loadNextCard() {
     if (flashcard.classList.contains('is-flipped')) {
         flashcard.classList.remove('is-flipped');
@@ -142,20 +136,18 @@ async function loadNextCard() {
     }
     cardBack.innerHTML = backHtml;
     
-    // ⭐️ 關鍵：重設兩種模式的按鈕文字
     if (currentMode === 'quiz') {
         answerInput.value = ""; 
         answerInput.disabled = false; 
         answerInput.classList.remove('correct', 'incorrect');
-        nextButton.textContent = "檢查答案"; // 測驗模式永遠從「檢查答案」開始
+        nextButton.textContent = "檢查答案"; 
         if (answerInput) answerInput.focus(); 
     } else {
-        nextButton.textContent = "顯示答案"; // ⭐️ 複習模式永遠從「顯示答案」開始
+        nextButton.textContent = "顯示答案"; // ⭐️ 您的新邏輯
     }
 }
 
 // --- 5. 檢查答案 (不變) ---
-// (此函式在答對時會自動將按鈕設為 "下一張")
 function checkAnswer() {
     const userInputRaw = answerInput.value.trim();
     if (!userInputRaw) {
@@ -171,7 +163,7 @@ function checkAnswer() {
         answerInput.classList.add('correct');
         answerInput.classList.remove('incorrect');
         answerInput.disabled = true; 
-        nextButton.textContent = "下一張"; // ⭐️ 答對時變 "下一張"
+        nextButton.textContent = "下一張"; 
         answerInput.value = currentCorrectAnswer; 
         flipCard(); 
     } else {
@@ -182,40 +174,30 @@ function checkAnswer() {
     }
 }
 
-// --- 6. ⭐️ 處理按鈕點擊 (已重寫) ⭐️ ---
+// --- 6. 處理按鈕點擊 (您修改的版本) ---
 function handleButtonPress() {
     const buttonState = nextButton.textContent;
 
     if (currentMode === 'quiz') {
-        // --- 測驗模式 ---
         if (buttonState === "檢查答案") {
             checkAnswer();
-        } else { // (buttonState === "下一張")
+        } else { 
             loadNextCard();
         }
     } else {
-        // --- 複習模式 ---
         if (buttonState === "顯示答案") {
             flipCard();
-            nextButton.textContent = "下一張"; // ⭐️ 翻面後，按鈕變 "下一張"
-        } else { // (buttonState === "下一張")
-            loadNextCard(); // ⭐️ 載入新卡 (loadNextCard 會自動把按鈕改回 "顯示答案")
+            nextButton.textContent = "下一張"; 
+        } else { 
+            loadNextCard(); 
         }
     }
 }
 
-// --- 7. ⭐️ 處理 Enter 鍵 (已重寫) ⭐️ ---
-// (舊的 handleEnterKey 已被刪除)
+// --- 7. 處理 Enter 鍵 (您修改的版本) ---
 function handleGlobalKey(event) {
-    // 1. 只有 "Enter" 鍵才觸發
     if (event.key !== 'Enter') return;
-    
-    // 2. 阻止 Enter 鍵的預設行為 (例如點擊到按鈕造成重複觸發)
     event.preventDefault();
-    
-    // 3. ⭐️ 統一呼叫 handleButtonPress()
-    // handleButtonPress() 函式會根據 "currentMode" 和 "按鈕文字" 
-    // 來決定該做什麼事，完美符合您的需求。
     handleButtonPress();
 }
 
@@ -250,11 +232,14 @@ function handleTouchEnd(event) {
     touchStartX = 0;
     touchStartY = 0;
 }
+
+// --- ⭐️ 10. 觸發滑動 (已修正) ⭐️ ---
 function triggerNextCardAction() {
-    if (currentMode === 'review' || (currentMode === 'quiz' && nextButton.textContent === "下一張")) {
-        loadNextCard();
-    }
+    // ⭐️ 關鍵：不要自己判斷邏輯，
+    // 讓「滑動」去執行跟「按鈕」完全一樣的操作。
+    handleButtonPress();
 }
+
 
 // --- 啟動程式 ---
 loadVocabulary();
