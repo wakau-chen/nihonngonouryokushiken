@@ -1,10 +1,11 @@
 [
   {
-    "japanese": "A1",
-    "chinese": "A2"
+    "kanji": "A1",
+    "definition": "A2"
   },
   {
-    "japanese": "B1",
-    "chinese": "B2"
+    "kanji": "B1",
+    "definition": "B2"
   }
 ]
+       
