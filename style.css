@@ -1,75 +1,40 @@
-/* 基本頁面樣式 */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+/* --- 卡片背面的新樣式 ( | 分隔) --- */
+
+/* 讓卡片背面的內容靠左對齊，而不是置中 */
+.card-back {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f4f7f6;
-    color: #333;
-    text-align: center;
+    justify-content: center; /* 垂直置中 */
+    align-items: flex-start;  /* 水平靠左 */
+    padding: 20px; /* 增加一些內邊距 */
+    box-sizing: border-box; /* 確保 padding 不會讓卡片變大 */
+    text-align: left;
 }
 
-/* 卡片容器，用於 3D 翻轉效果 */
-.flashcard-container {
-    perspective: 1000px;
-    margin: 20px;
+/* 第 1 部分 (主要意思) */
+.card-back .back-definition {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
 }
 
-/* 卡片本體 */
-.flashcard {
-    width: 300px;
-    height: 200px;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-radius: 10px;
+/* 第 2 部分 (詞性) */
+.card-back .back-type {
+    font-size: 18px;
+    font-style: italic;
+    color: #cceeff; /* 淺藍色 */
+    margin-bottom: 15px;
 }
 
-/* 卡片的正面和反面 */
-.card-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden; /* 隱藏翻轉時的背面 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    border-radius: 10px;
-}
-
-.card-front {
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-}
-
-.card-back {
-    background-color: #4a90e2;
-    color: white;
-    transform: rotateY(180deg); /* 預先翻轉180度 */
-}
-
-/* 當卡片被點擊時，執行的翻轉動畫 */
-.flashcard.is-flipped {
-    transform: rotateY(180deg);
-}
-
-/* 按鈕樣式 */
-button {
-    padding: 10px 20px;
+/* 第 3 部分 (等級) */
+.card-back .back-level {
     font-size: 16px;
-    background-color: #50b3a2;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #409182;
+    color: #ffffff;
+    background-color: rgba(0,0,0,0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    position: absolute; /* 把它放到右上角 */
+    top: 15px;
+    right: 15px;
 }
