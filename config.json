@@ -5,18 +5,16 @@
       "id": "N3",
       "name": "N3 單字庫",
       "enabled": true,
-      
       "review": {
         "enabled": true,
         "q_field": "kanji",
         "back_fields": [
           { "label": "意思", "key": "definition" },
           { "label": "平假名", "key": "hiragana" },
-          { "label": "音調", "key": "pitch" },          
+          { "label": "音調", "key": "pitch" },
           { "label": "詞性", "key": "type" }
         ]
       },
-      {
       "quiz": {
         "enabled": true,
         "q_field": "definition",
@@ -28,23 +26,33 @@
           { "label": "意思", "key": "definition" },
           { "label": "詞性", "key": "type" }
         ]
-      },
-      {
+      }
+    },
+    {
       "id": "N2",
       "name": "N2 單字庫",
       "enabled": true,
-      "modes": {
-        "review": true,
-        "quiz": false
+      "review": {
+        "enabled": true,
+        "q_field": "hiragana",
+        "back_fields": [
+          { "label": "意思", "key": "definition" },
+          { "label": "漢字", "key": "kanji" },
+          { "label": "詞性", "key": "type" },
+          { "label": "平假名", "key": "hiragana" }
+        ]
       },
-      "q_field": "hiragana",
-      "a_field": "definition",
-      "back_fields": [
-        { "label": "意思", "key": "definition" },
-        { "label": "漢字", "key": "kanji" },
-        { "label": "詞性", "key": "type" },
-        { "label": "平假名", "key": "hiragana" }
-      ]
+      "quiz": {
+        "enabled": false,
+        "q_field": "hiragana",
+        "a_field": "definition",
+        "back_fields": [
+          { "label": "意思", "key": "definition" },
+          { "label": "漢字", "key": "kanji" },
+          { "label": "詞性", "key": "type" },
+          { "label": "平假名", "key": "hiragana" }
+        ]
+      }
     }
   ]
 }
