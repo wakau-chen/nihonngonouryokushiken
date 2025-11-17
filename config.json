@@ -30,11 +30,11 @@
       "mcq": {
         "enabled": true,
         "q_field": "kanji",
-        "a_field": "hiragana",
+        "a_field": "definition",
         "back_fields": [
+          { "label": "意思", "key": "definition" },
           { "label": "平假名", "key": "hiragana" },
           { "label": "音調", "key": "pitch" },
-          { "label": "意思", "key": "definition" },
           { "label": "詞性", "key": "type" },
           { "label": "漢字", "key": "kanji" }
         ]
