@@ -30,15 +30,16 @@
     },
     {
       "id": "doben17",
-      "name": "讀本17課課文",
+      "name": "讀本課文17課",
       "enabled": true,
       "review": {
         "enabled": true,
-        "q_field": "definition",
+        "q_field": "hiragana",
         "back_fields": [
           { "label": "意思", "key": "definition" },
           { "label": "漢字", "key": "kanji" },
-
+          { "label": "詞性", "key": "type" },
+          { "label": "平假名", "key": "hiragana" }
         ]
       },
       "quiz": {
