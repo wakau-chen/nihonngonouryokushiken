@@ -166,3 +166,22 @@ button#next-button:hover {
     font-style: italic;
     color: #eeeeee;
 }
+
+/* --- ⭐️ 5. 新增的「返回主頁面」按鈕樣式 ⭐️ --- */
+.home-button {
+    display: inline-block; /* 允許 padding 和 margin */
+    margin-bottom: 15px; /* 和下方卡片的間距 */
+    padding: 8px 15px;
+    background-color: #f0f0f0; /* 淺灰色 */
+    color: #555; /* 深灰色文字 */
+    text-decoration: none;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.home-button:hover {
+    background-color: #e0e0e0; /* 滑過時變深 */
+    color: #222;
+}
