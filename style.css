@@ -12,7 +12,7 @@ body {
 }
 h1 { color: #444; }
 
-/* --- 2. 首頁 (index.html) 樣式 --- */
+/* --- 2. ⭐️ 首頁 (index.html) 樣式 (已升級) ⭐️ --- */
 .homepage-container {
     width: 90%;
     max-width: 600px;
@@ -26,12 +26,13 @@ h1 { color: #444; }
 .homepage-container h1 {
     font-size: 24px;
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 .list-options {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    margin-top: 25px; /* ⭐️ 為勾選框留出空間 */
 }
 .list-item {
     background-color: #fafafa;
@@ -45,7 +46,7 @@ h1 { color: #444; }
 }
 .button-group {
     display: flex;
-    flex-direction: column; /* ⭐️ 讓按鈕垂直排列 */
+    flex-direction: column; 
     gap: 10px;
 }
 .option-button {
@@ -57,33 +58,150 @@ h1 { color: #444; }
     text-decoration: none;
     border-radius: 8px;
     transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
 }
 .option-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-.option-button.review-mode {
-    background-color: #4a90e2; /* 藍色 */
-}
+/* (按鈕顏色 - 不變) */
+.option-button.review-mode { background-color: #4a90e2; }
 .option-button.review-mode:hover { background-color: #3f7bbf; }
-.option-button.quiz-mode {
-    background-color: #50b3a2; /* 綠色 */
-}
+.option-button.quiz-mode { background-color: #50b3a2; }
 .option-button.quiz-mode:hover { background-color: #409182; }
-
-/* ⭐️ 1. 新增：MCQ 按鈕樣式 (紫色) */
-.option-button.mcq-mode {
-    background-color: #8e44ad;
-}
+.option-button.mcq-mode { background-color: #8e44ad; }
 .option-button.mcq-mode:hover { background-color: #732d91; }
 
+/* ⭐️ 2b. 新增：考試模式勾選框 (首頁) ⭐️ */
+.exam-toggle-container {
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px 20px;
+    text-align: left;
+}
+.exam-toggle-container label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+.exam-toggle-container input[type="checkbox"] {
+    display: none; /* 隱藏預設勾選框 */
+}
+.exam-toggle-container .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background-color: #ccc;
+    border-radius: 11px;
+    transition: background-color 0.3s;
+    margin-right: 12px;
+}
+.exam-toggle-container .toggle-switch::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: white;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+.exam-toggle-container input:checked + label .toggle-switch {
+    background-color: #50b3a2; /* 綠色 */
+}
+.exam-toggle-container input:checked + label .toggle-switch::before {
+    transform: translateX(18px);
+}
+.exam-toggle-container p {
+    font-size: 12px;
+    color: #888;
+    margin: 5px 0 0 52px; /* 對齊文字 */
+}
 
-/* --- 3. 測驗頁 (quiz.html) 樣式 --- */
 
-/* 返回主頁面按鈕 */
+/* --- 3. ⭐️ 測驗設定區 (quiz.html) ⭐️ --- */
+#quiz-setup-area {
+    display: none; /* 預設隱藏 */
+    width: 90%;
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+}
+#quiz-setup-area h1 {
+    font-size: 22px;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+.mode-container {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+.mode-container h3 {
+    margin-top: 0;
+}
+.mode-container p {
+    font-size: 14px;
+    color: #666;
+}
+.exam-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+.exam-options label {
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* --- 4. ⭐️ 測驗主體區 (quiz.html) ⭐️ --- */
+#quiz-main-area {
+    display: none; /* 預設隱藏 */
+    width: 100%;
+    max-width: 500px; 
+    /* ⭐️ 關鍵：改回 flex，才能顯示 */
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ⭐️ 新增：考試進度條 */
+#exam-progress-bar {
+    display: none; /* 預設隱藏 */
+    width: 100%;
+    max-width: 320px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    /* ⭐️ 改回 flex，才能正常顯示 */
+    display: none;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* (返回按鈕) */
 .home-button {
     display: inline-block;
-    margin-bottom: 15px;
+    margin-top: 15px; 
     padding: 8px 15px;
     background-color: #f0f0f0;
     color: #555;
@@ -95,11 +213,8 @@ h1 { color: #444; }
 }
 .home-button:hover { background-color: #e0e0e0; }
 
-/* 翻轉卡片 (自動高度) */
-.flashcard-container { 
-    perspective: 1000px; 
-    margin: 20px; 
-}
+/* (翻轉卡片樣式 - 不變) */
+.flashcard-container { perspective: 1000px; margin: 20px; }
 .flashcard {
     width: 320px;
     min-height: 220px;
@@ -141,7 +256,7 @@ h1 { color: #444; }
     transform: rotateY(180deg);
 }
 
-/* 下一張按鈕 */
+/* (下一張按鈕 - 不變) */
 button#next-button {
     padding: 10px 20px;
     font-size: 16px;
@@ -155,14 +270,12 @@ button#next-button {
     min-width: 120px; 
 }
 button#next-button:hover { background-color: #409182; }
-/* ⭐️ 按鈕禁用時的樣式 */
 button#next-button:disabled {
     background-color: #9e9e9e;
     cursor: not-allowed;
 }
 
-
-/* --- 4. 卡片背面 (新版) 樣式 --- */
+/* --- 5. ⭐️ 卡片背面 (新版) 樣式 (不變) ⭐️ --- */
 .card-back {
     display: flex;
     flex-direction: column;
@@ -195,7 +308,7 @@ button#next-button:disabled {
     font-size: 20px;
 }
 
-/* --- 5. 測驗輸入框樣式 --- */
+/* --- 6. ⭐️ 測驗 UI (MCQ, 輸入框) (不變) ⭐️ --- */
 .quiz-input-section {
     display: none; 
     width: 100%;
@@ -217,8 +330,6 @@ button#next-button:disabled {
     box-shadow: 0 0 8px rgba(74,144,226,0.3);
     outline: none;
 }
-
-/* --- 6. 對錯反饋樣式 (輸入框) --- */
 #answer-input.correct {
     background-color: #e6ffed;
     border-color: #50b3a2;
@@ -233,19 +344,15 @@ button#next-button:disabled {
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 .shake { animation: shake 0.5s ease-in-out; }
-
-/* --- ⭐️ 7. 新增：MCQ 選擇題樣式 ⭐️ --- */
 .mcq-options-section {
-    display: none; /* 預設隱藏 */
+    display: none; 
     width: 100%;
-    max-width: 320px; /* 跟卡片一樣寬 */
+    max-width: 320px; 
     margin: 15px 0;
-    /* ⭐️ 2x2 網格佈局 */
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
-
 button.mcq-option {
     width: 100%;
     min-height: 60px;
@@ -258,29 +365,53 @@ button.mcq-option {
     cursor: pointer;
     transition: all 0.2s ease;
 }
-
 button.mcq-option:hover:not(:disabled) {
     border-color: #4a90e2;
     background-color: #f7faff;
 }
-
 button.mcq-option:disabled {
     cursor: not-allowed;
     opacity: 0.7;
 }
-
-/* 答對的選項 */
 button.mcq-option.correct {
     background-color: #e6ffed;
     border-color: #50b3a2;
     color: #2e7d32;
     font-weight: bold;
 }
-
-/* 答錯的選項 */
 button.mcq-option.incorrect {
     background-color: #ffe6e6;
     border-color: #e57373;
     color: #c62828;
-    opacity: 1; /* 答錯時也要看清楚 */
+    opacity: 1; 
+}
+
+/* --- 7. ⭐️ 新增：考試結果區 ⭐️ --- */
+#exam-results-area {
+    display: none; /* 預設隱藏 */
+    width: 90%;
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+}
+.results-summary h2 {
+    font-size: 28px;
+    margin-top: 0;
+}
+.results-summary .final-score {
+    font-size: 64px;
+    font-weight: bold;
+    color: #4a90e2;
+    margin: 20px 0;
+}
+.results-summary p {
+    font-size: 18px;
+    color: #333;
+}
+#exam-results-area .option-button {
+    margin-top: 20px;
 }
