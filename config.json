@@ -36,11 +36,12 @@
       
       "review": {
         "enabled": true,
-        "q_field": "japanese",
-        "a_field": "chinese",
+        "q_field": "definition",
+        "a_field": "kanji",
         "back_fields": [
-          { "label": "日文", "key": "japanese" },
-          { "label": "中文", "key": "chinese" }
+          { "label": "日文", "key": "kanji" },          
+          { "label": "意思", "key": "definition" },
+        
         ]
       },
       "quiz": {
