@@ -11,7 +11,7 @@ let currentCardIndex = 0;
 let currentCorrectAnswer = ""; 
 let currentMode = 'review'; 
 
-// ⭐️ 新增：滑動偵測變數
+// 滑動偵測變數
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -48,15 +48,12 @@ async function loadVocabulary() {
 
 // --- 2. 設置主要功能 (修改) ---
 function setupApp() {
-    // 綁定點擊事件
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
 
-    // ⭐️ 新增：綁定滑動手勢到「卡片容器」
-    // (我們綁定到 .flashcard-container 而不是卡片本身，以獲得更好的體驗)
+    // 綁定滑動手勢
     const cardContainer = document.querySelector('.flashcard-container');
     if (cardContainer) {
-        // 'false' 參數是為了確保 'passive' 事件監聽
         cardContainer.addEventListener('touchstart', handleTouchStart, false);
         cardContainer.addEventListener('touchmove', handleTouchMove, false);
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
@@ -70,12 +67,29 @@ function setupApp() {
         if(quizInputArea) quizInputArea.style.display = 'none'; 
     }
     
+    // ⭐️ 注意： loadNextCard() 現在是 async，但 setupApp 
+    // 不需要 'await' 它，讓它在背景載入即可。
     loadNextCard();
 }
 
-// --- 3. 顯示新卡片 (不變) ---
-function loadNextCard() {
-    // (這整個函式的內部邏輯都沒有改變)
+// --- 3. 顯示新卡片 (⭐️ 這是修改的重點 ⭐️) ---
+// 1. 函式必須宣告為 "async"
+async function loadNextCard() {
+    
+    // 2. 檢查卡片是否已經是翻開的
+    if (flashcard.classList.contains('is-flipped')) {
+        // 如果是，先命令它翻回去
+        flashcard.classList.remove('is-flipped');
+        
+        // 3. 關鍵：等待 0.6 秒 (600ms) 讓動畫跑完
+        // (我們用 610ms 確保動畫 100% 結束)
+        await new Promise(resolve => setTimeout(resolve, 610));
+    }
+    
+    // 4. 到了這裡，卡片 100% 是在正面，
+    //    現在我們可以"安全地"更新內容了。
+    
+    // (原有的抽卡邏輯)
     const oldIndex = currentCardIndex;
     if (vocabulary.length <= 1) {
         currentCardIndex = 0;
@@ -86,6 +100,8 @@ function loadNextCard() {
     }
     
     const card = vocabulary[currentCardIndex];
+    
+    // (原有的更新內容邏輯)
     cardFront.textContent = card.front;
     
     const backString = card.back || ""; 
@@ -112,8 +128,7 @@ function loadNextCard() {
     }
     cardBack.innerHTML = backHtml;
     
-    flashcard.classList.remove('is-flipped'); 
-    
+    // 5. 重設 UI (注意：.remove('is-flipped') 已在函式最上方)
     if (currentMode === 'quiz') {
         answerInput.value = ""; 
         answerInput.disabled = false; 
@@ -150,6 +165,8 @@ function checkAnswer() {
 
 // --- 5. 處理按鈕點擊 (不變) ---
 function handleButtonPress() {
+    // JS 會自動處理 async 函式，
+    // 這裡不需要做任何改變
     if (currentMode === 'quiz') {
         const buttonState = nextButton.textContent;
         if (buttonState === "檢查答案") {
@@ -175,64 +192,51 @@ function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// --- ⭐️ 8. 新增：滑動手勢處理 ⭐️ ---
+// --- 8. 滑動手勢處理 (不變) ---
 
 function handleTouchStart(event) {
-    // 記錄滑動起始點的 X 和 Y 座標
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
 }
 
 function handleTouchMove(event) {
-    // 偵測是否為水平滑動
     let diffX = Math.abs(event.changedTouches[0].screenX - touchStartX);
     let diffY = Math.abs(event.changedTouches[0].screenY - touchStartY);
 
     if (diffX > diffY) {
-        // 如果是水平滑動，阻止瀏覽器預設的「左右滑動」行為 (例如返回上一頁)
         event.preventDefault();
     }
-    // 如果是垂直滑動 (diffY > diffX)，則不阻止，允許頁面正常上下滾動
 }
 
 function handleTouchEnd(event) {
     let touchEndX = event.changedTouches[0].screenX;
     let touchEndY = event.changedTouches[0].screenY;
 
-    let swipeDistanceX = touchStartX - touchEndX; // 水平滑動距離
-    let swipeDistanceY = touchStartY - touchEndY; // 垂直滑動距離
+    let swipeDistanceX = touchStartX - touchEndX; 
+    let swipeDistanceY = touchStartY - touchEndY; 
     
-    const minSwipeThreshold = 50; // 必須滑動超過 50px 才算數
+    const minSwipeThreshold = 50; 
 
-    // 1. 必須是「水平」滑動 (X 距離 > Y 距離)
-    // 2. 必須超過最小滑動距離
     if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
-        
-        // 判斷方向
         if (swipeDistanceX > 0) {
-            // --- SWIPE LEFT (向左滑：R -> L) ---
-            // 觸發「下一張」
-            triggerNextCardAction();
+            triggerNextCardAction(); // 向左滑
         } else {
-            // --- SWIPE RIGHT (向右滑：L -> R) ---
-            // (目前無功能，未來可以做「上一張」)
+            // (向右滑)
         }
     }
     
-    // 重設起始點
     touchStartX = 0;
     touchStartY = 0;
 }
 
-// ⭐️ 新增：滑動觸發的「下一張」安全檢查
+// (滑動的安全檢查)
 function triggerNextCardAction() {
-    // 只有在「複習模式」或「測驗模式且已答對」時，滑動才有效
     if (currentMode === 'review' || (currentMode === 'quiz' && nextButton.textContent === "下一張")) {
+        // 這裡也不需要 'await'，
+        // 讓 loadNextCard 自己去執行異步操作
         loadNextCard();
     }
-    // 如果是在測驗模式且尚未回答 (按鈕是"檢查答案")，滑動不會有任何反應
 }
-
 
 // --- 啟動程式 ---
 loadVocabulary();
