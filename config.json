@@ -36,7 +36,8 @@
       
       "review": {
         "enabled": true,
-        "q_field": "hiragana",
+        "q_field": "japanese",
+        "a_field": "chinese",
         "back_fields": [
           { "label": "日文", "key": "japanese" },
           { "label": "中文", "key": "chinese" }
@@ -44,8 +45,8 @@
       },
       "quiz": {
         "enabled": false,
-        "q_field": "definition",
-        "a_field": "hiragana",
+        "q_field": "japanese",
+        "a_field": "chinese",
         "back_fields": [
           { "label": "日文", "key": "japanese" },
           { "label": "中文", "key": "chinese" }
