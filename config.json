@@ -9,8 +9,8 @@
         "review": true,
         "quiz": true
       },
-      "q_field": "kanji",
-      "a_field": "hiragana",
+      "q_field": "definition",
+      "a_field": "kanji",
       "back_fields": [
         { "label": "平假名", "key": "hiragana" },
         { "label": "音調", "key": "pitch" },
