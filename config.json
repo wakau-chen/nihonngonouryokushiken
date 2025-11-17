@@ -1,0 +1,32 @@
+{
+  "siteTitle": "我的日文單字庫",
+  "lists": [
+    {
+      "id": "N3",
+      "name": "N3 單字庫",
+      "enabled": true,
+      "modes": {
+        "review": true,
+        "quiz": true
+      }
+    },
+    {
+      "id": "N2",
+      "name": "N2 單字庫",
+      "enabled": true,
+      "modes": {
+        "review": true,
+        "quiz": false
+      }
+    },
+    {
+      "id": "N1",
+      "name": "N1 (準備中)",
+      "enabled": false,
+      "modes": {
+        "review": false,
+        "quiz": false
+      }
+    }
+  ]
+}
