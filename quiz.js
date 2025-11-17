@@ -273,27 +273,51 @@ function triggerNextCardAction() {
     }
 }
 
-// --- ⭐️ 10. MCQ 相關函式 (已按照您的要求修改) ⭐️ ---
+// --- ⭐️ 10. MCQ 相關函式 (已改回「正式版」) ⭐️ ---
 
-// 產生 4 個選項 (全部都是正確答案，用於除錯)
+// 產生 4 個選項 (1 正確, 3 錯誤)
 function generateMcqOptions() {
     const correctAnswer = currentCorrectAnswer;
+    let distractors = [];
+    let options = [];
 
-    // ⭐️ 按照您的要求：建立一個 "全部是正確答案" 的陣列
-    let options = [
-        correctAnswer,
-        correctAnswer,
-        correctAnswer,
-        correctAnswer
-    ];
+    // 1. 決定我們要抽幾個錯誤答案
+    // (最多 3 個，但也不能超過 "總字數 - 1")
+    const numDistractorsToFind = Math.min(3, vocabulary.length - 1);
+    
+    // 2. 抽 3 個錯誤答案
+    let retries = 0;
+    const maxRetries = 20; // 防止無限迴圈
 
-    // 產生 HTML 按鈕
-    mcqOptionsArea.innerHTML = ''; // ⭐️ 這行就是之前報錯的地方
+    while (distractors.length < numDistractorsToFind && retries < maxRetries) {
+        retries++; 
+        
+        const randomIndex = Math.floor(Math.random() * vocabulary.length);
+        const randomWord = vocabulary[randomIndex];
+        
+        if (!randomWord[ANSWER_FIELD]) continue; 
+        const distractor = randomWord[ANSWER_FIELD];
+        
+        if (distractor === correctAnswer) continue; 
+        if (distractors.includes(distractor)) continue; 
+        
+        distractors.push(distractor);
+    }
+
+    // 3. 組合並隨機排序
+    options = [correctAnswer, ...distractors];
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    // 4. 產生 HTML 按鈕
+    mcqOptionsArea.innerHTML = ''; // 清空舊按鈕
     options.forEach(option => {
         const button = document.createElement('button');
         button.className = 'mcq-option';
         button.textContent = option;
-        button.dataset.answer = option; // 每個按鈕都是正確答案
+        button.dataset.answer = option; 
         button.addEventListener('click', handleMcqAnswer);
         mcqOptionsArea.appendChild(button);
     });
@@ -302,13 +326,26 @@ function generateMcqOptions() {
 // 處理 MCQ 選項的點擊
 function handleMcqAnswer(event) {
     const selectedButton = event.target;
+    const selectedAnswer = selectedButton.dataset.answer;
     
     // 1. 禁用所有選項按鈕
     const allButtons = mcqOptionsArea.querySelectorAll('button');
     allButtons.forEach(button => button.disabled = true);
 
-    // 2. ⭐️ 既然所有按鈕都是對的，我們一律標記為 "答對"
-    selectedButton.classList.add('correct');
+    // 2. 檢查答案
+    if (normalizeString(selectedAnswer) === normalizeString(currentCorrectAnswer)) {
+        // --- 答對了 ---
+        selectedButton.classList.add('correct');
+    } else {
+        // --- 答錯了 ---
+        selectedButton.classList.add('incorrect');
+        // 找出並標示正確答案
+        allButtons.forEach(button => {
+            if (normalizeString(button.dataset.answer) === normalizeString(currentCorrectAnswer)) {
+                button.classList.add('correct');
+            }
+        });
+    }
     
     // 3. 啟用「下一張」按鈕
     nextButton.disabled = false;
