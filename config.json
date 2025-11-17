@@ -13,7 +13,7 @@
     {
       "id": "N2",
       "name": "N2 單字庫",
-      "enabled": true,
+      "enabled": false,
       "modes": {
         "review": true,
         "quiz": false
