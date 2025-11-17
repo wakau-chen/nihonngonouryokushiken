@@ -21,7 +21,7 @@
         "q_field": "hiragana",
         "a_field": "kanji",
         "back_fields": [
-          { "label": "漢字", "key": "kanji" }
+          { "label": "漢字", "key": "kanji" },
           { "label": "平假名", "key": "hiragana" },
           { "label": "音調", "key": "pitch" },
           { "label": "意思", "key": "definition" },
