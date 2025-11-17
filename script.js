@@ -5,9 +5,9 @@ const cardBack = document.getElementById('card-back');
 const nextButton = document.getElementById('next-button');
 
 let vocabulary = []; // 宣告一個空的單字庫
-let currentCardIndex = 0; // 目前顯示的卡片索引
+let currentCardIndex = 0; // 目前顯示的卡片索引 (會被隨機數覆蓋)
 
-// --- 新增：非同步讀取 JSON 檔案 ---
+// --- 非同步讀取 JSON 檔案 ---
 async function loadVocabulary() {
     try {
         const response = await fetch('words.json'); // 讀取 'words.json'
@@ -31,7 +31,11 @@ async function loadVocabulary() {
 
 // 設置主要功能 (讀取到資料後才執行)
 function setupApp() {
-    showCard(); // 顯示第一張卡片
+    // --- 修改：不再從 0 開始，而是隨機選一張作為開始 ---
+    currentCardIndex = Math.floor(Math.random() * vocabulary.length);
+    
+    showCard(); // 顯示第一張(隨機的)卡片
+    
     // 綁定事件
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', nextCard);
@@ -54,12 +58,27 @@ function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// 顯示下一張卡片
+// --- 修改：顯示下一張隨機卡片 ---
 function nextCard() {
-    // 索引加 1，如果到底了就從 0 開始
-    currentCardIndex = (currentCardIndex + 1) % vocabulary.length;
+    // 如果單字總數小於等於1，無法隨機，直接返回
+    if (vocabulary.length <= 1) {
+        showCard();
+        return;
+    }
+
+    const oldIndex = currentCardIndex;
+    let newIndex;
+
+    // 使用 do...while 迴圈確保新抽到的 newIndex
+    // 絕對不會等於舊的 oldIndex
+    do {
+        newIndex = Math.floor(Math.random() * vocabulary.length);
+    } while (newIndex === oldIndex);
+
+    currentCardIndex = newIndex;
     showCard();
 }
+// ---------------------------------
 
 // --- 啟動程式 ---
 // 頁面載入時，自動開始讀取單字庫
