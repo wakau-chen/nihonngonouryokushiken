@@ -26,8 +26,8 @@
           { "label": "音調", "key": "pitch" },
           { "label": "意思", "key": "definition" },
           { "label": "詞性", "key": "type" }
-          
         ]
       }
     }
+  ]
 }
