@@ -31,7 +31,7 @@ async function loadConfig() {
 
             let buttonHtml = ''; 
 
-            // ⭐️ 檢查 "review" 物件是否存在且 "enabled": true
+            // 檢查 "review" 模式
             if (list.review && list.review.enabled) {
                 buttonHtml += `
                     <a href="quiz.html?list=${list.id}&mode=review" class="option-button review-mode">
@@ -40,7 +40,7 @@ async function loadConfig() {
                 `;
             }
 
-            // ⭐️ 檢查 "quiz" 物件是否存在且 "enabled": true
+            // 檢查 "quiz" 模式
             if (list.quiz && list.quiz.enabled) {
                 buttonHtml += `
                     <a href="quiz.html?list=${list.id}&mode=quiz" class="option-button quiz-mode">
@@ -48,6 +48,16 @@ async function loadConfig() {
                     </a>
                 `;
             }
+
+            // ⭐️ 檢查 "mcq" 模式
+            if (list.mcq && list.mcq.enabled) {
+                buttonHtml += `
+                    <a href="quiz.html?list=${list.id}&mode=mcq" class="option-button mcq-mode">
+                        選擇測驗
+                    </a>
+                `;
+            }
+
 
             if (buttonHtml === '') {
                 continue;
