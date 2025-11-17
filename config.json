@@ -29,36 +29,5 @@
           
         ]
       }
-    },
-    {
-      "id": "N2",
-      "name": "N2 單字庫",
-      "enabled": true,
-      
-      "review": {
-        "enabled": true,
-        "q_field": "hiragana",
-        "back_fields": [
-          { "label": "意思", "key": "definition" },
-          { "label": "漢字", "key": "kanji" }
-        ]
-      },
-      "quiz": {
-        "enabled": false,
-        "q_field": "definition",
-        "a_field": "hiragana",
-        "back_fields": [
-          { "label": "平假名", "key": "hiragana" },
-          { "label": "漢字", "key": "kanji" }
-        ]
-      }
-    },
-    {
-      "id": "N1",
-      "name": "N1 (準備中)",
-      "enabled": false,
-      "review": { "enabled": false },
-      "quiz": { "enabled": false }
     }
-  ]
 }
