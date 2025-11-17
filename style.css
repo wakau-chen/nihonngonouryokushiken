@@ -10,10 +10,7 @@ body {
     color: #333;
     text-align: center;
 }
-
-h1 {
-    color: #444;
-}
+h1 { color: #444; }
 
 /* --- 2. 首頁 (index.html) 樣式 --- */
 .homepage-container {
@@ -26,46 +23,72 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     text-align: center;
 }
-
 .homepage-container h1 {
     font-size: 24px;
     color: #333;
     margin-bottom: 30px;
 }
-
 .list-options {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* 按鈕之間的間距 */
+    gap: 15px;
 }
-
-.option-button {
-    display: block;
+.list-item {
+    background-color: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 8px;
     padding: 20px;
-    background-color: #4a90e2;
+}
+.list-item h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+.option-button {
+    flex: 1;
+    padding: 15px;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     text-decoration: none;
     border-radius: 8px;
     transition: all 0.3s ease;
 }
-
 .option-button:hover {
-    background-color: #3f7bbf;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+.option-button.review-mode {
+    background-color: #4a90e2; /* 藍色 */
+}
+.option-button.review-mode:hover { background-color: #3f7bbf; }
+.option-button.quiz-mode {
+    background-color: #50b3a2; /* 綠色 */
+}
+.option-button.quiz-mode:hover { background-color: #409182; }
 
 /* --- 3. 測驗頁 (quiz.html) 樣式 --- */
 
-/* 核心翻轉動畫：卡片容器 (控制 3D 視角) */
-.flashcard-container {
-    perspective: 1000px;
-    margin: 20px;
+/* 返回主頁面按鈕 */
+.home-button {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 8px 15px;
+    background-color: #f0f0f0;
+    color: #555;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
+.home-button:hover { background-color: #e0e0e0; }
 
-/* 核心翻轉動畫：卡片本體 */
+/* 翻轉卡片 */
+.flashcard-container { perspective: 1000px; margin: 20px; }
 .flashcard {
     width: 320px;
     height: 220px;
@@ -76,49 +99,37 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border-radius: 10px;
 }
-
-/* 核心翻轉動畫：卡片的正面和反面 (通用設定) */
 .card-face {
     position: absolute;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden; /* 關鍵：隱藏翻轉時的背面 */
+    backface-visibility: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 10px;
-    box-sizing: border-box; /* 確保 padding 不會讓卡片變大 */
+    box-sizing: border-box;
     padding: 20px;
 }
-
-/* 卡片正面樣式 */
 .card-front {
     background-color: #ffffff;
     border: 1px solid #ddd;
     font-size: 28px;
     font-weight: bold;
 }
-
-/* 卡片背面樣式 (結合了 3D 翻轉 + 內容排版) */
 .card-back {
     background-color: #4a90e2;
     color: white;
-    transform: rotateY(180deg); /* 關鍵：預先翻轉180度 */
-    
-    /* 內容排版 ( | 分隔) */
+    transform: rotateY(180deg);
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* 垂直靠上 */
-    align-items: flex-start;  /* 水平靠左 */
+    justify-content: flex-start;
+    align-items: flex-start;
     text-align: left;
 }
+.flashcard.is-flipped { transform: rotateY(180deg); }
 
-/* 核心翻轉動畫：被點擊時的狀態 */
-.flashcard.is-flipped {
-    transform: rotateY(180deg);
-}
-
-/* 測驗頁按鈕樣式 */
+/* 下一張按鈕 */
 button#next-button {
     padding: 10px 20px;
     font-size: 16px;
@@ -129,59 +140,70 @@ button#next-button {
     cursor: pointer;
     transition: background-color 0.3s;
     margin-top: 10px;
+    min-width: 120px; 
 }
-
-button#next-button:hover {
-    background-color: #409182;
-}
-
+button#next-button:hover { background-color: #409182; }
 
 /* --- 4. 卡片背面 ( | 分隔) 樣式 --- */
-
-/* 發音 + 音調 */
 .card-back .back-pronunciation {
     font-size: 20px;
-    color: #cceeff; /* 淺藍色 */
-    margin-bottom: 8px; /* 調整間距 */
+    color: #cceeff;
+    margin-bottom: 8px;
 }
-
-/* 音調數字的樣式 */
 .back-pronunciation .pitch-accent-number {
     font-weight: bold;
-    color: #fff; /* 用白色突顯 */
+    color: #fff;
     font-style: normal;
 }
-
-/* 主要意思 (漢字) */
 .card-back .back-definition {
     font-size: 28px;
     font-weight: bold;
     color: #ffffff;
     margin-bottom: 15px;
 }
-
-/* 詞性 */
 .card-back .back-type {
     font-size: 18px;
     font-style: italic;
     color: #eeeeee;
 }
 
-/* --- ⭐️ 5. 新增的「返回主頁面」按鈕樣式 ⭐️ --- */
-.home-button {
-    display: inline-block; /* 允許 padding 和 margin */
-    margin-bottom: 15px; /* 和下方卡片的間距 */
-    padding: 8px 15px;
-    background-color: #f0f0f0; /* 淺灰色 */
-    color: #555; /* 深灰色文字 */
-    text-decoration: none;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-    transition: all 0.2s ease;
+/* --- 5. 測驗輸入框樣式 --- */
+
+/* ⭐️ 關鍵：預設隱藏輸入框區塊 ⭐️ */
+.quiz-input-section {
+    display: none; /* JS 會在 quiz 模式下把它改成 'block' */
+    width: 100%;
+    max-width: 320px; 
+    margin: 15px 0;
+}
+#answer-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+#answer-input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 8px rgba(74,144,226,0.3);
+    outline: none;
 }
 
-.home-button:hover {
-    background-color: #e0e0e0; /* 滑過時變深 */
-    color: #222;
+/* --- 6. 對錯反饋樣式 --- */
+#answer-input.correct {
+    background-color: #e6ffed;
+    border-color: #50b3a2;
 }
+#answer-input.incorrect {
+    background-color: #ffe6e6;
+    border-color: #e57373;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+.shake { animation: shake 0.5s ease-in-out; }
