@@ -1,40 +1,125 @@
-/* --- 卡片背面的新樣式 ( | 分隔) --- */
-
-/* 讓卡片背面的內容靠左對齊，而不是置中 */
-.card-back {
+/* --- 基本頁面樣式 --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 垂直置中 */
-    align-items: flex-start;  /* 水平靠左 */
-    padding: 20px; /* 增加一些內邊距 */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    color: #333;
+    text-align: center;
+}
+
+h1 {
+    color: #444;
+}
+
+/* --- 核心翻轉動畫：卡片容器 (控制 3D 視角) --- */
+.flashcard-container {
+    perspective: 1000px;
+    margin: 20px;
+}
+
+/* --- 核心翻轉動畫：卡片本體 --- */
+.flashcard {
+    width: 320px;
+    height: 220px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+/* --- 核心翻轉動畫：卡片的正面和反面 (通用設定) --- */
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* 關鍵：隱藏翻轉時的背面 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
     box-sizing: border-box; /* 確保 padding 不會讓卡片變大 */
+    padding: 20px;
+}
+
+/* --- 卡片正面樣式 --- */
+.card-front {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* --- 卡片背面樣式 (結合了 3D 翻轉 + 內容排版) --- */
+.card-back {
+    background-color: #4a90e2;
+    color: white;
+    transform: rotateY(180deg); /* 關鍵：預先翻轉180度 */
+    
+    /* 內容排版 ( | 分隔) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 垂直靠上 */
+    align-items: flex-start;  /* 水平靠左 */
     text-align: left;
 }
 
-/* 第 1 部分 (主要意思) */
-.card-back .back-definition {
-    font-size: 26px;
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 10px;
+/* --- K核心翻轉動畫：被點擊時的狀態 --- */
+.flashcard.is-flipped {
+    transform: rotateY(180deg);
 }
 
-/* 第 2 部分 (詞性) */
-.card-back .back-type {
-    font-size: 18px;
-    font-style: italic;
+/* --- 按鈕樣式 --- */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #50b3a2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #409182;
+}
+
+/* --- 卡片背面的新樣式 ( | 分隔) --- */
+
+/* 發音 + 音調 */
+.card-back .back-pronunciation {
+    font-size: 20px;
     color: #cceeff; /* 淺藍色 */
+    margin-bottom: 8px; /* 調整間距 */
+}
+
+/* ⭐️ 新增：音調數字的樣式 */
+.back-pronunciation .pitch-accent-number {
+    font-weight: bold;
+    color: #fff; /* 用白色突顯 */
+    font-style: normal;
+}
+
+/* 主要意思 (漢字) */
+.card-back .back-definition {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffffff;
     margin-bottom: 15px;
 }
 
-/* 第 3 部分 (等級) */
-.card-back .back-level {
-    font-size: 16px;
-    color: #ffffff;
-    background-color: rgba(0,0,0,0.2);
-    padding: 2px 8px;
-    border-radius: 12px;
-    position: absolute; /* 把它放到右上角 */
-    top: 15px;
-    right: 15px;
+/* 詞性 */
+.card-back .back-type {
+    font-size: 18px;
+    font-style: italic;
+    color: #eeeeee;
 }
+
+/* ⭐️ 移除 .back-level 樣式 (因為已經合併) */
