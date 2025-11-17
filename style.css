@@ -1,0 +1,75 @@
+/* 基本頁面樣式 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    color: #333;
+    text-align: center;
+}
+
+/* 卡片容器，用於 3D 翻轉效果 */
+.flashcard-container {
+    perspective: 1000px;
+    margin: 20px;
+}
+
+/* 卡片本體 */
+.flashcard {
+    width: 300px;
+    height: 200px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+/* 卡片的正面和反面 */
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* 隱藏翻轉時的背面 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    border-radius: 10px;
+}
+
+.card-front {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+}
+
+.card-back {
+    background-color: #4a90e2;
+    color: white;
+    transform: rotateY(180deg); /* 預先翻轉180度 */
+}
+
+/* 當卡片被點擊時，執行的翻轉動畫 */
+.flashcard.is-flipped {
+    transform: rotateY(180deg);
+}
+
+/* 按鈕樣式 */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #50b3a2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #409182;
+}
