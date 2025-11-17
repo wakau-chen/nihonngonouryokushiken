@@ -30,7 +30,7 @@
       }
     },
     {
-      "id": "讀本17課課文",
+      "id": "doben17",
       "name": "讀本17課課文",
       "enabled": true,
       
@@ -39,8 +39,7 @@
         "q_field": "hiragana",
         "back_fields": [
           { "label": "日文", "key": "japanese" },
-          { "label": "中文", "key": "chinese
-            " }
+          { "label": "中文", "key": "chinese" }
         ]
       },
       "quiz": {
@@ -48,8 +47,8 @@
         "q_field": "definition",
         "a_field": "hiragana",
         "back_fields": [
-          { "label": "平假名", "key": "hiragana" },
-          { "label": "漢字", "key": "kanji" }
+          { "label": "日文", "key": "japanese" },
+          { "label": "中文", "key": "chinese" }
         ]
       }
     }
