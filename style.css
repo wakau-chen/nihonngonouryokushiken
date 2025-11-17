@@ -45,6 +45,7 @@ h1 { color: #444; }
 }
 .button-group {
     display: flex;
+    flex-direction: column; /* ⭐️ 讓按鈕垂直排列 */
     gap: 10px;
 }
 .option-button {
@@ -70,6 +71,13 @@ h1 { color: #444; }
 }
 .option-button.quiz-mode:hover { background-color: #409182; }
 
+/* ⭐️ 1. 新增：MCQ 按鈕樣式 (紫色) */
+.option-button.mcq-mode {
+    background-color: #8e44ad;
+}
+.option-button.mcq-mode:hover { background-color: #732d91; }
+
+
 /* --- 3. 測驗頁 (quiz.html) 樣式 --- */
 
 /* 返回主頁面按鈕 */
@@ -87,19 +95,16 @@ h1 { color: #444; }
 }
 .home-button:hover { background-color: #e0e0e0; }
 
-/* 翻轉卡片：容器 */
+/* 翻轉卡片 (自動高度) */
 .flashcard-container { 
     perspective: 1000px; 
     margin: 20px; 
 }
-
-/* ⭐️ 翻轉卡片：本體 (已修改為自動高度) ⭐️ */
 .flashcard {
     width: 320px;
-    min-height: 220px; /* ⭐️ 1. 從 'height' 改為 'min-height' */
-    height: auto; /* ⭐️ 2. 允許高度自動增長 */
-    display: grid; /* ⭐️ 3. 使用 Grid 佈局來堆疊正面和背面 */
-    
+    min-height: 220px;
+    height: auto;
+    display: grid;
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.6s;
@@ -107,16 +112,11 @@ h1 { color: #444; }
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border-radius: 10px;
 }
-/* ⭐️ 翻轉卡片：正面與背面的通用設定 (已修改) ⭐️ */
 .card-face {
-    /* ⭐️ 4. 移除 'position: absolute' */
-    /* ⭐️ 5. 使用 Grid 技巧將正面和背面放在同一個格子 (1/1) */
     grid-row-start: 1;
     grid-column-start: 1;
-
-    /* (以下為舊有樣式，保持不變) */
     width: 100%;
-    height: 100%; /* ⭐️ 6. 這裡的 100% 會自動填滿 Grid 單元格 */
+    height: 100%;
     backface-visibility: hidden;
     display: flex;
     justify-content: center;
@@ -125,23 +125,18 @@ h1 { color: #444; }
     box-sizing: border-box;
     padding: 20px;
 }
-/* 卡片正面 */
 .card-front {
     background-color: #ffffff;
     border: 1px solid #ddd;
     font-size: 28px;
     font-weight: bold;
-    /* ⭐️ 7. 允許長句子換行 */
     word-break: break-word;
 }
-/* 卡片背面 (排版設定在下方的 #4) */
 .card-back {
     background-color: #4a90e2;
     color: white;
     transform: rotateY(180deg);
 }
-
-/* 核心翻轉動畫：被點擊時的狀態 (不變) */
 .flashcard.is-flipped {
     transform: rotateY(180deg);
 }
@@ -160,21 +155,23 @@ button#next-button {
     min-width: 120px; 
 }
 button#next-button:hover { background-color: #409182; }
+/* ⭐️ 按鈕禁用時的樣式 */
+button#next-button:disabled {
+    background-color: #9e9e9e;
+    cursor: not-allowed;
+}
 
-/* --- 4. ⭐️ 卡片背面 (新版) 樣式 ⭐️ --- */
 
-/* 卡片背面排版 */
+/* --- 4. 卡片背面 (新版) 樣式 --- */
 .card-back {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* 垂直靠上 */
-    align-items: stretch;  /* 水平填滿 */
+    justify-content: flex-start;
+    align-items: stretch;
     text-align: left;
-    padding: 15px 20px; /* 微調 padding */
-    word-break: break-word; /* ⭐️ 8. 允許長句子換行 */
+    padding: 15px 20px;
+    word-break: break-word;
 }
-
-/* 背面每一行的容器 (不變) */
 .back-item {
     display: flex;
     font-size: 18px;
@@ -198,7 +195,7 @@ button#next-button:hover { background-color: #409182; }
     font-size: 20px;
 }
 
-/* --- 5. 測驗輸入框樣式 (不變) --- */
+/* --- 5. 測驗輸入框樣式 --- */
 .quiz-input-section {
     display: none; 
     width: 100%;
@@ -221,7 +218,7 @@ button#next-button:hover { background-color: #409182; }
     outline: none;
 }
 
-/* --- 6. 對錯反饋樣式 (不變) --- */
+/* --- 6. 對錯反饋樣式 (輸入框) --- */
 #answer-input.correct {
     background-color: #e6ffed;
     border-color: #50b3a2;
@@ -236,3 +233,54 @@ button#next-button:hover { background-color: #409182; }
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 .shake { animation: shake 0.5s ease-in-out; }
+
+/* --- ⭐️ 7. 新增：MCQ 選擇題樣式 ⭐️ --- */
+.mcq-options-section {
+    display: none; /* 預設隱藏 */
+    width: 100%;
+    max-width: 320px; /* 跟卡片一樣寬 */
+    margin: 15px 0;
+    /* ⭐️ 2x2 網格佈局 */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+button.mcq-option {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    background-color: #ffffff;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button.mcq-option:hover:not(:disabled) {
+    border-color: #4a90e2;
+    background-color: #f7faff;
+}
+
+button.mcq-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 答對的選項 */
+button.mcq-option.correct {
+    background-color: #e6ffed;
+    border-color: #50b3a2;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+/* 答錯的選項 */
+button.mcq-option.incorrect {
+    background-color: #ffe6e6;
+    border-color: #e57373;
+    color: #c62828;
+    opacity: 1; /* 答錯時也要看清楚 */
+}
