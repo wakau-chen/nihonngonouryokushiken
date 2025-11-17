@@ -194,34 +194,34 @@ function handleButtonPress() {
     }
 }
 
-// --- 7. ⭐️ 處理 Enter / 空白鍵 (已修改) ⭐️ ---
+// --- 7. ⭐️ 處理 Enter / Shift 鍵 (已修改) ⭐️ ---
 function handleGlobalKey(event) {
     
-    // 1. 處理 "Enter" 鍵 (觸發按鈕)
+    // ⭐️ 檢查是否正在輸入框中
+    const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
+
+    // 1. 處理 "Enter" 鍵 (任何時候都觸發按鈕)
     if (event.key === 'Enter') {
-        // 阻止 Enter 鍵的預設行為
         event.preventDefault();
-        
-        // 統一呼叫 handleButtonPress()
         handleButtonPress();
         return; // 處理完畢
     }
 
-    // 2. ⭐️ 新增：處理 "Spacebar" 鍵 (觸發翻面) ⭐️
-    // ( ' ' 是空白鍵的 event.key)
-    if (event.key === ' ') {
-        // 阻止 Spacebar 的預設行為 (例如捲動頁面)
+    // 2. ⭐️ 新增：處理 "Shift" 鍵 (觸發翻面) ⭐️
+    if (event.key === 'Shift') {
+        
+        // ⭐️ 關鍵：如果正在輸入框中打字，"不要" 翻面
+        // (這可以防止在使用 IME 輸入法時誤觸)
+        if (isTyping) {
+            return;
+        }
+
+        // 阻止 Shift 的預設行為
         event.preventDefault();
 
         // 呼叫 flipCard()
         flipCard();
         return; // 處理完畢
-    }
-    
-    // 3. ⭐️ 新增：防止在輸入框啟用時，空白鍵觸發翻頁 ⭐️
-    // (這是一個優化，確保在 "輸入測驗" 模式下，按空白鍵不會翻面)
-    if (currentMode === 'quiz' && document.activeElement === answerInput) {
-        return; // 如果使用者正在輸入框中打字，不要觸發任何按鍵
     }
 }
 
