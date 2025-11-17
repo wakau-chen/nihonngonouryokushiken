@@ -72,7 +72,7 @@ async function loadVocabulary() {
 }
 // ---------------------------------
 
-// --- 3. 設置主要功能 (您修改的版本) ---
+// --- 3. 設置主要功能 (不變) ---
 function setupApp() {
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
@@ -98,7 +98,7 @@ function setupApp() {
     loadNextCard();
 }
 
-// --- 4. 顯示新卡片 (您修改的版本) ---
+// --- 4. 顯示新卡片 (不變) ---
 async function loadNextCard() {
     if (flashcard.classList.contains('is-flipped')) {
         flashcard.classList.remove('is-flipped');
@@ -143,7 +143,7 @@ async function loadNextCard() {
         nextButton.textContent = "檢查答案"; 
         if (answerInput) answerInput.focus(); 
     } else {
-        nextButton.textContent = "顯示答案"; // ⭐️ 您的新邏輯
+        nextButton.textContent = "顯示答案"; 
     }
 }
 
@@ -174,7 +174,7 @@ function checkAnswer() {
     }
 }
 
-// --- 6. 處理按鈕點擊 (您修改的版本) ---
+// --- 6. 處理按鈕點擊 (不變) ---
 function handleButtonPress() {
     const buttonState = nextButton.textContent;
 
@@ -194,11 +194,35 @@ function handleButtonPress() {
     }
 }
 
-// --- 7. 處理 Enter 鍵 (您修改的版本) ---
+// --- 7. ⭐️ 處理 Enter / 空白鍵 (已修改) ⭐️ ---
 function handleGlobalKey(event) {
-    if (event.key !== 'Enter') return;
-    event.preventDefault();
-    handleButtonPress();
+    
+    // 1. 處理 "Enter" 鍵 (觸發按鈕)
+    if (event.key === 'Enter') {
+        // 阻止 Enter 鍵的預設行為
+        event.preventDefault();
+        
+        // 統一呼叫 handleButtonPress()
+        handleButtonPress();
+        return; // 處理完畢
+    }
+
+    // 2. ⭐️ 新增：處理 "Spacebar" 鍵 (觸發翻面) ⭐️
+    // ( ' ' 是空白鍵的 event.key)
+    if (event.key === ' ') {
+        // 阻止 Spacebar 的預設行為 (例如捲動頁面)
+        event.preventDefault();
+
+        // 呼叫 flipCard()
+        flipCard();
+        return; // 處理完畢
+    }
+    
+    // 3. ⭐️ 新增：防止在輸入框啟用時，空白鍵觸發翻頁 ⭐️
+    // (這是一個優化，確保在 "輸入測驗" 模式下，按空白鍵不會翻面)
+    if (currentMode === 'quiz' && document.activeElement === answerInput) {
+        return; // 如果使用者正在輸入框中打字，不要觸發任何按鍵
+    }
 }
 
 // --- 8. 翻轉卡片 (不變) ---
@@ -232,11 +256,7 @@ function handleTouchEnd(event) {
     touchStartX = 0;
     touchStartY = 0;
 }
-
-// --- ⭐️ 10. 觸發滑動 (已修正) ⭐️ ---
 function triggerNextCardAction() {
-    // ⭐️ 關鍵：不要自己判斷邏輯，
-    // 讓「滑動」去執行跟「按鈕」完全一樣的操作。
     handleButtonPress();
 }
 
