@@ -61,7 +61,7 @@
             "enabled": true,
             "items": [              
               {
-                "name": "輸入測驗",
+                "name": "測驗模式",
                 "type": "list",
                 "id": "N3",
                 "enabled": true,
@@ -84,7 +84,7 @@
             "enabled": true,
             "items": [              
               {
-                "name": "選擇測驗",
+                "name": "測驗模式",
                 "type": "list",
                 "id": "N3",
                 "enabled": true,
