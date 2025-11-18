@@ -54,9 +54,9 @@
         ]
       },
       "quiz": {
-        "enabled": false,
-        "q_field": "japanese",
-        "a_field": "chinese",
+        "enabled": true,
+        "q_field": "chinese",
+        "a_field": "japanese",
         "back_fields": [
           { "label": "日文", "key": "japanese" },
           { "label": "中文", "key": "chinese" }
