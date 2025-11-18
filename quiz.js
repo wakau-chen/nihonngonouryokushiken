@@ -362,7 +362,7 @@ function checkAnswer() {
     }
 }
 
-// --- 7. 處理按鈕點擊 (不變) ---
+// --- 7. 處理按鈕點擊 (修正 review 模式下的按鈕狀態變更時機) ---
 function handleButtonPress() {
     const buttonState = nextButton.textContent;
 
@@ -375,8 +375,13 @@ function handleButtonPress() {
     } else if (currentMode === 'review') {
         if (buttonState === "顯示答案") {
             flipCard();
-            nextButton.textContent = "下一張"; 
-        } else { 
+            
+            // ⭐️ 修正邏輯：如果成功翻轉到背面，才將按鈕設為「下一張」
+            if (flashcard.classList.contains('is-flipped')) {
+                nextButton.textContent = "下一張";
+            }
+
+        } else { // buttonState === "下一張"
             loadNextCard(); 
         }
     } else if (currentMode === 'mcq') {
