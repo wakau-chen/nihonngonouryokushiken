@@ -19,6 +19,7 @@ const resultsArea = document.getElementById('exam-results-area');
 const modeChoiceTitle = document.getElementById('mode-choice-title');
 const modeButtonContainer = document.getElementById('mode-button-container');
 const practiceExamTitle = document.getElementById('practice-exam-title');
+// ⭐️ 1. 修正：變數名稱改為 'examSetupTitle' 並抓取正確的 ID
 const examSetupTitle = document.getElementById('exam-setup-title'); 
 const startPracticeBtn = document.getElementById('start-practice-btn');
 const startExamSetupBtn = document.getElementById('start-exam-setup-btn');
