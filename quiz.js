@@ -108,7 +108,7 @@ async function initializeQuiz() {
     let modeId = params.get('mode_id');
 
     if (!listName) {
-        modeChoiceArea.style.display = 'none'; 
+        modeChoiceArea.style.display = 'none'; // 如果沒有 listName，直接隱藏
         return; 
     }
     
@@ -162,11 +162,11 @@ async function initializeQuiz() {
         return; 
     }
     
-    // ⭐️ 5.5. 綜合測驗區的返回和繼續流程 (新加的 FIX) ⭐️
+    // ⭐️ 5.5. 綜合測驗區的返回和繼續流程 (修復 state loss 導致的返回問題) ⭐️
     if (listName === 'MULTI_SELECT_ENTRY' && modeId === 'RESUME_MULTI') {
         multiSelectEntryConfig = listConfig;
         hideAllSetupAreas();
-        // 重新設置 selectedListIDs
+        // 重新設置 selectedListIDs (從 URL 參數中獲取丟失的狀態)
         const selectedIdsFromUrl = params.get('selected_ids');
         if (selectedIdsFromUrl) {
             selectedListIDs = selectedIdsFromUrl.split(',');
@@ -221,14 +221,13 @@ async function initializeQuiz() {
         let targetUrl;
         
         if (selectedIdsFromUrl) {
-            // 情況 A: 綜合測驗區的任何模式，返回多選模式選擇頁 (步驟二)
-            // FIX: 返回到 RESUME_MULTI 模式，重新進入 setupMultiModeChoice
+            // 情況 A: 綜合測驗區的任何模式，返回 RESUME_MULTI，重新進入 setupMultiModeChoice
             targetUrl = `quiz.html?list=${listName}&mode_id=RESUME_MULTI&selected_ids=${selectedIdsFromUrl}`;
         } else if (currentMode === 'review') {
-            // 情況 B: 單一列表 Review 模式，返回模式選擇頁 (不帶 modeId)
+            // 情況 B: 單一列表 Review 模式，返回模式選擇頁
             targetUrl = `quiz.html?list=${listName}`;
         } else {
-            // 情況 C: 單一列表 Quiz/MCQ 模式，返回練習/考試選擇頁 (帶 modeId)
+            // 情況 C: 單一列表 Quiz/MCQ 模式，返回練習/考試選擇頁
             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}`;
         }
         
@@ -254,7 +253,7 @@ async function initializeQuiz() {
             // ⭐️ FIX 1: 設置 practiceExamChoiceArea 的返回按鈕連結 ⭐️
             const practiceExamReturnBtn = practiceExamChoiceArea.querySelector('.button-return');
             if (practiceExamReturnBtn) {
-                 // 這裡必須返回到 mode selection page (不帶 mode_id)
+                 // 單一列表：返回模式選擇頁 (不帶 mode_id)
                 practiceExamReturnBtn.href = `quiz.html?list=${listName}`;
             }
 
