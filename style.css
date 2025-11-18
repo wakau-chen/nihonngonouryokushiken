@@ -397,7 +397,7 @@ button.mcq-option.incorrect {
     opacity: 1; 
 }
 
-/* --- 7. ⭐️ 考試結果區 ⭐️ --- */
+/* --- 7. ⭐️ 考試結果區 ⭐️ */
 #exam-results-area {
     display: none; 
     width: 90%;
@@ -425,4 +425,34 @@ button.mcq-option.incorrect {
 }
 #exam-results-area .option-button {
     margin-top: 20px;
+}
+
+/* --- 8. ⭐️ 操作註解區塊 (operation-notes) ⭐️ */
+#operation-notes {
+    width: 100%;
+    max-width: 320px;
+    margin-top: 25px;
+    padding: 15px;
+    background-color: #f0f4f7; /* 淺藍灰色背景 */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: left;
+    color: #555;
+    font-size: 14px;
+}
+#operation-notes h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #4a90e2; /* 藍色標題 */
+    font-size: 16px;
+    font-weight: bold;
+}
+#operation-notes ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+#operation-notes ul li {
+    margin-bottom: 5px;
+    line-height: 1.5;
 }
