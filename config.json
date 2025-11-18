@@ -63,10 +63,10 @@
                 {
                   "id": "n3_mcq_kanji",
                   "type": "mcq",
-                  "name": "選擇測驗 (日=>平假名)",
+                  "name": "選擇測驗 (日=>中)",
                   "enabled": true,
                   "q_field": "kanji",
-                  "a_field": "hiragana",
+                  "a_field": "definition",
                   "back_fields": [
                     { "label": "平假名", "key": "hiragana" },
                     { "label": "音調", "key": "pitch" },
