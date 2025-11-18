@@ -56,7 +56,7 @@
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "n31",
+                "id": "n33",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_quiz_def", "type": "quiz", "name": "輸入測驗 (中=>日)", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
@@ -79,7 +79,7 @@
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "n31",
+                "id": "n33",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
