@@ -117,6 +117,18 @@
                     { "label": "日文", "key": "japanese" },
                     { "label": "中文", "key": "chinese" }
                   ]
+                },
+                {
+                  "id": "doben17_quiz_review",
+                  "type": "review",
+                  "name": "輸入測驗 (日=>中)",
+                  "enabled": true,
+                  "q_field": "japanese",
+                  "a_field": "chinese",
+                  "back_fields": [
+                    { "label": "日文", "key": "japanese" },
+                    { "label": "中文", "key": "chinese" }
+                  ]
                 }
               ]
             },
