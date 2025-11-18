@@ -12,7 +12,7 @@ body {
 }
 h1 { color: #444; }
 
-/* --- 2. ⭐️ 首頁 (index.html) 樣式 (已升級) ⭐️ --- */
+/* --- 2. ⭐️ 首頁 (index.html) 樣式 (共用) ⭐️ --- */
 .homepage-container {
     width: 90%;
     max-width: 600px;
@@ -97,7 +97,7 @@ h1 { color: #444; }
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* (模式按鈕 .list-item / .option-button 會被 JS 動態產生) */
+/* (模式按鈕/單字庫容器) */
 .list-item {
     background-color: #fafafa;
     border: 1px solid #eee;
@@ -185,6 +185,32 @@ h1 { color: #444; }
 .exam-options label {
     cursor: pointer;
     padding: 5px;
+}
+
+/* ⭐️ 多選列表樣式 ⭐️ */
+.checkbox-list {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 300px;
+}
+.checkbox-list label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    padding: 5px 0;
+    width: 100%;
+    cursor: pointer;
+}
+.checkbox-list input[type="checkbox"] {
+    margin-right: 10px;
+    min-width: 18px;
+    min-height: 18px;
 }
 
 /* --- 4. ⭐️ 測驗主體區 (quiz.html) ⭐️ --- */
@@ -435,7 +461,7 @@ button.mcq-option.incorrect {
     max-width: 320px;
     margin-top: 25px;
     padding: 10px 15px;
-    background-color: #e6f0ff; /* 較淺的藍色背景 */
+    background-color: #e6f0ff; 
     border: 1px solid #cce0ff;
     border-radius: 8px;
     text-align: left;
@@ -461,24 +487,23 @@ button.mcq-option.incorrect {
 #operation-notes {
     width: 100%;
     max-width: 320px;
-    padding: 0 15px; /* 預設 padding 設為 0 */
+    padding: 0 15px; 
     border: 1px solid #ddd;
-    border-top: none; /* 讓它和切換按鈕看起來銜接 */
+    border-top: none; 
     border-radius: 0 0 8px 8px;
     text-align: left;
     color: #555;
     font-size: 14px;
     background-color: #f7f7f7;
     
-    /* ⭐️ 核心：收合/展開動畫樣式 ⭐️ */
     max-height: 0; /* 預設收合 */
     overflow: hidden;
     opacity: 0;
     transition: max-height 0.4s ease-out, opacity 0.4s ease-out, padding 0.4s ease-out;
 }
 #operation-notes.expanded {
-    max-height: 200px; /* 展開後的最大高度 (需大於內容實際高度) */
-    padding: 15px; /* 展開後恢復 padding */
+    max-height: 200px; 
+    padding: 15px; 
     opacity: 1;
     border-color: #ddd;
 }
