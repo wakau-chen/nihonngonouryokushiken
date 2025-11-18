@@ -1,21 +1,3 @@
-<div id="practice-exam-choice-area" class="setup-container">
-        <h1 id="practice-exam-title">請選擇模式</h1>
-        <a href="#" class="home-button button-return">返回</a>
-        
-        <h3 id="single-list-summary" style="margin-bottom: 20px;"></h3>
-        
-        <div class="mode-container">
-            ```
-
-#### 2. 📁 `quiz.js` (注入單字庫名稱)
-
-我們需要：
-* 在頂部獲取新的元素 ID (`#single-list-summary`)。
-* 在 `initializeQuiz` 函式中，當 `practice-exam-choice-area` 被顯示時，根據 `selectedIdsFromUrl` 是否存在，來填充 `#single-list-summary` 的內容。
-
-請用以下修正後的完整 `quiz.js` 內容替換您現有的檔案：
-
-```javascript
 // 獲取 HTML 元素
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
@@ -54,8 +36,9 @@ const multiModeTitle = document.getElementById('multi-mode-title');
 const selectedListsSummary = document.getElementById('selected-lists-summary');
 const multiModeButtonContainer = document.getElementById('multi-mode-button-container');
 
-// ⭐️ 新增：單列表摘要元素 ⭐️
+// 獲取單列表摘要元素
 const singleListSummary = document.getElementById('single-list-summary');
+
 
 // 考試模式變數
 let isExamMode = false;
@@ -86,7 +69,7 @@ let config = null; // 儲存 config.json 數據
 function findListById(items) {
     if (!items) return;
     for (const item of items) {
-        // ⭐️ 修正：收集所有 list/category 配置，以便查找父級和名稱
+        // 修正：收集所有 list/category 配置
         allListConfigs[item.id] = item; 
         if (item.type === 'category') {
             findListById(item.items);
@@ -117,7 +100,7 @@ async function initializeQuiz() {
         return;
     }
     
-    // ⭐️ 2. 收集所有列表配置 (用於多選)
+    // ⭐️ 2. 收集所有列表配置 (用於多選 - 這是修復空白頁的關鍵) ⭐️
     allListConfigs = {};
     if (config.catalog) {
         config.catalog.forEach(item => findListById([item]));
@@ -129,12 +112,14 @@ async function initializeQuiz() {
     let modeId = params.get('mode_id');
 
     if (!listName) {
-        modeChoiceArea.style.display = 'none'; // 如果沒有 listName，直接隱藏
+        modeChoiceArea.style.display = 'none'; 
         return; 
     }
     
     const listConfig = allListConfigs[listName];
+    // ⭐️ 修正 1: 處理 listConfig 找不到時的錯誤 (避免後續代碼崩潰) ⭐️
     if (!listConfig) {
+        // 如果 listConfig 找不到，我們不能繼續，直接顯示錯誤
         modeChoiceTitle.textContent = `錯誤：找不到單字庫 ID: ${listName}`;
         modeChoiceArea.style.display = 'block';
         return;
@@ -142,7 +127,6 @@ async function initializeQuiz() {
 
     // ⭐️ 4. 模式選擇區 (如果 URL 只有 listName)
     if (!modeId) {
-        // 修正: 避免 Category 被誤認為 list 導致頁面變白
         if (listConfig.type !== 'list') {
             window.location.href = 'index.html'; 
             return;
@@ -205,6 +189,8 @@ async function initializeQuiz() {
         // 情況 A: 綜合測驗區的流程 (多選)
         listIdsToLoad = selectedIdsFromUrl.split(',');
         modeConfig = listConfig.modes.find(m => m.id === modeId);
+        // ⭐️ 確保 multiSelectEntryConfig 被設置 (供 setupMultiModeChoice 使用)
+        multiSelectEntryConfig = listConfig;
     } else {
         // 情況 B: 既有的單一列表啟動流程
         listIdsToLoad = [listName];
@@ -242,7 +228,7 @@ async function initializeQuiz() {
         let targetUrl;
         
         if (selectedIdsFromUrl) {
-            // 情況 A: 綜合測驗區的任何模式，返回 RESUME_MULTI，重新進入 setupMultiModeChoice
+            // 情況 A: 綜合測驗區的任何模式，返回 RESUME_MULTI
             targetUrl = `quiz.html?list=${listName}&mode_id=RESUME_MULTI&selected_ids=${selectedIdsFromUrl}`;
         } else if (currentMode === 'review') {
             // 情況 B: 單一列表 Review 模式，返回模式選擇頁
@@ -275,7 +261,7 @@ async function initializeQuiz() {
             if (singleListSummary) {
                 let summaryText = "";
                 if (selectedIdsFromUrl) {
-                    // 綜合測驗區的摘要
+                    // 綜合測驗區的摘要 (從 listIdsToLoad 獲取)
                     const names = listIdsToLoad.map(id => allListConfigs[id] ? allListConfigs[id].name : id).join('、');
                     summaryText = `已選單字庫: ${names}`;
                 } else {
@@ -289,8 +275,10 @@ async function initializeQuiz() {
             // ⭐️ FIX 1: 設置 practiceExamChoiceArea 的返回按鈕連結 ⭐️
             const practiceExamReturnBtn = practiceExamChoiceArea.querySelector('.button-return');
             if (practiceExamReturnBtn) {
-                 // 單一列表返回模式選擇頁 (不帶 mode_id)
-                practiceExamReturnBtn.href = `quiz.html?list=${listName}`;
+                // 如果是單一列表，返回模式選擇頁；如果是多選，返回 RESUME_MULTI 模式選擇頁
+                 practiceExamReturnBtn.href = selectedIdsFromUrl 
+                    ? `quiz.html?list=${listName}&mode_id=RESUME_MULTI&selected_ids=${selectedIdsFromUrl}`
+                    : `quiz.html?list=${listName}`;
             }
 
             // 處理練習與考試按鈕
@@ -310,7 +298,6 @@ async function initializeQuiz() {
                 // ⭐️ FIX 2: 確保考試設定頁的返回按鈕指向練習/考試選擇區 ⭐️
                 const examSetupReturnBtn = examSetupArea.querySelector('.button-return');
                 if (examSetupReturnBtn) {
-                    // targetUrl 此時已經是正確的練習/考試選擇頁 URL
                     examSetupReturnBtn.href = targetUrl;
                 }
             };
