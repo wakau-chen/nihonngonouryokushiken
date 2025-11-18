@@ -103,7 +103,7 @@
             {
               "id": "doben17_text_review",
               "type": "review",
-              "name": "翻卡複習 (ㄖ=>中)",
+              "name": "翻卡複習 (中=>日)",
               "enabled": true,
               "q_field": "chinese",
               "a_field": "japanese",
