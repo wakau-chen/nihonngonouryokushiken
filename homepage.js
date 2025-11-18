@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', loadConfig);
 
 async function loadConfig() {
     try {
+        // 1. 抓取 config.json
         const response = await fetch('config.json?v=' + new Date().getTime());
         if (!response.ok) {
             throw new Error('無法讀取 config.json');
@@ -20,45 +21,33 @@ async function loadConfig() {
 
         let allHtml = ''; 
 
-        // 3. 遍歷 config.json 中的 "lists"
+        // 3. ⭐️ 遍歷 config.json 中的 "lists"
         for (const list of config.lists) {
             
             if (!list.enabled) {
                 continue;
             }
 
-            // ⭐️ 關鍵：按鈕不再是 <a> 連結，而是 <button>
-            // 我們把 "mode" 和 "list.id" 存在 "data-" 屬性中
             let buttonHtml = ''; 
 
-            if (list.review && list.review.enabled) {
-                buttonHtml += `
-                    <button class="option-button review-mode" data-list="${list.id}" data-mode="review">
-                        翻卡複習
-                    </button>
-                `;
-            }
-
-            if (list.quiz && list.quiz.enabled) {
-                buttonHtml += `
-                    <button class="option-button quiz-mode" data-list="${list.id}" data-mode="quiz">
-                        輸入測驗
-                    </button>
-                `;
-            }
-
-            if (list.mcq && list.mcq.enabled) {
-                buttonHtml += `
-                    <button class="option-button mcq-mode" data-list="${list.id}" data-mode="mcq">
-                        選擇測驗
-                    </button>
-                `;
+            // ⭐️ 關鍵：遍歷 "modes" 陣列
+            if (list.modes && Array.isArray(list.modes)) {
+                for (const mode of list.modes) {
+                    if (mode.enabled) {
+                        buttonHtml += `
+                            <button class="option-button ${mode.type}-mode" data-list="${list.id}" data-mode-id="${mode.id}" data-mode-type="${mode.type}">
+                                ${mode.name}
+                            </button>
+                        `;
+                    }
+                }
             }
 
             if (buttonHtml === '') {
                 continue;
             }
 
+            // 組合出完整的 "list-item" 區塊
             allHtml += `
                 <div class="list-item">
                     <h4>${list.name}</h4>
@@ -71,7 +60,7 @@ async function loadConfig() {
 
         container.innerHTML = allHtml;
 
-        // ⭐️ 4. 新增：為所有按鈕綁定一個「中央監聽事件」
+        // 4. 綁定「中央監聽事件」
         container.addEventListener('click', handleModeClick);
 
     } catch (error) {
@@ -83,28 +72,25 @@ async function loadConfig() {
     }
 }
 
-// ⭐️ 5. 新增：處理按鈕點擊的函式
+// ⭐️ 5. 處理按鈕點擊的函式
 function handleModeClick(event) {
-    // 檢查點擊的是否是一個 "option-button"
     const button = event.target.closest('.option-button');
     if (!button) return;
 
-    // 獲取按鈕上的資料
+    // 獲取按鈕上的所有資料
     const listId = button.dataset.list;
-    const mode = button.dataset.mode;
+    const modeId = button.dataset.modeId; // ⭐️ "n3_review_kanji"
+    const modeType = button.dataset.modeType; // ⭐️ "review"
     
-    // 獲取勾選框的狀態
     const isExamChecked = document.getElementById('exam-mode-toggle').checked;
 
-    // ⭐️ 核心邏輯：
-    // 只有在 "quiz" 或 "mcq" 模式下，"考試模式" 勾選框才有效
     let isExam = false;
-    if (isExamChecked && (mode === 'quiz' || mode === 'mcq')) {
+    // ⭐️ "review" 模式永遠不是考試
+    if (isExamChecked && (modeType === 'quiz' || modeType === 'mcq')) {
         isExam = true;
     }
-    // ( 'review' 模式永遠 isExam = false )
 
-    // 產生最終的 URL 並跳轉
-    const url = `quiz.html?list=${listId}&mode=${mode}&exam=${isExam}`;
+    // ⭐️ 產生最終的 URL 並跳轉 (包含 modeId)
+    const url = `quiz.html?list=${listId}&mode_type=${modeType}&mode_id=${modeId}&exam=${isExam}`;
     window.location.href = url;
 }
