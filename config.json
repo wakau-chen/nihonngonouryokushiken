@@ -115,10 +115,10 @@
             {
               "id": "doben17_quiz_japanese",
               "type": "quiz",
-              "name": "輸入測驗 (日=>中)",
+              "name": "輸入測驗 (中=>日)",
               "enabled": true,
-              "q_field": "japanese",
-              "a_field": "chinese",
+              "q_field": "ciinese",
+              "a_field": "japanese",
               "back_fields": [
                 { "label": "日文", "key": "japanese" },
                 { "label": "中文", "key": "chinese" }
