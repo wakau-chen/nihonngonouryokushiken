@@ -1,4 +1,4 @@
-// 獲取 HTML 元素
+// 獲取 HTML 元素 (卡片、輸入框)
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
 const cardBack = document.getElementById('card-back');
@@ -6,17 +6,22 @@ const nextButton = document.getElementById('next-button');
 const answerInput = document.getElementById('answer-input');
 const quizInputArea = document.getElementById('quiz-input-section');
 const mcqOptionsArea = document.getElementById('mcq-options-section');
+const examProgress = document.getElementById('exam-progress-bar');
 
-// 獲取「區域」元素
-const setupArea = document.getElementById('quiz-setup-area');
+// ⭐️ 獲取「區域」元素
+const modeChoiceArea = document.getElementById('mode-choice-area');
+const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
+const examSetupArea = document.getElementById('exam-setup-area');
 const mainArea = document.getElementById('quiz-main-area');
 const resultsArea = document.getElementById('exam-results-area');
 
-// 獲取「設定」元素
-const setupTitle = document.getElementById('setup-title');
-let startPracticeBtn = null; 
-const startExamBtn = document.getElementById('start-exam-btn');
-const examProgress = document.getElementById('exam-progress-bar');
+// ⭐️ 獲取「按鈕」和「標題」
+const modeChoiceTitle = document.getElementById('mode-choice-title');
+const modeButtonContainer = document.getElementById('mode-button-container');
+const practiceExamTitle = document.getElementById('practice-exam-title');
+const startPracticeBtn = document.getElementById('start-practice-btn');
+const startExamSetupBtn = document.getElementById('start-exam-setup-btn');
+const startExamFinalBtn = document.getElementById('start-exam-final-btn');
 
 // 考試模式變數
 let isExamMode = false;
@@ -33,9 +38,11 @@ let BACK_CARD_FIELDS = [];
 let vocabulary = []; 
 let currentCardIndex = 0; 
 let currentCorrectAnswer = ""; 
-let currentMode = 'review'; // ⭐️ 這裡的 "mode" 指的是 "type"
+let currentMode = 'review'; 
 let touchStartX = 0;
 let touchStartY = 0;
+let listConfig = null; // 儲存單字庫設定
+let modeConfig = null; // 儲存模式設定
 
 // 輔助函式：正規化字串
 function normalizeString(str) {
@@ -44,18 +51,15 @@ function normalizeString(str) {
     return str.replace(/・/g, '').replace(/\./g, '').replace(/\s/g, '');
 }
 
-// --- 2. ⭐️ 非同步讀取 (已重寫) ⭐️ ---
-async function loadVocabulary() {
+// --- 2. ⭐️ 非同步讀取 (已重寫為「流程 1：選擇模式」) ⭐️ ---
+async function loadConfigAndShowModes() {
     try {
         const params = new URLSearchParams(window.location.search);
         const listName = params.get('list'); 
-        currentMode = params.get('mode_type') || 'review'; // ⭐️ 讀取 "mode_type"
-        const modeId = params.get('mode_id'); // ⭐️ 讀取 "mode_id"
-        isExamMode = params.get('exam') === 'true'; 
 
-        if (!listName || !modeId) {
-            setupTitle.textContent = '錯誤：未指定單字庫或模式';
-            setupArea.style.display = 'block'; 
+        if (!listName) {
+            modeChoiceTitle.textContent = '錯誤：未指定單字庫';
+            modeChoiceArea.style.display = 'block';
             return;
         }
 
@@ -63,80 +67,137 @@ async function loadVocabulary() {
         if (!configResponse.ok) { throw new Error('無法讀取 config.json'); }
         const config = await configResponse.json();
 
-        const listConfig = config.lists.find(list => list.id === listName);
+        listConfig = config.lists.find(list => list.id === listName);
         if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`); }
-
-        // ⭐️ 關鍵：在 "modes" 陣列中，找到 "id" 相符的那個模式
-        const modeConfig = listConfig.modes.find(m => m.id === modeId);
-        if (!modeConfig) {
-            throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} 的模式設定`);
-        }
-
-        // ⭐️ 把「專屬設定」存到全局變數
-        QUESTION_FIELD = modeConfig.q_field;
-        ANSWER_FIELD = modeConfig.a_field || ''; // review 模式沒有 a_field
-        BACK_CARD_FIELDS = modeConfig.back_fields || [];
         
-        const filePath = `words/${listName}.json?v=${new Date().getTime()}`;
-        const response = await fetch(filePath); 
-        if (!response.ok) { throw new Error(`無法讀取 ${listName}.json 檔案`); }
-        vocabulary = await response.json(); 
+        // ⭐️ 載入成功，顯示「模式選擇」
+        modeChoiceTitle.textContent = `${listConfig.name} - 選擇模式`;
         
-        if (vocabulary.length > 0) {
-            // ⭐️ 決定要顯示「設定區」還是「主體區」
-            if (isExamMode) {
-                // --- 進入考試設定流程 ---
-                setupTitle.textContent = `${listConfig.name} - 考試設定`;
-                
-                startPracticeBtn = document.getElementById('start-practice-btn');
-                if(startPracticeBtn) startPracticeBtn.style.display = 'none';
-                
-                setupArea.style.display = 'block';
-                startExamBtn.addEventListener('click', startGame);
-            } else {
-                // --- 進入練習流程 ---
-                setupArea.style.display = 'none';
-                mainArea.style.display = 'flex'; 
-                setupApp(); // 直接開始練習
+        // ⭐️ 動態產生模式按鈕
+        let buttonHtml = '';
+        if (listConfig.modes && Array.isArray(listConfig.modes)) {
+            for (const mode of listConfig.modes) {
+                if (mode.enabled) {
+                    buttonHtml += `
+                        <button class="option-button ${mode.type}-mode" data-mode-id="${mode.id}">
+                            ${mode.name}
+                        </button>
+                    `;
+                }
             }
-        } else {
-            setupTitle.textContent = '單字庫為空！';
-            setupArea.style.display = 'block';
         }
+        modeButtonContainer.innerHTML = buttonHtml;
+        modeButtonContainer.addEventListener('click', handleModeChoice);
+        
+        // 顯示「模式選擇」區域
+        modeChoiceArea.style.display = 'block';
+
     } catch (error) {
         console.error('加載單字庫失敗:', error);
-        setupTitle.textContent = `加載失敗 (${error.message})`;
-        setupArea.style.display = 'block';
+        modeChoiceTitle.textContent = `加載失敗 (${error.message})`;
+        modeChoiceArea.style.display = 'block';
     }
 }
 // ---------------------------------
 
-// --- 3. ⭐️ 啟動遊戲 (原 "startGame") ⭐️ ---
-function startGame() {
-    setupArea.style.display = 'none';
-    mainArea.style.display = 'flex'; 
+// --- 3. ⭐️ 流程 2：選擇「練習」或「考試」 ⭐️ ---
+function handleModeChoice(event) {
+    const button = event.target.closest('.option-button');
+    if (!button) return;
 
-    const selectedLength = document.querySelector('input[name="exam-length"]:checked').value;
-    if (selectedLength === 'all') {
-        examTotalQuestions = vocabulary.length;
+    const modeId = button.dataset.modeId;
+    modeConfig = listConfig.modes.find(m => m.id === modeId);
+    if (!modeConfig) return;
+
+    currentMode = modeConfig.type; // 儲存模式類型 (review, quiz, mcq)
+
+    // ⭐️ 您的要求：翻卡練習 (review) 維持沒有考試模式
+    if (currentMode === 'review') {
+        // --- 直接開始練習 ---
+        isExamMode = false;
+        loadVocabularyAndStart(); // 跳過所有設定
     } else {
-        examTotalQuestions = parseInt(selectedLength);
-    }
-    
-    if (examTotalQuestions > vocabulary.length) {
-        examTotalQuestions = vocabulary.length;
-    }
+        // --- 顯示「練習/考試」選擇畫面 ---
+        practiceExamTitle.textContent = `${modeConfig.name}`;
+        modeChoiceArea.style.display = 'none';
+        practiceExamChoiceArea.style.display = 'block';
 
-    examCurrentQuestion = 0;
-    examIncorrectCount = 0;
-    testedIndices.clear();
-    updateExamProgress(); 
-    
-    setupApp();
+        // 綁定按鈕
+        startPracticeBtn.addEventListener('click', () => {
+            isExamMode = false;
+            loadVocabularyAndStart(); // 開始練習
+        });
+        startExamSetupBtn.addEventListener('click', () => {
+            isExamMode = true;
+            showExamSetup(); // 進入下一步(設定題數)
+        });
+    }
+}
+
+// --- 4. ⭐️ 流程 3：(僅限考試) 設定題數 ⭐️ ---
+function showExamSetup() {
+    practiceExamChoiceArea.style.display = 'none';
+    examSetupArea.style.display = 'block';
+
+    // 綁定「最終開始」按鈕
+    startExamFinalBtn.addEventListener('click', () => {
+        loadVocabularyAndStart();
+    });
+}
+
+// --- 5. ⭐️ 流程 4：載入單字庫並啟動測驗 ⭐️ ---
+async function loadVocabularyAndStart() {
+    try {
+        // 1. 隱藏所有設定畫面，顯示主測驗區
+        modeChoiceArea.style.display = 'none';
+        practiceExamChoiceArea.style.display = 'none';
+        examSetupArea.style.display = 'none';
+        mainArea.style.display = 'flex'; // ⭐️ 顯示主測驗區
+
+        // 2. 載入單字庫
+        const filePath = `words/${listConfig.id}.json?v=${new Date().getTime()}`;
+        const response = await fetch(filePath); 
+        if (!response.ok) { throw new Error(`無法讀取 ${listConfig.id}.json 檔案`); }
+        vocabulary = await response.json(); 
+        
+        if (vocabulary.length === 0) {
+            mainArea.innerHTML = '<h1>錯誤：單字庫為空！</h1>';
+            return;
+        }
+
+        // 3. 儲存設定
+        QUESTION_FIELD = modeConfig.q_field;
+        ANSWER_FIELD = modeConfig.a_field || ''; 
+        BACK_CARD_FIELDS = modeConfig.back_fields || [];
+
+        // 4. (僅限考試) 處理考試設定
+        if (isExamMode) {
+            const selectedLength = document.querySelector('input[name="exam-length"]:checked').value;
+            if (selectedLength === 'all') {
+                examTotalQuestions = vocabulary.length;
+            } else {
+                examTotalQuestions = parseInt(selectedLength);
+            }
+            if (examTotalQuestions > vocabulary.length) {
+                examTotalQuestions = vocabulary.length;
+            }
+            examCurrentQuestion = 0;
+            examIncorrectCount = 0;
+            testedIndices.clear();
+            updateExamProgress(); 
+        }
+
+        // 5. 綁定主程式事件 (原 "setupApp")
+        setupApp();
+
+    } catch (error) {
+        console.error('啟動測驗失敗:', error);
+        mainArea.innerHTML = `<h1>啟動測驗失敗</h1><p>${error.message}</p>`;
+    }
 }
 
 
-// --- 4. 設置主要功能 (原 "setupApp") ---
+// --- 6. 設置主要功能 (原 "setupApp") ---
 function setupApp() {
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
@@ -168,7 +229,7 @@ function setupApp() {
     loadNextCard();
 }
 
-// --- 5. ⭐️ 顯示新卡片 (已升級考試邏輯) ⭐️ ---
+// --- 7. 顯示新卡片 (不變) ---
 async function loadNextCard() {
     if (isExamMode && examCurrentQuestion >= examTotalQuestions) {
         showExamResults();
@@ -247,7 +308,7 @@ async function loadNextCard() {
     }
 }
 
-// --- 6. ⭐️ 檢查答案 (已升級考試邏輯) ⭐️ ---
+// --- 8. 檢查答案 (不變) ---
 function checkAnswer() {
     const userInputRaw = answerInput.value.trim();
     if (!userInputRaw) {
@@ -281,7 +342,7 @@ function checkAnswer() {
     }
 }
 
-// --- 7. 處理按鈕點擊 (不變) ---
+// --- 9. 處理按鈕點擊 (不變) ---
 function handleButtonPress() {
     const buttonState = nextButton.textContent;
 
@@ -303,7 +364,7 @@ function handleButtonPress() {
     }
 }
 
-// --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
+// --- 10. 處理 Enter / Shift 鍵 (不變) ---
 function handleGlobalKey(event) {
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
 
@@ -323,12 +384,12 @@ function handleGlobalKey(event) {
     }
 }
 
-// --- 9. 翻轉卡片 (不變) ---
+// --- 11. 翻轉卡片 (不變) ---
 function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// --- 10. ⭐️ 滑動手勢處理 (已修正) ⭐️ ---
+// --- 12. 滑動手勢處理 (不變) ---
 function handleTouchStart(event) {
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
@@ -359,7 +420,7 @@ function triggerNextCardAction() {
     }
 }
 
-// --- 11. MCQ 相關函式 (不變) ---
+// --- 13. MCQ 相關函式 (不變) ---
 function generateMcqOptions() {
     const correctAnswer = currentCorrectAnswer;
     let distractors = [];
@@ -421,7 +482,7 @@ function handleMcqAnswer(event) {
     flipCard();
 }
 
-// --- 12. 考試專用函式 (不變) ---
+// --- 14. 考試專用函式 (不變) ---
 function updateExamProgress() {
     if (!isExamMode) {
         if(examProgress) examProgress.style.display = 'none';
@@ -467,5 +528,6 @@ function showExamResults() {
     `;
 }
 
-// --- 啟動程式 ---
-loadVocabulary();
+// --- ⭐️ 啟動程式 ⭐️ ---
+// (不再是 loadVocabulary, 而是新的啟動函式)
+loadConfigAndShowModes();
