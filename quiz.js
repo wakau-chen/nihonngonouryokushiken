@@ -11,7 +11,7 @@ const examProgress = document.getElementById('exam-progress-bar');
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
-const examSetupArea = document.getElementById('exam-setup-area'); // ⭐️ 變數名稱是 "examSetupArea"
+const examSetupArea = document.getElementById('exam-setup-area'); 
 const mainArea = document.getElementById('quiz-main-area');
 const resultsArea = document.getElementById('exam-results-area');
 
@@ -19,6 +19,8 @@ const resultsArea = document.getElementById('exam-results-area');
 const modeChoiceTitle = document.getElementById('mode-choice-title');
 const modeButtonContainer = document.getElementById('mode-button-container');
 const practiceExamTitle = document.getElementById('practice-exam-title');
+// ⭐️ 1. 修正：變數名稱改為 'examSetupTitle' 並抓取正確的 ID
+const examSetupTitle = document.getElementById('exam-setup-title'); 
 const startPracticeBtn = document.getElementById('start-practice-btn');
 const startExamSetupBtn = document.getElementById('start-exam-setup-btn');
 const startExamFinalBtn = document.getElementById('start-exam-final-btn');
@@ -106,8 +108,6 @@ async function initializeQuiz() {
                 if (!button) return;
                 
                 const chosenModeId = button.dataset.modeId;
-                // ⭐️ 重新載入頁面，這次 "附帶" mode_id
-                // ⭐️ (我們移除了 isExam，因為 "考試" 的決定是在下一步)
                 const url = `quiz.html?list=${listName}&mode_id=${chosenModeId}`;
                 window.location.href = url;
             });
@@ -140,10 +140,11 @@ async function initializeQuiz() {
 
             if (isExamMode && currentMode !== 'review') {
                 // --- 進入考試設定流程 ---
-                setupTitle.textContent = `${modeConfig.name} - 考試設定`;
+                // ⭐️ 2. 修正：使用 'examSetupTitle'
+                if (examSetupTitle) examSetupTitle.textContent = `${modeConfig.name} - 考試設定`;
                 practiceExamChoiceArea.style.display = 'none'; 
                 modeChoiceArea.style.display = 'none'; 
-                examSetupArea.style.display = 'block'; // ⭐️ 變數是 "examSetupArea"
+                examSetupArea.style.display = 'block';
                 startExamFinalBtn.addEventListener('click', startGame);
             } else if (!isExamMode && currentMode !== 'review') {
                 // ⭐️ 顯示「練習/考試」選擇
@@ -160,22 +161,24 @@ async function initializeQuiz() {
                 startExamSetupBtn.addEventListener('click', () => {
                     isExamMode = true;
                     practiceExamChoiceArea.style.display = 'none';
-                    examSetupArea.style.display = 'block'; // ⭐️ 變數是 "examSetupArea"
-                    examSetupTitle.textContent = `${modeConfig.name} - 考試設定`;
+                    examSetupArea.style.display = 'block'; 
+                    // ⭐️ 3. 修正：使用 'examSetupTitle'
+                    if (examSetupTitle) examSetupTitle.textContent = `${modeConfig.name} - 考試設定`;
                     startExamFinalBtn.addEventListener('click', startGame);
                 });
             } else {
                 // --- 進入練習流程 (Review 模式，或 "exam=false") ---
                 isExamMode = false;
-                examSetupArea.style.display = 'none'; // ⭐️ 變數是 "examSetupArea"
+                examSetupArea.style.display = 'none'; 
                 practiceExamChoiceArea.style.display = 'none';
                 modeChoiceArea.style.display = 'none'; 
                 mainArea.style.display = 'flex'; 
                 setupApp(); // 直接開始練習
             }
         } else {
-            setupTitle.textContent = '單字庫為空！';
-            examSetupArea.style.display = 'block'; // ⭐️ 變數是 "examSetupArea"
+            // ⭐️ 4. 修正：使用 'examSetupTitle'
+            if (examSetupTitle) examSetupTitle.textContent = '單字庫為空！';
+            examSetupArea.style.display = 'block'; 
         }
     } catch (error) {
         console.error('加載單字庫失敗:', error);
@@ -187,7 +190,7 @@ async function initializeQuiz() {
 
 // --- 3. ⭐️ 啟動遊戲 (原 "startGame") ⭐️ ---
 function startGame() {
-    examSetupArea.style.display = 'none'; // ⭐️ 變數是 "examSetupArea"
+    examSetupArea.style.display = 'none'; 
     mainArea.style.display = 'flex'; 
 
     const selectedLength = document.querySelector('input[name="exam-length"]:checked').value;
