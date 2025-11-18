@@ -16,19 +16,19 @@
             {
             "name": "單字",
             "type": "category",
-            "id": "單字",
+            "id": "n31",
             "enabled": true,
             "items": [              
               {
             "name": "單字卡",
             "type": "category",
-            "id": "單字卡",
+            "id": "n32",
             "enabled": true,
             "items": [              
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "測驗模式",
+                "id": "n33",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_review_kanji", "type": "review", "name": "翻卡複習 (日=>中)", "enabled": true, "q_field": "kanji", "back_fields": [
@@ -50,13 +50,13 @@
                {
             "name": "回答單字",
             "type": "category",
-            "id": "回答單字",
+            "id": "n3",
             "enabled": true,
             "items": [              
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "測驗模式",
+                "id": "n31",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_quiz_def", "type": "quiz", "name": "輸入測驗 (中=>日)", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
@@ -73,13 +73,13 @@
               {
             "name": "選擇題",
             "type": "category",
-            "id": "選擇題",
+            "id": "n3",
             "enabled": true,
             "items": [              
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "測驗模式",
+                "id": "n31",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
