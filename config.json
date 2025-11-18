@@ -14,13 +14,13 @@
           "enabled": true,
           "items": [
             {
-            "name": "選擇測驗方式",
+            "name": 翻卡",
             "type": "category",
             "id": "n3",
             "enabled": true,
             "items": [
               {
-                "name": "翻卡",
+                "name": "模式",
                 "type": "list",
                 "id": "N3",
                 "enabled": true,
