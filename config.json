@@ -97,6 +97,21 @@
           ]
         }
       ]
+    },
+    {
+      "id": "doben_quiz_def",
+      "type": "quiz",
+      "name": "輸入測驗 (中=>日)",
+      "enabled": true,
+      "q_field": "chinese",
+      "a_field": "japanese",
+      "back_fields": [
+        { "label": "日文", "key": "japanese" },
+        { "label": "中文", "key": "chinese" }
+      ]
     }
+    
+    
+    
   ]
 }
