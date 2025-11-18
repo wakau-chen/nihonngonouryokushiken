@@ -1,3 +1,21 @@
+<div id="practice-exam-choice-area" class="setup-container">
+        <h1 id="practice-exam-title">請選擇模式</h1>
+        <a href="#" class="home-button button-return">返回</a>
+        
+        <h3 id="single-list-summary" style="margin-bottom: 20px;"></h3>
+        
+        <div class="mode-container">
+            ```
+
+#### 2. 📁 `quiz.js` (注入單字庫名稱)
+
+我們需要：
+* 在頂部獲取新的元素 ID (`#single-list-summary`)。
+* 在 `initializeQuiz` 函式中，當 `practice-exam-choice-area` 被顯示時，根據 `selectedIdsFromUrl` 是否存在，來填充 `#single-list-summary` 的內容。
+
+請用以下修正後的完整 `quiz.js` 內容替換您現有的檔案：
+
+```javascript
 // 獲取 HTML 元素
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
@@ -35,6 +53,9 @@ const multiModeChoiceArea = document.getElementById('multi-mode-choice-area');
 const multiModeTitle = document.getElementById('multi-mode-title');
 const selectedListsSummary = document.getElementById('selected-lists-summary');
 const multiModeButtonContainer = document.getElementById('multi-mode-button-container');
+
+// ⭐️ 新增：單列表摘要元素 ⭐️
+const singleListSummary = document.getElementById('single-list-summary');
 
 // 考試模式變數
 let isExamMode = false;
@@ -250,10 +271,25 @@ async function initializeQuiz() {
             practiceExamChoiceArea.style.display = 'block';
             practiceExamTitle.textContent = `${listConfig.name} - ${modeConfig.name}`;
             
+            // ⭐️ 注入已選單字庫摘要 ⭐️
+            if (singleListSummary) {
+                let summaryText = "";
+                if (selectedIdsFromUrl) {
+                    // 綜合測驗區的摘要
+                    const names = listIdsToLoad.map(id => allListConfigs[id] ? allListConfigs[id].name : id).join('、');
+                    summaryText = `已選單字庫: ${names}`;
+                } else {
+                    // 單一列表的摘要
+                    summaryText = `已選單字庫: ${listConfig.name}`;
+                }
+                singleListSummary.textContent = summaryText;
+            }
+
+
             // ⭐️ FIX 1: 設置 practiceExamChoiceArea 的返回按鈕連結 ⭐️
             const practiceExamReturnBtn = practiceExamChoiceArea.querySelector('.button-return');
             if (practiceExamReturnBtn) {
-                 // 單一列表：返回模式選擇頁 (不帶 mode_id)
+                 // 單一列表返回模式選擇頁 (不帶 mode_id)
                 practiceExamReturnBtn.href = `quiz.html?list=${listName}`;
             }
 
@@ -341,6 +377,15 @@ function updateMultiSelectState() {
 // ⭐️ 新增函式：第二步 - 選擇測驗模式 (setupMultiModeChoice) ⭐️
 function setupMultiModeChoice() {
     multiModeChoiceArea.style.display = 'block';
+    
+    // ⭐️ FIX: 當 selectedListIDs 為空時，嘗試從 URL 讀取狀態 ⭐️
+    if (selectedListIDs.length === 0) {
+        const params = new URLSearchParams(window.location.search);
+        const selectedIdsFromUrl = params.get('selected_ids');
+        if (selectedIdsFromUrl) {
+            selectedListIDs = selectedIdsFromUrl.split(',');
+        }
+    }
     
     const summaryNames = selectedListIDs.map(id => allListConfigs[id] ? allListConfigs[id].name : id).join('、');
     selectedListsSummary.textContent = summaryNames;
