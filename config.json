@@ -14,11 +14,20 @@
           "enabled": true,
           "items": [
             {
+            "name": "單字",
+            "type": "category",
+            "id": "n3",
+            "enabled": true,
+            "items": [
+              {
             "name": "單字卡",
             "type": "category",
             "id": "n3",
             "enabled": true,
             "items": [
+
+
+              
               {
                 "name": "測驗模式",
                 "type": "list",
@@ -77,9 +86,17 @@
                   ] }
                 ]
 }
+            ]
+              }
+
+
+
 
 
                 ]
+
+
+              
               },
             {
               "name": "N3 文法 (準備中)",
