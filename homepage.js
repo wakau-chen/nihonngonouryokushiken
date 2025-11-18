@@ -1,8 +1,6 @@
 // 頁面載入完成後，執行
 document.addEventListener('DOMContentLoaded', () => {
-    // 監聽 URL Hash 的變化 (例如 #reader)
     window.addEventListener('hashchange', renderHomePage);
-    // 第一次載入
     renderHomePage();
 });
 
@@ -10,7 +8,6 @@ let globalConfig = null; // 儲存 config.json
 
 async function renderHomePage() {
     try {
-        // 1. 抓取 config.json (如果還沒抓過)
         if (!globalConfig) {
             const response = await fetch('config.json?v=' + new Date().getTime());
             if (!response.ok) {
@@ -22,19 +19,17 @@ async function renderHomePage() {
 
         const container = document.getElementById('list-container');
         const mainTitle = document.getElementById('main-title');
-        const breadcrumbs = document.getElementById('breadcrumbs'); // 麵包屑
+        const breadcrumbs = document.getElementById('breadcrumbs');
         
         if (!container || !mainTitle || !breadcrumbs) return;
 
-        // 2. ⭐️ 解析 URL Hash (路徑)
         const path = window.location.hash.substring(1).split('/');
         
         let currentLevelItems = globalConfig.catalog;
         let currentCategory = null;
-        let pathSegments = []; // 用於麵包屑
+        let pathSegments = []; 
         let currentHash = '#';
 
-        // 3. ⭐️ 根據路徑，深入 "catalog"
         for (const segment of path) {
             if (segment === "") continue;
             const found = currentLevelItems.find(item => item.id === segment);
@@ -42,28 +37,27 @@ async function renderHomePage() {
                 currentLevelItems = found.items;
                 currentCategory = found;
                 currentHash += segment + '/';
-                pathSegments.push({ name: found.name, hash: currentHash.slice(0, -1) }); // 移除結尾的 /
+                pathSegments.push({ name: found.name, hash: currentHash.slice(0, -1) });
             }
         }
 
-        // 4. 設定標題
         mainTitle.textContent = currentCategory ? currentCategory.name : globalConfig.siteTitle;
 
-        // 5. 產生麵包屑
         breadcrumbs.innerHTML = '<li><a href="#">首頁</a></li>';
         pathSegments.forEach(segment => {
             breadcrumbs.innerHTML += `<li><a href="${segment.hash}">${segment.name}</a></li>`;
         });
 
-        // 6. 產生按鈕
+        // ⭐️ 6. 關鍵：產生「返回」按鈕 (如果不在首頁)
         let allHtml = ''; 
-        
-        // ⭐️ 關鍵：產生「返回」按鈕
-        if (currentCategory) { 
-            let parentHash = '#'; 
+        if (currentCategory) { // "currentCategory" 只有在 "非首頁" 時才會有值
+            let parentHash = '#'; // 預設返回 "首頁"
             if (pathSegments.length > 1) {
+                // 如果層級大於 1，返回「倒數第二個」麵包屑
                 parentHash = pathSegments[pathSegments.length - 2].hash;
             }
+            
+            // ⭐️ 新增「返回上一層」按鈕
             allHtml += `
                 <a href="${parentHash}" class="option-button back-button">
                     &larr; 返回上一層
@@ -71,6 +65,8 @@ async function renderHomePage() {
             `;
         }
 
+        // 7. 產生按鈕
+        let hasModes = false; 
         for (const item of currentLevelItems) {
             
             if (item.enabled === false) continue;
@@ -84,6 +80,7 @@ async function renderHomePage() {
                 `;
             } else if (item.type === 'list') {
                 // --- 這是一個「單字庫」 ---
+                hasModes = true; 
                 allHtml += `
                     <div class="list-item">
                         <h4>${item.name}</h4>
@@ -93,7 +90,6 @@ async function renderHomePage() {
                 if (item.modes && Array.isArray(item.modes)) {
                     for (const mode of item.modes) {
                         if (mode.enabled) {
-                            // ⭐️ 關鍵：按鈕現在是 <button>，不是 <a>
                             allHtml += `
                                 <button class="option-button ${mode.type}-mode" data-list-id="${item.id}" data-mode-id="${mode.id}" data-mode-type="${mode.type}">
                                     ${mode.name}
@@ -125,18 +121,21 @@ function handleHomePageClick(event) {
     const button = event.target.closest('.option-button');
     if (!button) return;
 
-    // 檢查這是否是一個「模式」按鈕 (最終按鈕)
+    // ⭐️ 檢查是否點擊了「模式」按鈕 (最終按鈕)
     const listId = button.dataset.listId;
     const modeId = button.dataset.modeId;
 
     if (listId && modeId) {
-        // --- 這是最終按鈕，我們要跳轉到 quiz.html ---
         event.preventDefault(); 
         
-        const isExam = false; // 預設為 false
+        // (我們移除了 "考試模式" 勾選框，所以 exam=false)
+        const isExam = false; 
 
-        // 產生最終的 URL 並跳轉
         const url = `quiz.html?list=${listId}&mode_id=${modeId}&exam=${isExam}`;
         window.location.href = url;
     }
+    
+    // 如果點的不是「模式」按鈕 (而是 "list-button" 或 "back-button")
+    // 它就是一個 <a> 標籤，我們會讓它
+    // 自動跳轉 (例如 href="#reader" 或 href="#") 並觸發 'hashchange' 事件
 }
