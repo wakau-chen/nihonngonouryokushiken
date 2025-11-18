@@ -433,10 +433,17 @@ function handleTouchMove(event) {
 function handleTouchEnd(event) {
     let touchEndX = event.changedTouches[0].screenX;
     let touchEndY = event.changedTouches[0].screenY;
-    let swipeDistanceX = touchStartX - touchEndX; 
+    
+    let swipeDistanceX = touchStartX - touchEndX; // X軸位移
+    let swipeDistanceY = touchStartY - touchEndY; // Y軸位移 ⭐️ 修正
+
     const minSwipeThreshold = 50; 
+    
+    // 判斷是否為「水平滑動」且超過門檻
     if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
-        if (swipeDistanceX > 0) {
+        
+        // 只有向左滑動 (swipeDistanceX > 0) 才觸發下一張
+        if (swipeDistanceX > 0) { 
             triggerNextCardAction(); 
         }
     }
