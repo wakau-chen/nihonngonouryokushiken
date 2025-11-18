@@ -65,9 +65,8 @@ let config = null; // 儲存 config.json 數據
 function findListById(items) {
     if (!items) return;
     for (const item of items) {
-        if (item.type === 'list' && item.enabled !== false) {
-            allListConfigs[item.id] = item; 
-        }
+        // ⭐️ 修正：收集所有 list/category 配置，以便查找父級和名稱
+        allListConfigs[item.id] = item; 
         if (item.type === 'category') {
             findListById(item.items);
         }
@@ -99,7 +98,9 @@ async function initializeQuiz() {
     
     // ⭐️ 2. 收集所有列表配置 (用於多選)
     allListConfigs = {};
-    findListById(config.catalog);
+    if (config.catalog) {
+        config.catalog.forEach(item => findListById([item]));
+    }
     
     // 3. 獲取 URL 參數
     const params = new URLSearchParams(window.location.search);
@@ -120,6 +121,13 @@ async function initializeQuiz() {
 
     // ⭐️ 4. 模式選擇區 (如果 URL 只有 listName)
     if (!modeId) {
+        // ⭐️ 修正 3: 避免 Category 被誤認為 list 導致頁面變白 ⭐️
+        if (listConfig.type !== 'list') {
+            // 如果只有 listName 但不是 list 類型，則假裝沒有參數，返回 index.html
+            window.location.href = 'index.html'; 
+            return;
+        }
+
         modeChoiceTitle.textContent = `${listConfig.name} - 選擇模式`;
         let buttonHtml = '';
         if (listConfig.modes && Array.isArray(listConfig.modes)) {
@@ -161,7 +169,7 @@ async function initializeQuiz() {
     let modeConfig = null;
 
     if (selectedIdsFromUrl) {
-        // 情況 A: 從多選流程的第二步跳轉過來，已選列表，準備載入數據
+        // 情況 A: 綜合測驗區的流程 (多選)
         listIdsToLoad = selectedIdsFromUrl.split(',');
         modeConfig = listConfig.modes.find(m => m.id === modeId);
     } else {
@@ -202,18 +210,18 @@ async function initializeQuiz() {
         
         if (selectedIdsFromUrl) {
             // 情況 A: 綜合測驗區的任何模式，返回多選模式選擇頁 (步驟二)
-            // 必須包含 listName (MULTI_SELECT_ENTRY) 和 modeId (multi_quiz_...)
+            // 修正：綜合測驗的返回一律回到 mode_id 選擇頁
             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl}`;
         } else if (currentMode === 'review') {
-            // 情況 B: 單一列表 Review 模式，返回模式選擇頁 (無 practice-exam-choice-area)
+            // 情況 B: 單一列表 Review 模式，返回模式選擇頁 (原始邏輯)
             targetUrl = `quiz.html?list=${listName}`;
         } else {
-            // 情況 C: 單一列表 Quiz/MCQ 模式，返回練習/考試選擇頁
+            // 情況 C: 單一列表 Quiz/MCQ 模式，返回練習/考試選擇頁 (原始邏輯)
             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}`;
         }
         
         const returnButtons = document.querySelectorAll('.button-return');
-        returnButtons.forEach(btn => btn.href = targetUrl); // 確保在 main-area 和 exam-setup-area 的返回是正確的
+        returnButtons.forEach(btn => btn.href = targetUrl);
 
         // 10. 顯示模式選擇或考試設定
         modeChoiceArea.style.display = 'none';
