@@ -24,84 +24,10 @@
                   { "label": "平假名", "key": "hiragana" },
                   { "label": "音調", "key": "pitch" },
                   { "label": "詞性", "key": "type" }
-                ] },
-                { "id": "n3_review_def", "type": "review", "name": "翻卡複習 (中=>日)", "enabled": true, "q_field": "definition", "back_fields": [
-                  { "label": "漢字", "key": "kanji" },
-                  { "label": "平假名", "key": "hiragana" },
-                  { "label": "音調", "key": "pitch" },
-                  { "label": "詞性", "key": "type" }
-                ] },
-                { "id": "n3_quiz_def", "type": "quiz", "name": "輸入測驗 (中=>日)", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
-                  { "label": "日文", "key": "kanji" },
-                  { "label": "平假名", "key": "hiragana" },
-                  { "label": "音調", "key": "pitch" },
-                  { "label": "意思", "key": "definition" },
-                  { "label": "詞性", "key": "type" }
-                ] },
-                { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
-                  { "label": "平假名", "key": "hiragana" },
-                  { "label": "音調", "key": "pitch" },
-                  { "label": "意思", "key": "definition" },
-                  { "label": "詞性", "key": "type" },
-                  { "label": "漢字", "key": "kanji" }
                 ] }
               ]
-            },
-            {
-              "name": "N3 文法 (準備中)",
-              "type": "list",
-              "id": "N3_grammar",
-              "enabled": false,
-              "modes": []
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "讀本",
-      "type": "category",
-      "id": "reader",
-      "enabled": true,
-      "items": [
-        {
-          "name": "第17課 課文",
-          "type": "list",
-          "id": "doben17",
-          "enabled": true,
-          "modes": [
-            {
-              "id": "doben17_text_review",
-              "type": "review",
-              "name": "翻卡複習 (日=>中)",
-              "enabled": true,
-              "q_field": "japanese",
-              "a_field": "chinese",
-              "back_fields": [
-                { "label": "日文", "key": "japanese" },
-                { "label": "中文", "key": "chinese" }
-              ]
-            },
-            {
-              "id": "doben17_quiz_japanese",
-              "type": "quiz",
-              "name": "輸入測驗 (日=>中)",
-              "enabled": true,
-              "q_field": "japanese",
-              "a_field": "chinese",
-              "back_fields": [
-                { "label": "日文", "key": "japanese" },
-                { "label": "中文", "key": "chinese" }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "第18課 (準備中)",
-          "type": "list",
-          "id": "doben18_text",
-          "enabled": false,
-          "modes": []
         }
       ]
     }
