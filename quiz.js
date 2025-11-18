@@ -11,7 +11,7 @@ const examProgress = document.getElementById('exam-progress-bar');
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
-const examSetupArea = document.getElementById('exam-setup-area'); // ⭐️ 變數名稱是 "examSetupArea"
+const examSetupArea = document.getElementById('exam-setup-area'); 
 const mainArea = document.getElementById('quiz-main-area');
 const resultsArea = document.getElementById('exam-results-area');
 
@@ -19,7 +19,6 @@ const resultsArea = document.getElementById('exam-results-area');
 const modeChoiceTitle = document.getElementById('mode-choice-title');
 const modeButtonContainer = document.getElementById('mode-button-container');
 const practiceExamTitle = document.getElementById('practice-exam-title');
-// ⭐️ 1. 修正：變數名稱改為 'examSetupTitle' 並抓取正確的 ID
 const examSetupTitle = document.getElementById('exam-setup-title'); 
 const startPracticeBtn = document.getElementById('start-practice-btn');
 const startExamSetupBtn = document.getElementById('start-exam-setup-btn');
@@ -90,7 +89,7 @@ async function initializeQuiz() {
         }
         
         const listConfig = findListById(config.catalog, listName);
-        if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} の設定`); }
+        if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`); }
 
         // ⭐️ 關鍵：如果 URL "沒有" mode_id，代表我們在「首頁」點的是 "list"
         if (!modeId) {
@@ -124,7 +123,7 @@ async function initializeQuiz() {
         // --- 走到這裡，代表 URL 已經有 listName 和 modeId ---
         const modeConfig = listConfig.modes.find(m => m.id === modeId);
         if (!modeConfig) {
-            throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} の模式設定`);
+            throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} 的模式設定`);
         }
 
         // 儲存全局設定
@@ -145,7 +144,6 @@ async function initializeQuiz() {
 
             if (isExamMode && currentMode !== 'review') {
                 // --- 進入考試設定流程 ---
-                // ⭐️ 2. 修正：使用 'examSetupTitle'
                 if (examSetupTitle) examSetupTitle.textContent = `${modeConfig.name} - 考試設定`;
                 practiceExamChoiceArea.style.display = 'none'; 
                 modeChoiceArea.style.display = 'none'; 
@@ -167,7 +165,6 @@ async function initializeQuiz() {
                     isExamMode = true;
                     practiceExamChoiceArea.style.display = 'none';
                     examSetupArea.style.display = 'block'; 
-                    // ⭐️ 3. 修正：使用 'examSetupTitle'
                     if (examSetupTitle) examSetupTitle.textContent = `${modeConfig.name} - 考試設定`;
                     startExamFinalBtn.addEventListener('click', startGame);
                 });
@@ -181,7 +178,6 @@ async function initializeQuiz() {
                 setupApp(); // 直接開始練習
             }
         } else {
-            // ⭐️ 4. 修正：使用 'examSetupTitle'
             if (examSetupTitle) examSetupTitle.textContent = '單字庫為空！';
             else modeChoiceTitle.textContent = '單字庫為空！';
             
