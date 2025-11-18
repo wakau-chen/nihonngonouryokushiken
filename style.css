@@ -34,6 +34,7 @@ h1 { color: #444; }
     gap: 15px;
     margin-top: 15px; 
 }
+/* ⭐️ 2b. 新增：麵包屑 (Breadcrumbs) ⭐️ */
 .breadcrumbs {
     list-style: none;
     padding: 0;
@@ -58,10 +59,10 @@ h1 { color: #444; }
     color: #aaa;
 }
 .breadcrumbs li:last-child::after {
-    content: '';
+    content: ''; /* 最後一項後面不要 / */
 }
 
-/* ⭐️ 2c. 首頁「資料夾」按鈕 (list-button) 樣式 ⭐️ */
+/* ⭐️ 2c. 首頁按鈕 (list-button) 樣式 ⭐️ */
 .list-button {
     background-color: #34495e; /* 深藍色 */
     padding: 20px;
@@ -76,25 +77,6 @@ h1 { color: #444; }
     background-color: #2c3e50;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-/* ⭐️ 2d. 新增：「返回」按鈕樣式 ⭐️ */
-.back-button {
-    background-color: #f0f0f0; /* 淺灰色 */
-    color: #555;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    padding: 15px 20px;
-    border: 1px solid #ddd;
-    text-align: left; /* 讓箭頭和文字靠左 */
-}
-.back-button:hover {
-    background-color: #e0e0e0;
-    border-color: #ccc;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 /* (模式按鈕 .list-item / .option-button 會被 JS 動態產生) */
@@ -138,6 +120,7 @@ h1 { color: #444; }
 
 
 /* --- 3. ⭐️ 測驗頁 (quiz.html) 樣式 ⭐️ --- */
+/* (所有 setup-container 預設隱藏，JS 會顯示正確的那一個) */
 .setup-container {
     display: none; 
     width: 90%;
@@ -187,7 +170,7 @@ h1 { color: #444; }
     padding: 5px;
 }
 
-/* --- 4. ⭐️ 測驗主體區 (quiz.html) ⭐️ --- */
+/* --- 4. 測驗主體區 (quiz.html) --- */
 #quiz-main-area {
     display: none; 
     width: 100%;
@@ -197,6 +180,7 @@ h1 { color: #444; }
     position: relative;
 }
 
+/* 考試進度條 */
 #exam-progress-bar {
     display: none; 
     width: 100%;
@@ -213,6 +197,7 @@ h1 { color: #444; }
     box-sizing: border-box;
 }
 
+/* 返回主頁面按鈕 */
 #quiz-main-area .home-button {
     position: absolute;
     top: -5px; 
@@ -220,7 +205,7 @@ h1 { color: #444; }
     margin-bottom: 0;
 }
 
-/* (翻轉卡片樣式 - 不變) */
+/* 翻轉卡片 (自動高度) */
 .flashcard-container { perspective: 1000px; margin: 20px; margin-top: 40px; }
 .flashcard {
     width: 320px;
@@ -263,7 +248,7 @@ h1 { color: #444; }
     transform: rotateY(180deg);
 }
 
-/* (下一張按鈕 - 不變) */
+/* 下一張按鈕 */
 button#next-button {
     padding: 10px 20px;
     font-size: 16px;
@@ -282,7 +267,7 @@ button#next-button:disabled {
     cursor: not-allowed;
 }
 
-/* --- 5. ⭐️ 卡片背面 (新版) 樣式 (不變) ⭐️ --- */
+/* --- 5. 卡片背面 (新版) 樣式 --- */
 .card-back {
     display: flex;
     flex-direction: column;
@@ -315,7 +300,7 @@ button#next-button:disabled {
     font-size: 20px;
 }
 
-/* --- 6. ⭐️ 測驗 UI (已修改) ⭐️ --- */
+/* --- 6. 測驗 UI (MCQ, 輸入框) --- */
 .quiz-input-section {
     display: none; 
     width: 100%;
@@ -397,7 +382,7 @@ button.mcq-option.incorrect {
     opacity: 1; 
 }
 
-/* --- 7. ⭐️ 考試結果區 ⭐️ --- */
+/* --- 7. 考試結果區 --- */
 #exam-results-area {
     display: none; 
     width: 90%;
