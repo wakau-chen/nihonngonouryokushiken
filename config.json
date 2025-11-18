@@ -28,7 +28,7 @@
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "n3",
+                "id": "N3",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_review_kanji", "type": "review", "name": "翻卡複習 (日=>中)", "enabled": true, "q_field": "kanji", "back_fields": [
