@@ -1,0 +1,114 @@
+{
+  "siteTitle": "我的日文單字庫",
+  "lists": [
+    {
+      "id": "N3",
+      "name": "N3 單字庫",
+      "enabled": true,
+      "modes": [
+        {
+          "id": "n3_review_kanji",
+          "type": "review",
+          "name": "翻卡複習 (日=>中)",
+          "enabled": true,
+          "q_field": "kanji",
+          "back_fields": [
+            { "label": "意思", "key": "definition" },
+            { "label": "平假名", "key": "hiragana" },
+            { "label": "音調", "key": "pitch" },
+            { "label": "詞性", "key": "type" }
+          ]
+        },
+        {
+          "id": "n3_review_def",
+          "type": "review",
+          "name": "翻卡複習 (中=>日)",
+          "enabled": true,
+          "q_field": "definition",
+          "back_fields": [
+            { "label": "漢字", "key": "kanji" },
+            { "label": "平假名", "key": "hiragana" },
+            { "label": "音調", "key": "pitch" },
+            { "label": "詞性", "key": "type" }
+          ]
+        },
+        {
+          "id": "n3_quiz_def",
+          "type": "quiz",
+          "name": "輸入測驗 (中=>日)",
+          "enabled": true,
+          "q_field": "definition",
+          "a_field": "kanji",
+          "back_fields": [
+            { "label": "日文", "key": "kanji" },
+            { "label": "平假名", "key": "hiragana" },
+            { "label": "音調", "key": "pitch" },
+            { "label": "意思", "key": "definition" },
+            { "label": "詞性", "key": "type" }
+          ]
+        },
+        {
+          "id": "n3_mcq_kanji",
+          "type": "mcq",
+          "name": "選擇測驗 (日=>平假名)",
+          "enabled": true,
+          "q_field": "kanji",
+          "a_field": "hiragana",
+          "back_fields": [
+            { "label": "平假名", "key": "hiragana" },
+            { "label": "音調", "key": "pitch" },
+            { "label": "意思", "key": "definition" },
+            { "label": "詞性", "key": "type" },
+            { "label": "漢字", "key": "kanji" }
+          ]
+        },
+        {
+          "id": "n3_mcq_def",
+          "type": "mcq",
+          "name": "選擇測驗 (中=>日)",
+          "enabled": true,
+          "q_field": "definition",
+          "a_field": "kanji",
+          "back_fields": [
+            { "label": "平假名", "key": "hiragana" },
+            { "label": "音調", "key": "pitch" },
+            { "label": "意思", "key": "definition" },
+            { "label": "詞性", "key": "type" },
+            { "label": "漢字", "key": "kanji" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "doben17",
+      "name": "讀本17課課文",
+      "enabled": true,
+      "modes": [
+        {
+          "id": "doben_review_jpn",
+          "type": "review",
+          "name": "翻卡複習 (日=>中)",
+          "enabled": true,
+          "q_field": "japanese",
+          "a_field": "chinese",
+          "back_fields": [
+            { "label": "日文", "key": "japanese" },
+            { "label": "中文", "key": "chinese" }
+          ]
+        },
+        {
+          "id": "doben_quiz_def",
+          "type": "quiz",
+          "name": "輸入測驗 (中=>日)",
+          "enabled": true,
+          "q_field": "chinese",
+          "a_field": "japanese",
+          "back_fields": [
+            { "label": "日文", "key": "japanese" },
+            { "label": "中文", "key": "chinese" }
+          ]
+        }
+      ]
+    }
+  ]
+}
