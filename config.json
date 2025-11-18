@@ -28,7 +28,7 @@
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "n33",
+                "id": "n3",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_review_kanji", "type": "review", "name": "翻卡複習 (日=>中)", "enabled": true, "q_field": "kanji", "back_fields": [
@@ -56,7 +56,7 @@
               {
                 "name": "測驗模式",
                 "type": "list",
-                "id": "n38",
+                "id": "n3",
                 "enabled": true,
                 "modes": [
                   { "id": "n3_quiz_def", "type": "quiz", "name": "輸入測驗 (中=>日)", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
