@@ -11,7 +11,7 @@ const examProgress = document.getElementById('exam-progress-bar');
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
-const examSetupArea = document.getElementById('exam-setup-area'); 
+const examSetupArea = document.getElementById('exam-setup-area'); // ⭐️ 變數名稱是 "examSetupArea"
 const mainArea = document.getElementById('quiz-main-area');
 const resultsArea = document.getElementById('exam-results-area');
 
@@ -65,6 +65,11 @@ async function initializeQuiz() {
             return;
         }
 
+        // ⭐️ 關鍵：設定所有「返回」按鈕的連結
+        const baseUrl = `quiz.html?list=${listName}`;
+        const returnButtons = document.querySelectorAll('.button-return');
+        returnButtons.forEach(btn => btn.href = baseUrl);
+
         const configResponse = await fetch('config.json?v=' + new Date().getTime());
         if (!configResponse.ok) { throw new Error('無法讀取 config.json'); }
         const config = await configResponse.json();
@@ -85,7 +90,7 @@ async function initializeQuiz() {
         }
         
         const listConfig = findListById(config.catalog, listName);
-        if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`); }
+        if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} の設定`); }
 
         // ⭐️ 關鍵：如果 URL "沒有" mode_id，代表我們在「首頁」點的是 "list"
         if (!modeId) {
@@ -119,7 +124,7 @@ async function initializeQuiz() {
         // --- 走到這裡，代表 URL 已經有 listName 和 modeId ---
         const modeConfig = listConfig.modes.find(m => m.id === modeId);
         if (!modeConfig) {
-            throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} 的模式設定`);
+            throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} の模式設定`);
         }
 
         // 儲存全局設定
@@ -178,7 +183,11 @@ async function initializeQuiz() {
         } else {
             // ⭐️ 4. 修正：使用 'examSetupTitle'
             if (examSetupTitle) examSetupTitle.textContent = '單字庫為空！';
-            examSetupArea.style.display = 'block'; 
+            else modeChoiceTitle.textContent = '單字庫為空！';
+            
+            // 根據我們在哪個階段發現 "空"，顯示正確的畫面
+            if(!modeId) modeChoiceArea.style.display = 'block';
+            else examSetupArea.style.display = 'block'; 
         }
     } catch (error) {
         console.error('加載單字庫失敗:', error);
