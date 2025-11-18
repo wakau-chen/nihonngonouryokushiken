@@ -42,13 +42,6 @@
                     { "label": "平假名", "key": "hiragana" },
                     { "label": "音調", "key": "pitch" },
                     { "label": "詞性", "key": "type" }
-                  ] },
-                  { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
-                    { "label": "平假名", "key": "hiragana" },
-                    { "label": "音調", "key": "pitch" },
-                    { "label": "意思", "key": "definition" },
-                    { "label": "詞性", "key": "type" },
-                    { "label": "漢字", "key": "kanji" }
                   ] }
                 ]
 }
