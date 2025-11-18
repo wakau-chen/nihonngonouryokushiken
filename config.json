@@ -1,161 +1,85 @@
 {
-  "siteTitle": "我的日文單字庫",
-  "catalog": [
+  // ...
+  "items": [
+    // N3 Category
     {
-      "name": "JLPT",
+      "name": "N3",
       "type": "category",
-      "id": "jlpt",
+      "id": "n3_level", // <--- 修正 1: N3 等級 ID
       "enabled": true,
       "items": [
+        // 單字 Category
         {
-          "name": "N3",
+          "name": "單字",
           "type": "category",
-          "id": "n3",
+          "id": "n3_vocab_cat", // <--- 修正 2: N3 單字分類 ID
           "enabled": true,
           "items": [
+            // 單字卡 Category
             {
-            "name": "單字",
-            "type": "category",
-            "id": "n31",
-            "enabled": true,
-            "items": [              
-              {
-            "name": "單字卡",
-            "type": "category",
-            "id": "n32",
-            "enabled": true,
-            "items": [              
-              {
-                "name": "測驗模式",
-                "type": "list",
-                "id": "N3",
-                "enabled": true,
-                "modes": [
-                  { "id": "n3_review_kanji", "type": "review", "name": "翻卡複習 (日=>中)", "enabled": true, "q_field": "kanji", "back_fields": [
-                    { "label": "意思", "key": "definition" },
-                    { "label": "平假名", "key": "hiragana" },
-                    { "label": "音調", "key": "pitch" },
-                    { "label": "詞性", "key": "type" }
-                  ] },
-                  { "id": "n3_review_def", "type": "review", "name": "翻卡複習 (中=>日)", "enabled": true, "q_field": "definition", "back_fields": [
-                    { "label": "漢字", "key": "kanji" },
-                    { "label": "平假名", "key": "hiragana" },
-                    { "label": "音調", "key": "pitch" },
-                    { "label": "詞性", "key": "type" }
-                  ] }
-                ]
-}
-            ]
-              },
-               {
-            "name": "回答單字",
-            "type": "category",
-            "id": "n37",
-            "enabled": true,
-            "items": [              
-              {
-                "name": "測驗模式",
-                "type": "list",
-                "id": "n3",
-                "enabled": true,
-                "modes": [
-                  { "id": "n3_quiz_def", "type": "quiz", "name": "輸入測驗 (中=>日)", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
-                    { "label": "日文", "key": "kanji" },
-                    { "label": "平假名", "key": "hiragana" },
-                    { "label": "音調", "key": "pitch" },
-                    { "label": "意思", "key": "definition" },
-                    { "label": "詞性", "key": "type" }
-                  ] }
-                ]
-}
-            ]
-               },
-              {
-            "name": "選擇題",
-            "type": "category",
-            "id": "n39",
-            "enabled": true,
-            "items": [              
-              {
-                "name": "測驗模式",
-                "type": "list",
-                "id": "N3",
-                "enabled": true,
-                "modes": [
-                  { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
-                    { "label": "平假名", "key": "hiragana" },
-                    { "label": "音調", "key": "pitch" },
-                    { "label": "意思", "key": "definition" },
-                    { "label": "詞性", "key": "type" },
-                    { "label": "漢字", "key": "kanji" }
-                  ] }
-                ]
-}
-            ]
-              }
-
-
-
-              
-                ]               
-              },
-            {
-              "name": "N3 文法 (準備中)",
-              "type": "list",
-              "id": "N3_grammar",
-              "enabled": false,
-              "modes": []
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "讀本",
-      "type": "category",
-      "id": "reader",
-      "enabled": true,
-      "items": [
-        {
-          "name": "第17課 課文",
-          "type": "list",
-          "id": "doben17",
-          "enabled": true,
-          "modes": [
-            {
-              "id": "doben17_text_review",
-              "type": "review",
-              "name": "翻卡複習 (日=>中)",
+              "name": "單字卡",
+              "type": "category",
+              "id": "n3_flashcard_cat", // <--- 修正 3: 單字卡分類 ID
               "enabled": true,
-              "q_field": "japanese",
-              "a_field": "chinese",
-              "back_fields": [
-                { "label": "日文", "key": "japanese" },
-                { "label": "中文", "key": "chinese" }
+              "items": [
+                {
+                  "name": "測驗模式",
+                  "type": "list",
+                  "id": "n3_flashcard_list", // <--- 修正 4: 單字卡列表 ID
+                  "enabled": true,
+                  "modes": [
+                    { "id": "n3_review_kanji", "type": "review", "name": "翻卡複習 (日=>中)", /* ... */ },
+                    { "id": "n3_review_def", "type": "review", "name": "翻卡複習 (中=>日)", /* ... */ }
+                  ]
+                }
               ]
             },
+            // 回答單字 Category (您有問題的地方)
             {
-              "id": "doben17_quiz_japanese",
-              "type": "quiz",
-              "name": "輸入測驗 (日=>中)",
+              "name": "回答單字",
+              "type": "category",
+              "id": "n3_quiz_cat", // <--- 修正 5: 回答單字分類 ID
               "enabled": true,
-              "q_field": "japanese",
-              "a_field": "chinese",
-              "back_fields": [
-                { "label": "日文", "key": "japanese" },
-                { "label": "中文", "key": "chinese" }
+              "items": [
+                {
+                  "name": "測驗模式",
+                  "type": "list",
+                  "id": "n3_quiz_list", // <--- 修正 6: 回答單字列表 ID
+                  "enabled": true,
+                  "modes": [
+                    { 
+                      "id": "n3_quiz_def", 
+                      "type": "quiz", // <--- type 是 quiz，確認無誤
+                      "name": "輸入測驗 (中=>日)", 
+                      // ...
+                    }
+                  ]
+                }
+              ]
+            },
+            // 選擇題 Category
+            {
+              "name": "選擇題",
+              "type": "category",
+              "id": "n3_mcq_cat", // <--- 修正 7: 選擇題分類 ID
+              "enabled": true,
+              "items": [
+                {
+                  "name": "測驗模式",
+                  "type": "list",
+                  "id": "n3_mcq_list", // <--- 修正 8: 選擇題列表 ID
+                  "enabled": true,
+                  "modes": [
+                    { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", /* ... */ }
+                  ]
+                }
               ]
             }
           ]
         },
-        {
-          "name": "第18課 (準備中)",
-          "type": "list",
-          "id": "doben18_text",
-          "enabled": false,
-          "modes": []
-        }
+        // ... (其他 N3 項目)
       ]
     }
+    // ...
   ]
 }
