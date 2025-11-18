@@ -14,16 +14,17 @@ const resultsArea = document.getElementById('exam-results-area');
 
 // 獲取「設定」元素
 const setupTitle = document.getElementById('setup-title');
+let startPracticeBtn = null; 
 const startExamBtn = document.getElementById('start-exam-btn');
 const examProgress = document.getElementById('exam-progress-bar');
 
 // 考試模式變數
-let isExamMode = false; // ⭐️ 關鍵！由 URL 決定
+let isExamMode = false;
 let examTotalQuestions = 0;
 let examCurrentQuestion = 0;
 let examIncorrectCount = 0;
-let testedIndices = new Set(); 
-let currentCardMarkedWrong = false; 
+let testedIndices = new Set();
+let currentCardMarkedWrong = false;
 
 // 全局變數
 let QUESTION_FIELD = '';
@@ -32,7 +33,7 @@ let BACK_CARD_FIELDS = [];
 let vocabulary = []; 
 let currentCardIndex = 0; 
 let currentCorrectAnswer = ""; 
-let currentMode = 'review'; 
+let currentMode = 'review'; // ⭐️ 這裡的 "mode" 指的是 "type"
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -48,12 +49,13 @@ async function loadVocabulary() {
     try {
         const params = new URLSearchParams(window.location.search);
         const listName = params.get('list'); 
-        currentMode = params.get('mode') || 'review'; 
-        isExamMode = params.get('exam') === 'true'; // ⭐️ 讀取 "考試" 參數
+        currentMode = params.get('mode_type') || 'review'; // ⭐️ 讀取 "mode_type"
+        const modeId = params.get('mode_id'); // ⭐️ 讀取 "mode_id"
+        isExamMode = params.get('exam') === 'true'; 
 
-        if (!listName) {
-            setupTitle.textContent = '錯誤：未指定單字庫';
-            setupArea.style.display = 'block'; // 顯示錯誤
+        if (!listName || !modeId) {
+            setupTitle.textContent = '錯誤：未指定單字庫或模式';
+            setupArea.style.display = 'block'; 
             return;
         }
 
@@ -64,21 +66,15 @@ async function loadVocabulary() {
         const listConfig = config.lists.find(list => list.id === listName);
         if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`); }
 
-        let modeConfig = {};
-        if (currentMode === 'review' && listConfig.review) {
-            modeConfig = listConfig.review;
-            ANSWER_FIELD = ''; 
-        } else if (currentMode === 'quiz' && listConfig.quiz) {
-            modeConfig = listConfig.quiz;
-            ANSWER_FIELD = modeConfig.a_field;
-        } else if (currentMode === 'mcq' && listConfig.mcq) { 
-            modeConfig = listConfig.mcq;
-            ANSWER_FIELD = modeConfig.a_field;
-        } else {
-            throw new Error(`在 config.json 中找不到 ${listName} 的 ${currentMode} 設定`);
+        // ⭐️ 關鍵：在 "modes" 陣列中，找到 "id" 相符的那個模式
+        const modeConfig = listConfig.modes.find(m => m.id === modeId);
+        if (!modeConfig) {
+            throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} 的模式設定`);
         }
 
+        // ⭐️ 把「專屬設定」存到全局變數
         QUESTION_FIELD = modeConfig.q_field;
+        ANSWER_FIELD = modeConfig.a_field || ''; // review 模式沒有 a_field
         BACK_CARD_FIELDS = modeConfig.back_fields || [];
         
         const filePath = `words/${listName}.json?v=${new Date().getTime()}`;
@@ -87,16 +83,20 @@ async function loadVocabulary() {
         vocabulary = await response.json(); 
         
         if (vocabulary.length > 0) {
-            // ⭐️ 關鍵：決定要顯示「設定區」還是「主體區」
+            // ⭐️ 決定要顯示「設定區」還是「主體區」
             if (isExamMode) {
                 // --- 進入考試設定流程 ---
                 setupTitle.textContent = `${listConfig.name} - 考試設定`;
+                
+                startPracticeBtn = document.getElementById('start-practice-btn');
+                if(startPracticeBtn) startPracticeBtn.style.display = 'none';
+                
                 setupArea.style.display = 'block';
                 startExamBtn.addEventListener('click', startGame);
             } else {
                 // --- 進入練習流程 ---
                 setupArea.style.display = 'none';
-                mainArea.style.display = 'flex'; // ⭐️ 注意：設為 'flex'
+                mainArea.style.display = 'flex'; 
                 setupApp(); // 直接開始練習
             }
         } else {
@@ -113,11 +113,9 @@ async function loadVocabulary() {
 
 // --- 3. ⭐️ 啟動遊戲 (原 "startGame") ⭐️ ---
 function startGame() {
-    // 1. 切換顯示區域
     setupArea.style.display = 'none';
-    mainArea.style.display = 'flex'; // ⭐️ 注意：設為 'flex'
+    mainArea.style.display = 'flex'; 
 
-    // 2. 讀取考試設定
     const selectedLength = document.querySelector('input[name="exam-length"]:checked').value;
     if (selectedLength === 'all') {
         examTotalQuestions = vocabulary.length;
@@ -129,20 +127,17 @@ function startGame() {
         examTotalQuestions = vocabulary.length;
     }
 
-    // 3. 重設計數器
     examCurrentQuestion = 0;
     examIncorrectCount = 0;
     testedIndices.clear();
     updateExamProgress(); 
     
-    // 4. 綁定主程式事件 (原 "setupApp")
     setupApp();
 }
 
 
 // --- 4. 設置主要功能 (原 "setupApp") ---
 function setupApp() {
-    // (移除了 loadVocabulary)
     flashcard.addEventListener('click', flipCard);
     nextButton.addEventListener('click', handleButtonPress);
 
@@ -175,22 +170,18 @@ function setupApp() {
 
 // --- 5. ⭐️ 顯示新卡片 (已升級考試邏輯) ⭐️ ---
 async function loadNextCard() {
-    // 1. 檢查考試是否結束
     if (isExamMode && examCurrentQuestion >= examTotalQuestions) {
         showExamResults();
         return; 
     }
     
-    // 2. (修復閃爍 - 不變)
     if (flashcard.classList.contains('is-flipped')) {
         flashcard.classList.remove('is-flipped');
         await new Promise(resolve => setTimeout(resolve, 610));
     }
     
-    // 3. 抽卡邏輯
     let card;
     if (isExamMode) {
-        // --- 考試模式：抽不重複的卡 ---
         examCurrentQuestion++;
         updateExamProgress();
         currentCardMarkedWrong = false; 
@@ -207,7 +198,6 @@ async function loadNextCard() {
         card = vocabulary[newIndex];
 
     } else {
-        // --- 練習模式：隨機抽卡 (可重複) ---
         const oldIndex = currentCardIndex;
         if (vocabulary.length <= 1) { currentCardIndex = 0; }
         else {
@@ -219,7 +209,6 @@ async function loadNextCard() {
     
     if (!card) return; 
 
-    // 4. 填入卡片內容
     cardFront.textContent = card[QUESTION_FIELD] || "";
     currentCorrectAnswer = card[ANSWER_FIELD] || "";
 
@@ -239,21 +228,22 @@ async function loadNextCard() {
     }
     cardBack.innerHTML = backHtml;
     
-    // 5. 重設 UI
     if (currentMode === 'quiz') {
         answerInput.value = ""; 
         answerInput.disabled = false; 
         answerInput.classList.remove('correct', 'incorrect');
         nextButton.textContent = "檢查答案"; 
+        nextButton.disabled = false;
         if (answerInput) answerInput.focus(); 
         
     } else if (currentMode === 'mcq') {
         generateMcqOptions();
         nextButton.textContent = "下一張"; 
-        nextButton.disabled = true; // 答對前禁用
+        nextButton.disabled = true; 
         
     } else { // review 模式
         nextButton.textContent = "顯示答案"; 
+        nextButton.disabled = false;
     }
 }
 
@@ -313,13 +303,13 @@ function handleButtonPress() {
     }
 }
 
-// --- 8. 處理 Enter / Shift 鍵 (不變) ---
+// --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
 
     if (event.key === 'Enter') {
         event.preventDefault();
-        if (nextButton.textContent === "下一張" || nextButton.textContent === "檢查答案") {
+        if (!nextButton.disabled) {
              handleButtonPress();
         }
         return; 
@@ -338,7 +328,7 @@ function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// --- 10. 滑動手勢處理 (不變) ---
+// --- 10. ⭐️ 滑動手勢處理 (已修正) ⭐️ ---
 function handleTouchStart(event) {
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
@@ -364,12 +354,12 @@ function handleTouchEnd(event) {
     touchStartY = 0;
 }
 function triggerNextCardAction() {
-    if (nextButton.textContent === "下一張") {
+    if (!nextButton.disabled) {
         handleButtonPress();
     }
 }
 
-// --- 11. MCQ 相關函式 (已升級考試邏輯) ---
+// --- 11. MCQ 相關函式 (不變) ---
 function generateMcqOptions() {
     const correctAnswer = currentCorrectAnswer;
     let distractors = [];
@@ -431,16 +421,15 @@ function handleMcqAnswer(event) {
     flipCard();
 }
 
-// --- ⭐️ 12. 考試專用函式 (不變) ⭐️ ---
+// --- 12. 考試專用函式 (不變) ---
 function updateExamProgress() {
     if (!isExamMode) {
-        examProgress.style.display = 'none';
+        if(examProgress) examProgress.style.display = 'none';
         return;
     }
     
-    examProgress.style.display = 'flex';
+    if(examProgress) examProgress.style.display = 'flex';
     let score = 'N/A';
-    // ⭐️ 修正：在 "第 0 題" 時不要計算
     if (examCurrentQuestion > 0) {
         const correctCount = (examCurrentQuestion - examIncorrectCount);
         score = Math.round((correctCount / examCurrentQuestion) * 100);
@@ -453,8 +442,8 @@ function updateExamProgress() {
     `;
 }
 function showExamResults() {
-    mainArea.style.display = 'none';
-    resultsArea.style.display = 'block';
+    if(mainArea) mainArea.style.display = 'none';
+    if(resultsArea) resultsArea.style.display = 'block';
 
     const correctCount = examTotalQuestions - examIncorrectCount;
     const finalScore = Math.round((correctCount / examTotalQuestions) * 100);
@@ -479,5 +468,4 @@ function showExamResults() {
 }
 
 // --- 啟動程式 ---
-// (不再呼叫 setupApp 或 loadNextCard)
 loadVocabulary();
