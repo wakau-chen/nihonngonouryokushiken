@@ -210,7 +210,6 @@ async function initializeQuiz() {
         
         if (selectedIdsFromUrl) {
             // 情況 A: 綜合測驗區的任何模式，返回多選模式選擇頁 (步驟二)
-            // 修正：綜合測驗的返回一律回到 mode_id 選擇頁
             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl}`;
         } else if (currentMode === 'review') {
             // 情況 B: 單一列表 Review 模式，返回模式選擇頁 (原始邏輯)
@@ -239,6 +238,13 @@ async function initializeQuiz() {
             practiceExamChoiceArea.style.display = 'block';
             practiceExamTitle.textContent = `${listConfig.name} - ${modeConfig.name}`;
             
+            // ⭐️ FIX 1: 設置 practiceExamChoiceArea 的返回按鈕連結 ⭐️
+            const practiceExamReturnBtn = practiceExamChoiceArea.querySelector('.button-return');
+            if (practiceExamReturnBtn) {
+                 // 這裡必須返回到 mode selection page (不帶 mode_id)
+                practiceExamReturnBtn.href = `quiz.html?list=${listName}`;
+            }
+
             // 處理練習與考試按鈕
             startPracticeBtn.onclick = () => {
                 isExamMode = false;
@@ -253,10 +259,10 @@ async function initializeQuiz() {
                 examSetupTitle.textContent = `${listConfig.name} - ${modeConfig.name} 考試設定`;
                 startExamFinalBtn.onclick = startGame;
                 
-                // ⭐️ 修正 2: 確保考試設定頁的返回按鈕指向練習/考試選擇區 ⭐️
+                // ⭐️ FIX 2: 確保考試設定頁的返回按鈕指向練習/考試選擇區 ⭐️
                 const examSetupReturnBtn = examSetupArea.querySelector('.button-return');
                 if (examSetupReturnBtn) {
-                    // targetUrl 此時已經是正確的練習/考試選擇頁 URL
+                    // 返回到 practice/exam choice page (targetUrl 已經是正確的)
                     examSetupReturnBtn.href = targetUrl;
                 }
             };
