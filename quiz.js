@@ -63,20 +63,17 @@ async function initializeQuiz() {
             return;
         }
 
-        // ⭐️ 關鍵：設定所有「返回」按鈕的連結
-        // (返回到 "模式選擇" 畫面)
-        const baseUrl = `quiz.html?list=${listName}`;
-        const returnButtons = document.querySelectorAll('.button-return');
-        returnButtons.forEach(btn => btn.href = baseUrl);
-        
         const configResponse = await fetch('config.json?v=' + new Date().getTime());
         if (!configResponse.ok) { throw new Error('無法讀取 config.json'); }
         const config = await configResponse.json();
 
-        function findListById(items, id) { /* (遞迴尋找函式 - 不變) */
+        // ⭐️ 關鍵：在 "catalog" 中「遞迴」尋找 "list"
+        function findListById(items, id) {
             if (!items) return null;
             for (const item of items) {
-                if (item.type === 'list' && item.id === id) return item;
+                if (item.type === 'list' && item.id === id) {
+                    return item;
+                }
                 if (item.type === 'category') {
                     const found = findListById(item.items, id);
                     if (found) return found;
@@ -88,7 +85,7 @@ async function initializeQuiz() {
         const listConfig = findListById(config.catalog, listName);
         if (!listConfig) { throw new Error(`在 config.json 中找不到 ID 為 ${listName} 的設定`); }
 
-        // ⭐️ 關鍵：如果 URL "沒有" mode_id，顯示「模式選擇」畫面
+        // ⭐️ 關鍵：如果 URL "沒有" mode_id，代表我們在「首頁」點的是 "list"
         if (!modeId) {
             modeChoiceTitle.textContent = `${listConfig.name} - 選擇模式`;
             let buttonHtml = '';
@@ -110,7 +107,8 @@ async function initializeQuiz() {
                 
                 const chosenModeId = button.dataset.modeId;
                 // ⭐️ 重新載入頁面，這次 "附帶" mode_id
-                const url = `${baseUrl}&mode_id=${chosenModeId}`;
+                // ⭐️ (我們移除了 isExam，因為 "考試" 的決定是在下一步)
+                const url = `quiz.html?list=${listName}&mode_id=${chosenModeId}`;
                 window.location.href = url;
             });
             
@@ -124,11 +122,13 @@ async function initializeQuiz() {
             throw new Error(`在 ${listName} 中找不到 ID 為 ${modeId} 的模式設定`);
         }
 
+        // 儲存全局設定
         currentMode = modeConfig.type;
         QUESTION_FIELD = modeConfig.q_field;
         ANSWER_FIELD = modeConfig.a_field || '';
         BACK_CARD_FIELDS = modeConfig.back_fields || [];
         
+        // 載入單字庫
         const filePath = `words/${listName}.json?v=${new Date().getTime()}`;
         const response = await fetch(filePath); 
         if (!response.ok) { throw new Error(`無法讀取 ${listName}.json 檔案`); }
