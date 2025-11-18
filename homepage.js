@@ -5,6 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let globalConfig = null; // 儲存 config.json
+let allListConfigs = {}; 
+
+// ⭐️ 輔助函式：遞迴收集所有 list ID
+function collectAllListConfigs(items) {
+    if (!items) return;
+    for (const item of items) {
+        if (item.type === 'list' && item.enabled !== false) {
+            allListConfigs[item.id] = { name: item.name, modes: item.modes };
+        }
+        if (item.type === 'category') {
+            collectAllListConfigs(item.items);
+        }
+    }
+}
+
 
 async function renderHomePage() {
     try {
@@ -15,6 +30,10 @@ async function renderHomePage() {
             }
             globalConfig = await response.json();
             document.title = globalConfig.siteTitle || '單字卡練習';
+            
+            // 收集所有可用的單字庫配置
+            allListConfigs = {};
+            collectAllListConfigs(globalConfig.catalog);
         }
 
         const container = document.getElementById('list-container');
@@ -48,16 +67,13 @@ async function renderHomePage() {
             breadcrumbs.innerHTML += `<li><a href="${segment.hash}">${segment.name}</a></li>`;
         });
 
-        // ⭐️ 6. 關鍵：產生「返回」按鈕 (如果不在首頁)
         let allHtml = ''; 
-        if (currentCategory) { // "currentCategory" 只有在 "非首頁" 時才會有值
-            let parentHash = '#'; // 預設返回 "首頁"
+        if (currentCategory) { 
+            let parentHash = '#'; 
             if (pathSegments.length > 1) {
-                // 如果層級大於 1，返回「倒數第二個」麵包屑
                 parentHash = pathSegments[pathSegments.length - 2].hash;
             }
             
-            // ⭐️ 新增「返回上一層」按鈕
             allHtml += `
                 <a href="${parentHash}" class="option-button back-button">
                     &larr; 返回上一層
@@ -65,8 +81,6 @@ async function renderHomePage() {
             `;
         }
 
-        // 7. 產生按鈕
-        let hasModes = false; 
         for (const item of currentLevelItems) {
             
             if (item.enabled === false) continue;
@@ -80,25 +94,41 @@ async function renderHomePage() {
                 `;
             } else if (item.type === 'list') {
                 // --- 這是一個「單字庫」 ---
-                hasModes = true; 
-                allHtml += `
-                    <div class="list-item">
-                        <h4>${item.name}</h4>
-                        <div class="button-group">
-                `;
+                
+                // ⭐️ 檢查是否為「自選多庫測驗入口」
+                if (item.id === 'MULTI_SELECT_ENTRY') {
+                    // 導向 quiz.html，讓它直接進入 list 選擇介面 (使用 INITIATE_SELECT 觸發 quiz.js 特殊流程)
+                    allHtml += `
+                        <div class="list-item">
+                            <h4 class="list-name">${item.name}</h4>
+                            <div class="button-group">
+                                <a href="quiz.html?list=${item.id}&mode_id=INITIATE_SELECT" class="option-button mcq-mode">
+                                    進入選擇
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 既有的單一單字庫邏輯
+                    allHtml += `
+                        <div class="list-item">
+                            <h4 class="list-name">${item.name}</h4>
+                            <div class="button-group">
+                    `;
 
-                if (item.modes && Array.isArray(item.modes)) {
-                    for (const mode of item.modes) {
-                        if (mode.enabled) {
-                            allHtml += `
-                                <button class="option-button ${mode.type}-mode" data-list-id="${item.id}" data-mode-id="${mode.id}" data-mode-type="${mode.type}">
-                                    ${mode.name}
-                                </button>
-                            `;
+                    if (item.modes && Array.isArray(item.modes)) {
+                        for (const mode of item.modes) {
+                            if (mode.enabled) {
+                                allHtml += `
+                                    <button class="option-button ${mode.type}-mode" data-list-id="${item.id}" data-mode-id="${mode.id}" data-mode-type="${mode.type}">
+                                        ${mode.name}
+                                    </button>
+                                `;
+                            }
                         }
                     }
+                    allHtml += `</div></div>`;
                 }
-                allHtml += `</div></div>`;
             }
         }
         
@@ -116,26 +146,20 @@ async function renderHomePage() {
     }
 }
 
-// ⭐️ 9. 處理所有首頁點擊
+// ⭐️ 9. 處理所有首頁點擊 (不變)
 function handleHomePageClick(event) {
     const button = event.target.closest('.option-button');
     if (!button) return;
 
-    // ⭐️ 檢查是否點擊了「模式」按鈕 (最終按鈕)
     const listId = button.dataset.listId;
     const modeId = button.dataset.modeId;
 
     if (listId && modeId) {
         event.preventDefault(); 
         
-        // (我們移除了 "考試模式" 勾選框，所以 exam=false)
         const isExam = false; 
 
         const url = `quiz.html?list=${listId}&mode_id=${modeId}&exam=${isExam}`;
         window.location.href = url;
     }
-    
-    // 如果點的不是「模式」按鈕 (而是 "list-button" 或 "back-button")
-    // 它就是一個 <a> 標籤，我們會讓它
-    // 自動跳轉 (例如 href="#reader" 或 href="#") 並觸發 'hashchange' 事件
 }
