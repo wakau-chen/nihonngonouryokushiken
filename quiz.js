@@ -19,7 +19,6 @@ const resultsArea = document.getElementById('exam-results-area');
 const modeChoiceTitle = document.getElementById('mode-choice-title');
 const modeButtonContainer = document.getElementById('mode-button-container');
 const practiceExamTitle = document.getElementById('practice-exam-title');
-// ⭐️ 1. 修正：變數名稱改為 'examSetupTitle' 並抓取正確的 ID
 const examSetupTitle = document.getElementById('exam-setup-title'); 
 const startPracticeBtn = document.getElementById('start-practice-btn');
 const startExamSetupBtn = document.getElementById('start-exam-setup-btn');
@@ -257,9 +256,11 @@ async function loadNextCard() {
         return; 
     }
     
+    // ⭐️ 關鍵：如果卡片是翻開的，則只執行翻回正面 (讓用戶先看到題目)
     if (flashcard.classList.contains('is-flipped')) {
-        flashcard.classList.remove('is-flipped');
+        flipCard();
         await new Promise(resolve => setTimeout(resolve, 610));
+        // 注意：這裡只翻面，不更新內容，讓用戶看回舊題目，再點擊換新卡
     }
     
     let card;
@@ -374,6 +375,7 @@ function handleButtonPress() {
             loadNextCard();
         }
     } else if (currentMode === 'review') {
+        // ⭐️ 關鍵：這裡的邏輯已經被優化為兩段式
         if (buttonState === "顯示答案") {
             flipCard();
             nextButton.textContent = "下一張"; 
@@ -436,9 +438,19 @@ function handleTouchEnd(event) {
     let touchEndY = event.changedTouches[0].screenY;
     let swipeDistanceX = touchStartX - touchEndX; 
     const minSwipeThreshold = 50; 
-    if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
+    
+    // ⭐️ 關鍵：判斷是否為主要水平滑動且超過門檻
+    if (Math.abs(swipeDistanceX) > Math.abs(touchStartY - touchEndY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
+        
         if (swipeDistanceX > 0) {
+            // ⭐️ 往左滑 (R -> L): 執行下一張動作 (翻面或換題)
             triggerNextCardAction(); 
+        } else {
+            // ⭐️ 往右滑 (L -> R): 觸發返回上一層 (Mode Selection)
+            const returnButtons = document.querySelectorAll('.button-return');
+            if (returnButtons.length > 0) {
+                window.location.href = returnButtons[0].href;
+            }
         }
     }
     touchStartX = 0;
