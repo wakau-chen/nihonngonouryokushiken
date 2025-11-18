@@ -63,9 +63,9 @@
           ]
         },
         {
-          "id": "n3_mcq_kanji",
+          "id": "n3_mcq_def",
           "type": "mcq",
-          "name": "選擇測驗 (中=>日)",
+          "name": "選擇測WEEN (中=>日)",
           "enabled": true,
           "q_field": "definition",
           "a_field": "kanji",
@@ -95,23 +95,20 @@
             { "label": "日文", "key": "japanese" },
             { "label": "中文", "key": "chinese" }
           ]
+        },
+        {
+          "id": "doben_quiz_def",
+          "type": "quiz",
+          "name": "輸入測驗 (中=>日)",
+          "enabled": true,
+          "q_field": "chinese",
+          "a_field": "japanese",
+          "back_fields": [
+            { "label": "日文", "key": "japanese" },
+            { "label": "中文", "key": "chinese" }
+          ]
         }
       ]
-    },
-    {
-      "id": "doben_quiz_def",
-      "type": "quiz",
-      "name": "輸入測驗 (中=>日)",
-      "enabled": true,
-      "q_field": "chinese",
-      "a_field": "japanese",
-      "back_fields": [
-        { "label": "日文", "key": "japanese" },
-        { "label": "中文", "key": "chinese" }
-      ]
     }
-    
-    
-    
   ]
 }
