@@ -85,12 +85,12 @@
                   "enabled": true,
                   "items": [
                     {
-                      "name": "選擇測驗 (日=>平假名)",
+                      "name": "選擇測驗 (日=>中)",
                       "type": "list",
                       "id": "N3",
                       "enabled": true,
                       "modes": [
-                        { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>平假名)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
+                        { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>中)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
                           { "label": "平假名", "key": "hiragana" },
                           { "label": "音調", "key": "pitch" },
                           { "label": "意思", "key": "definition" },
