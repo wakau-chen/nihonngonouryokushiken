@@ -32,9 +32,37 @@ h1 { color: #444; }
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-top: 25px; 
+    margin-top: 15px; 
 }
-/* ⭐️ 首頁按鈕的新樣式 */
+/* ⭐️ 2b. 新增：麵包屑 (Breadcrumbs) ⭐️ */
+.breadcrumbs {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    text-align: left;
+}
+.breadcrumbs li {
+    display: inline;
+    font-size: 16px;
+    color: #555;
+}
+.breadcrumbs li a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+.breadcrumbs li a:hover {
+    text-decoration: underline;
+}
+.breadcrumbs li::after {
+    content: '/';
+    margin: 0 8px;
+    color: #aaa;
+}
+.breadcrumbs li:last-child::after {
+    content: ''; /* 最後一項後面不要 / */
+}
+
+/* ⭐️ 2c. 首頁按鈕 (list-button) 樣式 ⭐️ */
 .list-button {
     background-color: #34495e; /* 深藍色 */
     padding: 20px;
@@ -50,8 +78,8 @@ h1 { color: #444; }
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-/* (舊的 .list-item 和 .button-group 已移除，
-   但在 quiz.js 載入的模式按鈕中仍會用到) */
+
+/* (模式按鈕 .list-item / .option-button 會被 JS 動態產生) */
 .list-item {
     background-color: #fafafa;
     border: 1px solid #eee;
@@ -83,7 +111,6 @@ h1 { color: #444; }
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-/* (按鈕顏色 - 不變) */
 .option-button.review-mode { background-color: #4a90e2; }
 .option-button.review-mode:hover { background-color: #3f7bbf; }
 .option-button.quiz-mode { background-color: #50b3a2; }
@@ -91,9 +118,13 @@ h1 { color: #444; }
 .option-button.mcq-mode { background-color: #8e44ad; }
 .option-button.mcq-mode:hover { background-color: #732d91; }
 
-/* ⭐️ 3. 測驗頁「設定區」的通用樣式 ⭐️ */
+/* ⭐️ (已移除 考試模式勾選框 .exam-toggle-container 樣式) ⭐️ */
+
+
+/* --- 3. ⭐️ 測驗頁 (quiz.html) 樣式 ⭐️ --- */
+/* (所有 setup-container 預設隱藏，JS 會顯示正確的那一個) */
 .setup-container {
-    display: none; /* 所有設定區預設隱藏 */
+    display: none; 
     width: 90%;
     max-width: 500px;
     margin: 40px auto;
@@ -102,7 +133,7 @@ h1 { color: #444; }
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     text-align: center;
-    position: relative; /* 為了 "返回" 按鈕定位 */
+    position: relative;
 }
 .setup-container h1 {
     font-size: 22px;
@@ -110,7 +141,6 @@ h1 { color: #444; }
     margin-top: 0;
     margin-bottom: 20px;
 }
-/* (設定區的 .home-button) */
 .setup-container .home-button {
     position: absolute; 
     top: 15px;
@@ -149,12 +179,11 @@ h1 { color: #444; }
     max-width: 500px; 
     flex-direction: column;
     align-items: center;
-    position: relative; /* 為了 "返回" 按鈕定位 */
+    position: relative;
 }
 
-/* ⭐️ 新增：考試進度條 */
 #exam-progress-bar {
-    display: none; /* 預設隱藏 */
+    display: none; 
     width: 100%;
     max-width: 320px;
     padding: 10px;
@@ -169,12 +198,11 @@ h1 { color: #444; }
     box-sizing: border-box;
 }
 
-/* (測驗區的 .home-button) */
 #quiz-main-area .home-button {
-    margin-bottom: 0; /* 移除多餘的 margin */
     position: absolute;
-    top: -5px; /* 移到進度條上方 */
+    top: -5px; 
     right: 0;
+    margin-bottom: 0;
 }
 
 /* (翻轉卡片樣式 - 不變) */
