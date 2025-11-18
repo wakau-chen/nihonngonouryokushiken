@@ -12,7 +12,7 @@ body {
 }
 h1 { color: #444; }
 
-/* --- 2. 首頁 (index.html) 樣式 --- */
+/* --- 2. ⭐️ 首頁 (index.html) 樣式 (已升級) ⭐️ --- */
 .homepage-container {
     width: 90%;
     max-width: 600px;
@@ -60,8 +60,10 @@ h1 { color: #444; }
 .breadcrumbs li:last-child::after {
     content: '';
 }
+
+/* ⭐️ 2c. 首頁「資料夾」按鈕 (list-button) 樣式 ⭐️ */
 .list-button {
-    background-color: #34495e;
+    background-color: #34495e; /* 深藍色 */
     padding: 20px;
     color: white;
     font-size: 18px;
@@ -75,6 +77,27 @@ h1 { color: #444; }
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+
+/* ⭐️ 2d. 新增：「返回」按鈕樣式 ⭐️ */
+.back-button {
+    background-color: #f0f0f0; /* 淺灰色 */
+    color: #555;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    padding: 15px 20px;
+    border: 1px solid #ddd;
+    text-align: left; /* 讓箭頭和文字靠左 */
+}
+.back-button:hover {
+    background-color: #e0e0e0;
+    border-color: #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* (模式按鈕 .list-item / .option-button 會被 JS 動態產生) */
 .list-item {
     background-color: #fafafa;
     border: 1px solid #eee;
@@ -114,7 +137,7 @@ h1 { color: #444; }
 .option-button.mcq-mode:hover { background-color: #732d91; }
 
 
-/* --- 3. 測驗頁 (quiz.html) 樣式 --- */
+/* --- 3. ⭐️ 測驗頁 (quiz.html) 樣式 ⭐️ --- */
 .setup-container {
     display: none; 
     width: 90%;
@@ -164,7 +187,7 @@ h1 { color: #444; }
     padding: 5px;
 }
 
-/* --- 4. 測驗主體區 (quiz.html) --- */
+/* --- 4. ⭐️ 測驗主體區 (quiz.html) ⭐️ --- */
 #quiz-main-area {
     display: none; 
     width: 100%;
@@ -259,7 +282,7 @@ button#next-button:disabled {
     cursor: not-allowed;
 }
 
-/* --- 5. 卡片背面 (新版) 樣式 (不變) --- */
+/* --- 5. ⭐️ 卡片背面 (新版) 樣式 (不變) ⭐️ --- */
 .card-back {
     display: flex;
     flex-direction: column;
@@ -293,31 +316,26 @@ button#next-button:disabled {
 }
 
 /* --- 6. ⭐️ 測驗 UI (已修改) ⭐️ --- */
-
-/* (輸入框容器 - 不變) */
 .quiz-input-section {
     display: none; 
     width: 100%;
     max-width: 320px; 
     margin: 15px 0;
 }
-
-/* ⭐️ 關鍵：修改 #answer-input 樣式以適應 textarea ⭐️ */
 #answer-input {
     width: 100%;
-    min-height: 80px; /* ⭐️ 給定最小高度 */
+    min-height: 80px; 
     padding: 12px;
     font-size: 18px;
-    font-family: inherit; /* ⭐️ 繼承字體 */
-    line-height: 1.5; /* ⭐️ 增加行高 */
-    text-align: left; /* ⭐️ 關鍵：靠左對齊 */
+    font-family: inherit;
+    line-height: 1.5;
+    text-align: left; 
     border: 2px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    resize: vertical; /* ⭐️ 允許使用者垂直拉長 */
+    resize: vertical;
 }
-
 #answer-input:focus {
     border-color: #4a90e2;
     box-shadow: 0 0 8px rgba(74,144,226,0.3);
@@ -337,8 +355,6 @@ button#next-button:disabled {
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 .shake { animation: shake 0.5s ease-in-out; }
-
-/* (MCQ 樣式 - 不變) */
 .mcq-options-section {
     display: none; 
     width: 100%;
@@ -381,7 +397,7 @@ button.mcq-option.incorrect {
     opacity: 1; 
 }
 
-/* --- 7. 考試結果區 (不變) --- */
+/* --- 7. ⭐️ 考試結果區 ⭐️ --- */
 #exam-results-area {
     display: none; 
     width: 90%;
