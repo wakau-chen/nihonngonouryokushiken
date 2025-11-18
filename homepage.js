@@ -27,7 +27,6 @@ async function renderHomePage() {
         if (!container || !mainTitle || !breadcrumbs) return;
 
         // 2. ⭐️ 解析 URL Hash (路徑)
-        // 例如 #reader/lesson17
         const path = window.location.hash.substring(1).split('/');
         
         let currentLevelItems = globalConfig.catalog;
@@ -96,16 +95,9 @@ async function renderHomePage() {
             }
         }
         
-        // 7. ⭐️ 顯示/隱藏「考試模式」勾選框
-        // (我們上一版移除了，您現在可以把它加回來)
-        const examToggle = document.getElementById('exam-toggle-container'); 
-        if(examToggle){
-            if (hasModes) {
-                examToggle.style.display = 'block';
-            } else {
-                examToggle.style.display = 'none';
-            }
-        }
+        // 7. ⭐️ 顯示/隱藏「考試模式」勾選框 (我們已移除)
+        // const examToggle = document.getElementById('exam-toggle-container'); 
+        // if(examToggle){ ... }
 
         container.innerHTML = allHtml;
         
@@ -130,18 +122,13 @@ function handleHomePageClick(event) {
     // 檢查這是否是一個「模式」按鈕 (最終按鈕)
     const listId = button.dataset.listId;
     const modeId = button.dataset.modeId;
-    const modeType = button.dataset.modeType;
 
     if (listId && modeId) {
         // --- 這是最終按鈕，我們要跳轉到 quiz.html ---
         event.preventDefault(); 
         
-        // ⭐️ (您必須把 "exam-mode-toggle" 的 ID 加回 index.html 才能用)
-        let isExam = false;
-        const examToggle = document.getElementById('exam-mode-toggle');
-        if (examToggle && examToggle.checked && (modeType === 'quiz' || modeType === 'mcq')) {
-            isExam = true;
-        }
+        // ⭐️ (我們已移除 "考試模式" 勾選框，所以 exam=false)
+        const isExam = false;
 
         // 產生最終的 URL 並跳轉
         const url = `quiz.html?list=${listId}&mode_id=${modeId}&exam=${isExam}`;
