@@ -181,7 +181,7 @@ async function initializeQuiz() {
             if (examSetupTitle) examSetupTitle.textContent = '單字庫為空！';
             else modeChoiceTitle.textContent = '單字庫為空！';
             
-            // 根據我們在哪個階段發現 "空"，顯示正確的畫面
+            // 根據我們在哪個階段發現 "空」，顯示正確的畫面
             if(!modeId) modeChoiceArea.style.display = 'block';
             else examSetupArea.style.display = 'block'; 
         }
@@ -418,7 +418,7 @@ function flipCard() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// --- 10. ⭐️ 滑動手勢處理 (已修正) ⭐️ ---
+// --- 10. ⭐️ 滑動手勢處理 (已更新為新邏輯) ⭐️ ---
 function handleTouchStart(event) {
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
@@ -435,16 +435,19 @@ function handleTouchEnd(event) {
     let touchEndY = event.changedTouches[0].screenY;
     
     let swipeDistanceX = touchStartX - touchEndX; // X軸位移
-    let swipeDistanceY = touchStartY - touchEndY; // Y軸位移 ⭐️ 修正
+    let swipeDistanceY = touchStartY - touchEndY; // Y軸位移 
 
     const minSwipeThreshold = 50; 
     
     // 判斷是否為「水平滑動」且超過門檻
     if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
         
-        // 只有向左滑動 (swipeDistanceX > 0) 才觸發下一張
-        if (swipeDistanceX > 0) { 
+        if (swipeDistanceX < 0) {
+            // 向右滑動 (X軸負值, touchEndX > touchStartX) ➡️ 下一張
             triggerNextCardAction(); 
+        } else { 
+            // 向左滑動 (X軸正值, touchEndX < touchStartX) ⬅️ 翻轉
+            flipCard();
         }
     }
     touchStartX = 0;
