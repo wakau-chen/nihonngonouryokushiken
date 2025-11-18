@@ -56,7 +56,7 @@
             
               {
                 "name": "輸入",
-                "type": "list",
+                "type": "category",
                 "id": "N3",
                 "enabled": true,
                 "modes": [
