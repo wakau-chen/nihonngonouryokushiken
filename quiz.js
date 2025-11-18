@@ -311,4 +311,243 @@ async function loadNextCard() {
         
     } else if (currentMode === 'mcq') {
         generateMcqOptions();
-        nextButton.textContent = "下一張";
+        nextButton.textContent = "下一張"; 
+        nextButton.disabled = true; 
+        
+    } else { // review 模式
+        nextButton.textContent = "顯示答案"; 
+        nextButton.disabled = false;
+    }
+}
+
+// --- 6. ⭐️ 檢查答案 (已升級考試邏輯) ⭐️ ---
+function checkAnswer() {
+    const userInputRaw = answerInput.value.trim();
+    if (!userInputRaw) {
+        answerInput.classList.add('shake');
+        setTimeout(() => answerInput.classList.remove('shake'), 500);
+        return;
+    }
+
+    const normalizedInput = normalizeString(userInputRaw);
+    const normalizedAnswer = normalizeString(currentCorrectAnswer);
+
+    if (normalizedInput === normalizedAnswer) {
+        answerInput.classList.add('correct');
+        answerInput.classList.remove('incorrect');
+        answerInput.disabled = true; 
+        nextButton.textContent = "下一張"; 
+        nextButton.disabled = false;
+        answerInput.value = currentCorrectAnswer; 
+        flipCard(); 
+    } else {
+        answerInput.classList.add('incorrect');
+        answerInput.classList.remove('correct');
+        answerInput.classList.add('shake');
+        setTimeout(() => answerInput.classList.remove('shake'), 500);
+        
+        if (isExamMode && !currentCardMarkedWrong) {
+            examIncorrectCount++;
+            currentCardMarkedWrong = true;
+            updateExamProgress();
+        }
+    }
+}
+
+// --- 7. 處理按鈕點擊 (不變) ---
+function handleButtonPress() {
+    const buttonState = nextButton.textContent;
+
+    if (currentMode === 'quiz') {
+        if (buttonState === "檢查答案") {
+            checkAnswer();
+        } else { 
+            loadNextCard();
+        }
+    } else if (currentMode === 'review') {
+        if (buttonState === "顯示答案") {
+            flipCard();
+            nextButton.textContent = "下一張"; 
+        } else { 
+            loadNextCard(); 
+        }
+    } else if (currentMode === 'mcq') {
+        loadNextCard();
+    }
+}
+
+// --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
+function handleGlobalKey(event) {
+    const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
+
+    // 1. "Enter" 鍵
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        
+        // ⭐️ 檢查是否在「設定題數」畫面
+        if (examSetupArea.style.display === 'block' && startExamFinalBtn) {
+            startExamFinalBtn.click(); // 觸發「開始考試」
+            return;
+        }
+
+        if (!nextButton.disabled) {
+             handleButtonPress();
+        }
+        return; 
+    }
+
+    // 2. "Shift" 鍵
+    if (event.key === 'Shift') {
+        if (isTyping) return; // 打字時禁用
+        event.preventDefault();
+        flipCard();
+        return; 
+    }
+}
+
+// --- 9. 翻轉卡片 (不變) ---
+function flipCard() {
+    flashcard.classList.toggle('is-flipped');
+}
+
+// --- 10. ⭐️ 滑動手勢處理 (已修正) ⭐️ ---
+function handleTouchStart(event) {
+    touchStartX = event.changedTouches[0].screenX;
+    touchStartY = event.changedTouches[0].screenY;
+}
+function handleTouchMove(event) {
+    let diffX = Math.abs(event.changedTouches[0].screenX - touchStartX);
+    let diffY = Math.abs(event.changedTouches[0].screenY - touchStartY);
+    if (diffX > diffY) {
+        event.preventDefault();
+    }
+}
+function handleTouchEnd(event) {
+    let touchEndX = event.changedTouches[0].screenX;
+    let touchEndY = event.changedTouches[0].screenY;
+    let swipeDistanceX = touchStartX - touchEndX; 
+    const minSwipeThreshold = 50; 
+    if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > minSwipeThreshold) {
+        if (swipeDistanceX > 0) {
+            triggerNextCardAction(); 
+        }
+    }
+    touchStartX = 0;
+    touchStartY = 0;
+}
+function triggerNextCardAction() {
+    if (!nextButton.disabled) {
+        handleButtonPress();
+    }
+}
+
+// --- 11. MCQ 相關函式 (不變) ---
+function generateMcqOptions() {
+    const correctAnswer = currentCorrectAnswer;
+    let distractors = [];
+    let options = [];
+    const numDistractorsToFind = Math.min(3, vocabulary.length - 1);
+    let retries = 0;
+    const maxRetries = 20; 
+
+    while (distractors.length < numDistractorsToFind && retries < maxRetries) {
+        retries++; 
+        const randomIndex = Math.floor(Math.random() * vocabulary.length);
+        const randomWord = vocabulary[randomIndex];
+        if (!randomWord[ANSWER_FIELD]) continue; 
+        const distractor = randomWord[ANSWER_FIELD];
+        if (distractor === correctAnswer) continue; 
+        if (distractors.includes(distractor)) continue; 
+        distractors.push(distractor);
+    }
+    options = [correctAnswer, ...distractors];
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+    mcqOptionsArea.innerHTML = ''; 
+    options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'mcq-option';
+        button.textContent = option;
+        button.dataset.answer = option; 
+        button.addEventListener('click', handleMcqAnswer);
+        mcqOptionsArea.appendChild(button);
+    });
+}
+function handleMcqAnswer(event) {
+    const selectedButton = event.target;
+    const selectedAnswer = selectedButton.dataset.answer;
+    
+    const allButtons = mcqOptionsArea.querySelectorAll('button');
+    allButtons.forEach(button => button.disabled = true);
+
+    if (normalizeString(selectedAnswer) === normalizeString(currentCorrectAnswer)) {
+        selectedButton.classList.add('correct');
+    } else {
+        selectedButton.classList.add('incorrect');
+        allButtons.forEach(button => {
+            if (normalizeString(button.dataset.answer) === normalizeString(currentCorrectAnswer)) {
+                button.classList.add('correct');
+            }
+        });
+        
+        if (isExamMode && !currentCardMarkedWrong) {
+            examIncorrectCount++;
+            currentCardMarkedWrong = true;
+            updateExamProgress();
+        }
+    }
+    
+    nextButton.disabled = false;
+    flipCard();
+}
+
+// --- 12. 考試專用函式 (不變) ---
+function updateExamProgress() {
+    if (!isExamMode) {
+        if(examProgress) examProgress.style.display = 'none';
+        return;
+    }
+    
+    if(examProgress) examProgress.style.display = 'flex';
+    let score = 'N/A';
+    if (examCurrentQuestion > 0) {
+        const correctCount = (examCurrentQuestion - examIncorrectCount);
+        score = Math.round((correctCount / examCurrentQuestion) * 100);
+    }
+    
+    examProgress.innerHTML = `
+        <span>題數: ${examCurrentQuestion} / ${examTotalQuestions}</span>
+        <span>答錯: ${examIncorrectCount}</span>
+        <span>分數: ${score === 'N/A' ? 'N/A' : score + '%'}</span>
+    `;
+}
+function showExamResults() {
+    if(mainArea) mainArea.style.display = 'none';
+    if(resultsArea) resultsArea.style.display = 'block';
+
+    const correctCount = examTotalQuestions - examIncorrectCount;
+    const finalScore = Math.round((correctCount / examTotalQuestions) * 100);
+    let message = '';
+    if (finalScore == 100) message = '太完美了！ (Perfect!)';
+    else if (finalScore >= 80) message = '非常厲害！ (Great Job!)';
+    else if (finalScore >= 60) message = '不錯喔！ (Good!)';
+    else message = '再加油！ (Keep Trying!)';
+    
+    resultsArea.innerHTML = `
+        <h1>考試結束！</h1>
+        <div class="results-summary">
+            <h2>${message}</h2>
+            <div class="final-score">${finalScore}%</div>
+            <p>總題數: ${examTotalQuestions}</p>
+            <p>答對: ${correctCount}</p>
+            <p>答錯: ${examIncorrectCount}</p>
+        </div>
+        <a href="javascript:location.reload()" class="option-button review-mode">再考一次</a>
+        <a href="index.html" class="home-button">返回主頁面</a>
+    `;
+}
+
+// --- ⭐️ 啟動程式 ⭐️ ---
+initializeQuiz();
