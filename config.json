@@ -65,7 +65,7 @@
         {
           "id": "n3_mcq_def",
           "type": "mcq",
-          "name": "選擇測WEEN (中=>日)",
+          "name": "選擇測驗 (中=>日)",
           "enabled": true,
           "q_field": "definition",
           "a_field": "kanji",
