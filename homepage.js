@@ -1,74 +1,142 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的單字卡</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+// 頁面載入完成後，執行
+document.addEventListener('DOMContentLoaded', () => {
+    // 監聽 URL Hash 的變化 (例如 #reader)
+    window.addEventListener('hashchange', renderHomePage);
+    // 第一次載入
+    renderHomePage();
+});
 
-    <div id="mode-choice-area" class="setup-container">
-        <h1 id="mode-choice-title">載入中...</h1>
-        <a href="index.html" class="home-button">返回主頁面</a>
-        <div id="mode-button-container" class="button-group"></div>
-    </div>
+let globalConfig = null; // 儲存 config.json
 
-    <div id="practice-exam-choice-area" class="setup-container">
-        <h1 id="practice-exam-title">請選擇模式</h1>
-        <a href="#" class="home-button button-return">返回</a>
-        <div class="mode-container">
-            <h3>練習模式</h3>
-            <p>無限練習，沒有計分。</p>
-            <button id="start-practice-btn" class="option-button review-mode">開始練習</button>
-        </div>
-        <div class="mode-container">
-            <h3>考試模式</h3>
-            <p>選擇題數，計算分數。</p>
-            <button id="start-exam-setup-btn" class="option-button mcq-mode">設定考試</button>
-        </div>
-    </div>
+async function renderHomePage() {
+    try {
+        // 1. 抓取 config.json (如果還沒抓過)
+        if (!globalConfig) {
+            const response = await fetch('config.json?v=' + new Date().getTime());
+            if (!response.ok) {
+                throw new Error('無法讀取 config.json');
+            }
+            globalConfig = await response.json();
+            document.title = globalConfig.siteTitle || '單字卡練習';
+        }
 
-    <div id="exam-setup-area" class="setup-container">
-        <h1 id="exam-setup-title">考試設定</h1>
-        <a href="#" class="home-button button-return">返回</a>
-        <div class="mode-container">
-            <h3>請選擇題數</h3>
-            <div class="exam-options">
-                <input type="radio" id="q10" name="exam-length" value="10" checked>
-                <label for="q10">10 題</label>
-                <input type="radio" id="q20" name="exam-length" value="20">
-                <label for="q20">20 題</label>
-                <input type="radio" id="q50" name="exam-length" value="50">
-                <label for="q50">50 題</label>
-                <input type="radio" id="qAll" name="exam-length" value="all">
-                <label for="qAll">全部</label>
-            </div>
-            <button id="start-exam-final-btn" class="option-button mcq-mode">開始考試</button>
-        </div>
-    </div>
+        const container = document.getElementById('list-container');
+        const mainTitle = document.getElementById('main-title');
+        const breadcrumbs = document.getElementById('breadcrumbs'); // 麵包屑
+        
+        if (!container || !mainTitle || !breadcrumbs) return;
 
-    <div id="quiz-main-area">
-        <div id="exam-progress-bar"></div>
-        <a href="#" class="home-button button-return">返回</a> 
+        // 2. ⭐️ 解析 URL Hash (路徑)
+        const path = window.location.hash.substring(1).split('/');
+        
+        let currentLevelItems = globalConfig.catalog;
+        let currentCategory = null;
+        let pathSegments = []; // 用於麵包屑
+        let currentHash = '#';
 
-        <div class="flashcard-container">
-            <div class="flashcard" id="flashcard">
-                <div class="card-face card-front" id="card-front"></div>
-                <div class="card-face card-back" id="card-back"></div>
-            </div>
-        </div>
+        // 3. ⭐️ 根據路徑，深入 "catalog"
+        for (const segment of path) {
+            if (segment === "") continue;
+            const found = currentLevelItems.find(item => item.id === segment);
+            if (found && found.type === 'category') {
+                currentLevelItems = found.items;
+                currentCategory = found;
+                currentHash += segment + '/';
+                pathSegments.push({ name: found.name, hash: currentHash.slice(0, -1) }); // 移除結尾的 /
+            }
+        }
 
-        <div class="mcq-options-section" id="mcq-options-section"></div>
-        <div class="quiz-input-section" id="quiz-input-section">
-            <textarea id="answer-input" placeholder="請輸入答案..." autocomplete="off" autocapitalize="none" rows="3"></textarea>
-        </div>
-        <button id="next-button">下一張</button>
-    </div>
+        // 4. 設定標題
+        mainTitle.textContent = currentCategory ? currentCategory.name : globalConfig.siteTitle;
 
-    <div id="exam-results-area" class="setup-container">
-        </div>
+        // 5. 產生麵包屑
+        breadcrumbs.innerHTML = '<li><a href="#">首頁</a></li>';
+        pathSegments.forEach(segment => {
+            breadcrumbs.innerHTML += `<li><a href="${segment.hash}">${segment.name}</a></li>`;
+        });
 
-    <script src="quiz.js"></script>
-</body>
-</html>
+        // 6. 產生按鈕
+        let allHtml = ''; 
+        
+        // ⭐️ 關鍵：產生「返回」按鈕
+        if (currentCategory) { 
+            let parentHash = '#'; 
+            if (pathSegments.length > 1) {
+                parentHash = pathSegments[pathSegments.length - 2].hash;
+            }
+            allHtml += `
+                <a href="${parentHash}" class="option-button back-button">
+                    &larr; 返回上一層
+                </a>
+            `;
+        }
+
+        for (const item of currentLevelItems) {
+            
+            if (item.enabled === false) continue;
+
+            if (item.type === 'category') {
+                // --- 這是一個「資料夾」 ---
+                allHtml += `
+                    <a href="#${pathSegments.map(p => p.hash.substring(1)).join('/')}${pathSegments.length > 0 ? '/' : ''}${item.id}" class="option-button list-button">
+                        ${item.name}
+                    </a>
+                `;
+            } else if (item.type === 'list') {
+                // --- 這是一個「單字庫」 ---
+                allHtml += `
+                    <div class="list-item">
+                        <h4>${item.name}</h4>
+                        <div class="button-group">
+                `;
+
+                if (item.modes && Array.isArray(item.modes)) {
+                    for (const mode of item.modes) {
+                        if (mode.enabled) {
+                            // ⭐️ 關鍵：按鈕現在是 <button>，不是 <a>
+                            allHtml += `
+                                <button class="option-button ${mode.type}-mode" data-list-id="${item.id}" data-mode-id="${mode.id}" data-mode-type="${mode.type}">
+                                    ${mode.name}
+                                </button>
+                            `;
+                        }
+                    }
+                }
+                allHtml += `</div></div>`;
+            }
+        }
+        
+        container.innerHTML = allHtml;
+        
+        container.removeEventListener('click', handleHomePageClick); 
+        container.addEventListener('click', handleHomePageClick); 
+
+    } catch (error) {
+        console.error('載入首頁設定失敗:', error);
+        const container = document.getElementById('list-container');
+        if (container) {
+            container.innerHTML = '<p>載入設定檔失敗。</p>';
+        }
+    }
+}
+
+// ⭐️ 9. 處理所有首頁點擊
+function handleHomePageClick(event) {
+    const button = event.target.closest('.option-button');
+    if (!button) return;
+
+    // 檢查這是否是一個「模式」按鈕 (最終按鈕)
+    const listId = button.dataset.listId;
+    const modeId = button.dataset.modeId;
+
+    if (listId && modeId) {
+        // --- 這是最終按鈕，我們要跳轉到 quiz.html ---
+        event.preventDefault(); 
+        
+        const isExam = false; // 預設為 false
+
+        // 產生最終的 URL 並跳轉
+        const url = `quiz.html?list=${listId}&mode_id=${modeId}&exam=${isExam}`;
+        window.location.href = url;
+    }
+}
