@@ -22,13 +22,13 @@ async function renderHomePage() {
 
         const container = document.getElementById('list-container');
         const mainTitle = document.getElementById('main-title');
-        const breadcrumbs = document.getElementById('breadcrumbs');
-        const examToggle = document.getElementById('exam-toggle-container'); // 獲取考試勾選框
+        const breadcrumbs = document.getElementById('breadcrumbs'); // 麵包屑
         
-        if (!container || !mainTitle || !breadcrumbs || !examToggle) return;
+        if (!container || !mainTitle || !breadcrumbs) return;
 
         // 2. ⭐️ 解析 URL Hash (路徑)
-        const path = window.location.hash.substring(1).split('/'); // #reader/lesson17
+        // 例如 #reader/lesson17
+        const path = window.location.hash.substring(1).split('/');
         
         let currentLevelItems = globalConfig.catalog;
         let currentCategory = null;
@@ -73,8 +73,7 @@ async function renderHomePage() {
                 `;
             } else if (item.type === 'list') {
                 // --- 這是一個「單字庫」 ---
-                // 我們不再直接連結，而是顯示它內部的 "modes"
-                hasModes = true; // 告訴 UI 這是最後一層了
+                hasModes = true; 
                 allHtml += `
                     <div class="list-item">
                         <h4>${item.name}</h4>
@@ -98,18 +97,21 @@ async function renderHomePage() {
         }
         
         // 7. ⭐️ 顯示/隱藏「考試模式」勾選框
-        // 只有在「模式選擇」畫面才顯示
-        if (hasModes) {
-            examToggle.style.display = 'block';
-        } else {
-            examToggle.style.display = 'none';
+        // (我們上一版移除了，您現在可以把它加回來)
+        const examToggle = document.getElementById('exam-toggle-container'); 
+        if(examToggle){
+            if (hasModes) {
+                examToggle.style.display = 'block';
+            } else {
+                examToggle.style.display = 'none';
+            }
         }
 
         container.innerHTML = allHtml;
         
         // 8. ⭐️ 移除舊的監聽，綁定新的
-        container.removeEventListener('click', handleHomePageClick); // 移除舊的
-        container.addEventListener('click', handleHomePageClick); // 綁定新的
+        container.removeEventListener('click', handleHomePageClick); 
+        container.addEventListener('click', handleHomePageClick); 
 
     } catch (error) {
         console.error('載入首頁設定失敗:', error);
@@ -132,13 +134,12 @@ function handleHomePageClick(event) {
 
     if (listId && modeId) {
         // --- 這是最終按鈕，我們要跳轉到 quiz.html ---
-        event.preventDefault(); // 阻止 <a> (如果它是 <a>)
+        event.preventDefault(); 
         
-        const isExamChecked = document.getElementById('exam-mode-toggle').checked;
+        // ⭐️ (您必須把 "exam-mode-toggle" 的 ID 加回 index.html 才能用)
         let isExam = false;
-        
-        // 只有 "quiz" 或 "mcq" 才能是考試
-        if (isExamChecked && (modeType === 'quiz' || modeType === 'mcq')) {
+        const examToggle = document.getElementById('exam-mode-toggle');
+        if (examToggle && examToggle.checked && (modeType === 'quiz' || modeType === 'mcq')) {
             isExam = true;
         }
 
@@ -146,8 +147,4 @@ function handleHomePageClick(event) {
         const url = `quiz.html?list=${listId}&mode_id=${modeId}&exam=${isExam}`;
         window.location.href = url;
     }
-    
-    // 如果不是「模式」按鈕 (而是 "list-button")，
-    // 它就是一個 <a> 標籤，我們會讓它
-    // 自動跳轉 (例如 href="#reader") 並觸發 'hashchange' 事件
 }
