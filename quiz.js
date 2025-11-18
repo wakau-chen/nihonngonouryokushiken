@@ -108,7 +108,7 @@ async function initializeQuiz() {
     let modeId = params.get('mode_id');
 
     if (!listName) {
-        modeChoiceArea.style.display = 'none'; // 如果沒有 listName，直接隱藏
+        modeChoiceArea.style.display = 'none'; 
         return; 
     }
     
@@ -121,9 +121,8 @@ async function initializeQuiz() {
 
     // ⭐️ 4. 模式選擇區 (如果 URL 只有 listName)
     if (!modeId) {
-        // ⭐️ 修正 3: 避免 Category 被誤認為 list 導致頁面變白 ⭐️
+        // 修正: 避免 Category 被誤認為 list 導致頁面變白
         if (listConfig.type !== 'list') {
-            // 如果只有 listName 但不是 list 類型，則假裝沒有參數，返回 index.html
             window.location.href = 'index.html'; 
             return;
         }
@@ -160,6 +159,19 @@ async function initializeQuiz() {
         multiSelectEntryConfig = listConfig; 
         hideAllSetupAreas();
         setupMultiSelect();
+        return; 
+    }
+    
+    // ⭐️ 5.5. 綜合測驗區的返回和繼續流程 (新加的 FIX) ⭐️
+    if (listName === 'MULTI_SELECT_ENTRY' && modeId === 'RESUME_MULTI') {
+        multiSelectEntryConfig = listConfig;
+        hideAllSetupAreas();
+        // 重新設置 selectedListIDs
+        const selectedIdsFromUrl = params.get('selected_ids');
+        if (selectedIdsFromUrl) {
+            selectedListIDs = selectedIdsFromUrl.split(',');
+        }
+        setupMultiModeChoice(); // 直接跳轉到模式選擇頁
         return; 
     }
     
@@ -210,12 +222,13 @@ async function initializeQuiz() {
         
         if (selectedIdsFromUrl) {
             // 情況 A: 綜合測驗區的任何模式，返回多選模式選擇頁 (步驟二)
-            targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl}`;
+            // FIX: 返回到 RESUME_MULTI 模式，重新進入 setupMultiModeChoice
+            targetUrl = `quiz.html?list=${listName}&mode_id=RESUME_MULTI&selected_ids=${selectedIdsFromUrl}`;
         } else if (currentMode === 'review') {
-            // 情況 B: 單一列表 Review 模式，返回模式選擇頁 (原始邏輯)
+            // 情況 B: 單一列表 Review 模式，返回模式選擇頁 (不帶 modeId)
             targetUrl = `quiz.html?list=${listName}`;
         } else {
-            // 情況 C: 單一列表 Quiz/MCQ 模式，返回練習/考試選擇頁 (原始邏輯)
+            // 情況 C: 單一列表 Quiz/MCQ 模式，返回練習/考試選擇頁 (帶 modeId)
             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}`;
         }
         
@@ -262,7 +275,7 @@ async function initializeQuiz() {
                 // ⭐️ FIX 2: 確保考試設定頁的返回按鈕指向練習/考試選擇區 ⭐️
                 const examSetupReturnBtn = examSetupArea.querySelector('.button-return');
                 if (examSetupReturnBtn) {
-                    // 返回到 practice/exam choice page (targetUrl 已經是正確的)
+                    // targetUrl 此時已經是正確的練習/考試選擇頁 URL
                     examSetupReturnBtn.href = targetUrl;
                 }
             };
@@ -333,7 +346,7 @@ function setupMultiModeChoice() {
     const summaryNames = selectedListIDs.map(id => allListConfigs[id] ? allListConfigs[id].name : id).join('、');
     selectedListsSummary.textContent = summaryNames;
 
-    // 設置返回按鈕 ⭐️ 修正返回邏輯 ⭐️
+    // 設置返回按鈕
     const returnButton = multiModeChoiceArea.querySelector('.button-return-to-select-list');
     returnButton.onclick = (event) => {
         event.preventDefault(); // 阻止預設的 a href="#" 行為
