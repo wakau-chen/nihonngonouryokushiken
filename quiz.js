@@ -181,7 +181,7 @@ async function initializeQuiz() {
             if (examSetupTitle) examSetupTitle.textContent = '單字庫為空！';
             else modeChoiceTitle.textContent = '單字庫為空！';
             
-            // 根據我們在哪個階段發現 "空」，顯示正確的畫面
+            // 根據我們在哪個階段發現 "空"，顯示正確的畫面
             if(!modeId) modeChoiceArea.style.display = 'block';
             else examSetupArea.style.display = 'block'; 
         }
@@ -413,9 +413,21 @@ function handleGlobalKey(event) {
     }
 }
 
-// --- 9. 翻轉卡片 (不變) ---
+// --- 9. 翻轉卡片 (新增狀態重置邏輯) ---
 function flipCard() {
+    // 檢查卡片是否已經翻轉 (背面朝上)
+    const wasFlipped = flashcard.classList.contains('is-flipped');
+    
     flashcard.classList.toggle('is-flipped');
+    
+    // ⭐️ 關鍵邏輯：如果卡片被翻回到正面 (從 wasFlipped=true 變成 is-flipped=false)
+    if (wasFlipped && !flashcard.classList.contains('is-flipped')) {
+        
+        // 只有在 review 模式下才需要將按鈕狀態改回「顯示答案」
+        if (currentMode === 'review') {
+            nextButton.textContent = "顯示答案"; 
+        } 
+    }
 }
 
 // --- 10. ⭐️ 滑動手勢處理 (已更新為新邏輯) ⭐️ ---
