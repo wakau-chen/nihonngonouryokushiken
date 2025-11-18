@@ -25,7 +25,7 @@ const startPracticeBtn = document.getElementById('start-practice-btn');
 const startExamSetupBtn = document.getElementById('start-exam-setup-btn');
 const startExamFinalBtn = document.getElementById('start-exam-final-btn');
 
-// 獲取多選區塊元素 ⭐️
+// 獲取多選區塊元素
 const multiSelectArea = document.getElementById('multi-select-area');
 const multiSelectTitle = document.getElementById('multi-select-title');
 const listCheckboxContainer = document.getElementById('list-checkbox-container');
@@ -35,7 +35,6 @@ const multiModeChoiceArea = document.getElementById('multi-mode-choice-area');
 const multiModeTitle = document.getElementById('multi-mode-title');
 const selectedListsSummary = document.getElementById('selected-lists-summary');
 const multiModeButtonContainer = document.getElementById('multi-mode-button-container');
-
 
 // 考試模式變數
 let isExamMode = false;
@@ -56,10 +55,11 @@ let currentMode = 'review';
 let touchStartX = 0;
 let touchStartY = 0;
 
-// 全局狀態 ⭐️
+// 全局狀態
 let allListConfigs = {}; 
 let selectedListIDs = []; 
 let multiSelectEntryConfig = null;
+let config = null; // 儲存 config.json 數據
 
 // ⭐️ 輔助函式：遞迴收集所有 list ID
 function findListById(items) {
@@ -168,16 +168,34 @@ async function initializeQuiz() {
 
     if (vocabulary.length > 0) {
         // ⭐️ 關鍵：設定所有「返回」按鈕的連結
-        const baseUrl = `quiz.html?list=${listName}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl || ''}`;
-        const returnButtons = document.querySelectorAll('.button-return');
-        returnButtons.forEach(btn => btn.href = baseUrl);
+        // 預設返回到模式選擇頁面
+        let targetUrl = `quiz.html?list=${listName}`; 
         
+        // 如果是 Quiz/MCQ 模式，應該返回到練習/考試選擇區
+        if (currentMode !== 'review') {
+            targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}`;
+        }
+        
+        // 如果是多選模式的延續流程，返回到多選模式選擇區
+        if (selectedIdsFromUrl) {
+             // 返回到模式選擇區，但保留選定的 ID 參數
+             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl}`;
+        }
+        
+        const returnButtons = document.querySelectorAll('.button-return');
+        returnButtons.forEach(btn => btn.href = targetUrl); // 確保在 main-area 的返回是正確的
+
         // 8. 顯示模式選擇或考試設定
         modeChoiceArea.style.display = 'none';
+        
         if (currentMode === 'review') {
+            // --- 進入練習流程 (Review 模式) ---
             isExamMode = false;
-            mainArea.style.display = 'flex';
-            setupApp();
+            examSetupArea.style.display = 'none'; 
+            practiceExamChoiceArea.style.display = 'none';
+            modeChoiceArea.style.display = 'none'; 
+            mainArea.style.display = 'flex'; 
+            setupApp(); // 直接開始練習
         } else {
             isExamMode = false; // 預設為練習模式
             practiceExamChoiceArea.style.display = 'block';
@@ -264,8 +282,10 @@ function setupMultiModeChoice() {
     const summaryNames = selectedListIDs.map(id => allListConfigs[id] ? allListConfigs[id].name : id).join('、');
     selectedListsSummary.textContent = summaryNames;
 
+    // 設置返回按鈕 ⭐️ 修正返回邏輯 ⭐️
     const returnButton = multiModeChoiceArea.querySelector('.button-return-to-select-list');
-    returnButton.onclick = () => {
+    returnButton.onclick = (event) => {
+        event.preventDefault(); // 阻止預設的 a href="#" 行為
         hideAllSetupAreas();
         setupMultiSelect(); // 返回列表選擇
     };
