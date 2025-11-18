@@ -119,8 +119,8 @@
                   ]
                 },
                 {
-                  "id": "doben17_quiz_def",
-                  "type": "review",
+                  "id": "doben17_quiz_japanese",
+                  "type": "quiz",
                   "name": "輸入測驗 (日=>中)",
                   "enabled": true,
                   "q_field": "japanese",
