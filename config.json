@@ -21,7 +21,7 @@
             "items": [
               {
                 "name": "翻卡",
-                "type": "category",
+                "type": "list",
                 "id": "N3",
                 "enabled": true,
                 "modes": [
@@ -56,7 +56,7 @@
             
               {
                 "name": "輸入",
-                "type": "category",
+                "type": "list",
                 "id": "N3",
                 "enabled": true,
                 "modes": [
