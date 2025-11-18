@@ -106,8 +106,8 @@ async function initializeQuiz() {
     const listName = params.get('list');
     let modeId = params.get('mode_id');
 
-    if (!listName || !modeId) {
-        modeChoiceArea.style.display = 'none';
+    if (!listName) {
+        modeChoiceArea.style.display = 'none'; // 如果沒有 listName，直接隱藏
         return; 
     }
     
@@ -117,8 +117,37 @@ async function initializeQuiz() {
         modeChoiceArea.style.display = 'block';
         return;
     }
+
+    // ⭐️ 4. 模式選擇區 (如果 URL 只有 listName)
+    if (!modeId) {
+        modeChoiceTitle.textContent = `${listConfig.name} - 選擇模式`;
+        let buttonHtml = '';
+        if (listConfig.modes && Array.isArray(listConfig.modes)) {
+            for (const mode of listConfig.modes) {
+                if (mode.enabled) {
+                    buttonHtml += `
+                        <button class="option-button ${mode.type}-mode" data-mode-id="${mode.id}" data-mode-type="${mode.type}">
+                            ${mode.name}
+                        </button>
+                    `;
+                }
+            }
+        }
+        modeButtonContainer.innerHTML = buttonHtml;
+        modeButtonContainer.addEventListener('click', (event) => {
+            const button = event.target.closest('.option-button');
+            if (!button) return;
+            
+            const chosenModeId = button.dataset.modeId;
+            const url = `quiz.html?list=${listName}&mode_id=${chosenModeId}`;
+            window.location.href = url;
+        });
+        
+        modeChoiceArea.style.display = 'block';
+        return;
+    }
     
-    // ⭐️ 4. 多選流程處理入口 (步驟一：選擇列表) ⭐️
+    // ⭐️ 5. 多選流程處理入口 (步驟一：選擇列表) ⭐️
     if (listName === 'MULTI_SELECT_ENTRY' && modeId === 'INITIATE_SELECT') {
         multiSelectEntryConfig = listConfig; 
         hideAllSetupAreas();
@@ -126,7 +155,7 @@ async function initializeQuiz() {
         return; 
     }
     
-    // ⭐️ 5. 多選流程的最終啟動 或 既有單一列表流程 ⭐️
+    // ⭐️ 6. 多選流程的最終啟動 或 既有單一列表流程 ⭐️
     const selectedIdsFromUrl = params.get('selected_ids');
     let listIdsToLoad = [];
     let modeConfig = null;
@@ -143,13 +172,13 @@ async function initializeQuiz() {
     
     if (!modeConfig) { throw new Error(`找不到模式 ID: ${modeId}`); }
 
-    // 6. 設定全局變數
+    // 7. 設定全局變數
     currentMode = modeConfig.type;
     QUESTION_FIELD = modeConfig.q_field;
     ANSWER_FIELD = modeConfig.a_field || '';
     BACK_CARD_FIELDS = modeConfig.back_fields || [];
     
-    // 7. 載入單字庫數據 (數據合併核心)
+    // 8. 載入單字庫數據 (數據合併核心)
     vocabulary = [];
     for (const id of listIdsToLoad) {
         try {
@@ -167,25 +196,25 @@ async function initializeQuiz() {
     }
 
     if (vocabulary.length > 0) {
-        // ⭐️ 關鍵：設定所有「返回」按鈕的連結
-        // 預設返回到模式選擇頁面
+        
+        // ⭐️ 9. 設定所有「返回」按鈕的連結 ⭐️
+        // 如果是單一列表的 review 模式，返回模式選擇頁
         let targetUrl = `quiz.html?list=${listName}`; 
         
-        // 如果是 Quiz/MCQ 模式，應該返回到練習/考試選擇區
-        if (currentMode !== 'review') {
+        // 如果是單一列表的 quiz/mcq 模式，返回練習/考試選擇頁
+        if (currentMode !== 'review' && !selectedIdsFromUrl) {
             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}`;
         }
         
-        // 如果是多選模式的延續流程，返回到多選模式選擇區
+        // 如果是多選模式的延續流程，返回多選流程的模式選擇頁 (必須使用 MULTI_SELECT_ENTRY ID)
         if (selectedIdsFromUrl) {
-             // 返回到模式選擇區，但保留選定的 ID 參數
-             targetUrl = `quiz.html?list=${listName}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl}`;
+             targetUrl = `quiz.html?list=${listConfig.id}&mode_id=${modeId}&selected_ids=${selectedIdsFromUrl}`;
         }
         
         const returnButtons = document.querySelectorAll('.button-return');
-        returnButtons.forEach(btn => btn.href = targetUrl); // 確保在 main-area 的返回是正確的
+        returnButtons.forEach(btn => btn.href = targetUrl);
 
-        // 8. 顯示模式選擇或考試設定
+        // 10. 顯示模式選擇或考試設定
         modeChoiceArea.style.display = 'none';
         
         if (currentMode === 'review') {
