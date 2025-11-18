@@ -31,7 +31,7 @@
                       "id": "N3",
                       "enabled": true,
                       "modes": [
-                        { "id": "n3_review_kanji", "type": "review", "name": "翻卡複習 (日=>中)", "enabled": true, "q_field": "kanji", "back_fields": [
+                        { "id": "n3_review_kanji", "type": "review", "name": "開始複習", "enabled": true, "q_field": "kanji", "back_fields": [
                           { "label": "意思", "key": "definition" },
                           { "label": "平假名", "key": "hiragana" },
                           { "label": "音調", "key": "pitch" },
@@ -45,7 +45,7 @@
                       "id": "N3",
                       "enabled": true,
                       "modes": [
-                        { "id": "n3_review_def", "type": "review", "name": "翻卡複習 (中=>日)", "enabled": true, "q_field": "definition", "back_fields": [
+                        { "id": "n3_review_def", "type": "review", "name": "開始複習", "enabled": true, "q_field": "definition", "back_fields": [
                           { "label": "漢字", "key": "kanji" },
                           { "label": "平假名", "key": "hiragana" },
                           { "label": "音調", "key": "pitch" },
@@ -67,7 +67,7 @@
                       "id": "N3",
                       "enabled": true,
                       "modes": [
-                        { "id": "n3_quiz_def", "type": "quiz", "name": "輸入測驗 (中=>日)", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
+                        { "id": "n3_quiz_def", "type": "quiz", "name": "開始測驗", "enabled": true, "q_field": "definition", "a_field": "kanji", "back_fields": [
                           { "label": "日文", "key": "kanji" },
                           { "label": "平假名", "key": "hiragana" },
                           { "label": "音調", "key": "pitch" },
@@ -85,12 +85,12 @@
                   "enabled": true,
                   "items": [
                     {
-                      "name": "選擇測驗 (日=>中)",
+                      "name": "選擇測驗 (日=>平假名)",
                       "type": "list",
                       "id": "N3",
                       "enabled": true,
                       "modes": [
-                        { "id": "n3_mcq_kanji", "type": "mcq", "name": "選擇測驗 (日=>中)", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
+                        { "id": "n3_mcq_kanji", "type": "mcq", "name": "開始測驗", "enabled": true, "q_field": "kanji", "a_field": "hiragana", "back_fields": [
                           { "label": "平假名", "key": "hiragana" },
                           { "label": "音調", "key": "pitch" },
                           { "label": "意思", "key": "definition" },
@@ -135,7 +135,7 @@
                 {
                   "id": "doben17_text_review",
                   "type": "review",
-                  "name": "翻卡複習 (日=>中)",
+                  "name": "開始複習",
                   "enabled": true,
                   "q_field": "japanese",
                   "a_field": "chinese",
@@ -147,7 +147,7 @@
                 {
                   "id": "doben17_quiz_japanese",
                   "type": "quiz",
-                  "name": "輸入測驗 (日=>中)",
+                  "name": "開始測驗",
                   "enabled": true,
                   "q_field": "japanese",
                   "a_field": "chinese",
