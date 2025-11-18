@@ -7,7 +7,7 @@ const answerInput = document.getElementById('answer-input');
 const quizInputArea = document.getElementById('quiz-input-section');
 const mcqOptionsArea = document.getElementById('mcq-options-section');
 const examProgress = document.getElementById('exam-progress-bar');
-const operationToggle = document.getElementById('operation-toggle'); // ⭐️ 新增
+const operationToggle = document.getElementById('operation-toggle');
 
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
@@ -45,11 +45,13 @@ let currentMode = 'review';
 let touchStartX = 0;
 let touchStartY = 0;
 
-// 輔助函式：正規化字串
+// 輔助函式：正規化字串 (已修正，忽略波浪符號)
 function normalizeString(str) {
     if (typeof str !== 'string') str = String(str);
     if (!str) return "";
-    return str.replace(/・/g, '').replace(/\./g, '').replace(/\s/g, '');
+    
+    // ⭐️ 修正：將全形波浪號 (～) 和半形波浪號 (~) 都移除，確保答案比對正確
+    return str.replace(/～/g, '').replace(/~/g, '').replace(/・/g, '').replace(/\./g, '').replace(/\s/g, '');
 }
 
 // --- 2. ⭐️ 非同步讀取 (已重寫) ⭐️ ---
@@ -233,7 +235,7 @@ function setupApp() {
     
     document.addEventListener('keydown', handleGlobalKey);
     
-    // ⭐️ 新增：操作註解切換邏輯 ⭐️
+    // ⭐️ 操作註解切換邏輯 ⭐️
     if (operationToggle) {
         operationToggle.addEventListener('click', toggleOperationNotes);
     }
@@ -255,7 +257,7 @@ function setupApp() {
     loadNextCard();
 }
 
-// ⭐️ 新增：展開/收合操作說明函式 ⭐️
+// ⭐️ 展開/收合操作說明函式 ⭐️
 function toggleOperationNotes() {
     const notes = document.getElementById('operation-notes');
     if (notes) {
