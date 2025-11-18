@@ -32,8 +32,26 @@ h1 { color: #444; }
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-top: 25px; /* ⭐️ 為勾選框留出空間 */
+    margin-top: 25px; 
 }
+/* ⭐️ 首頁按鈕的新樣式 */
+.list-button {
+    background-color: #34495e; /* 深藍色 */
+    padding: 20px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.list-button:hover {
+    background-color: #2c3e50;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+/* (舊的 .list-item 和 .button-group 已移除，
+   但在 quiz.js 載入的模式按鈕中仍會用到) */
 .list-item {
     background-color: #fafafa;
     border: 1px solid #eee;
@@ -73,61 +91,9 @@ h1 { color: #444; }
 .option-button.mcq-mode { background-color: #8e44ad; }
 .option-button.mcq-mode:hover { background-color: #732d91; }
 
-/* ⭐️ 2b. 新增：考試模式勾選框 (首頁) ⭐️ */
-.exam-toggle-container {
-    background-color: #fdfdfd;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 15px 20px;
-    text-align: left;
-}
-.exam-toggle-container label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-}
-.exam-toggle-container input[type="checkbox"] {
-    display: none; /* 隱藏預設勾選框 */
-}
-.exam-toggle-container .toggle-switch {
-    position: relative;
-    width: 40px;
-    height: 22px;
-    background-color: #ccc;
-    border-radius: 11px;
-    transition: background-color 0.3s;
-    margin-right: 12px;
-}
-.exam-toggle-container .toggle-switch::before {
-    content: "";
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background-color: white;
-    top: 2px;
-    left: 2px;
-    transition: transform 0.3s;
-}
-.exam-toggle-container input:checked + label .toggle-switch {
-    background-color: #50b3a2; /* 綠色 */
-}
-.exam-toggle-container input:checked + label .toggle-switch::before {
-    transform: translateX(18px);
-}
-.exam-toggle-container p {
-    font-size: 12px;
-    color: #888;
-    margin: 5px 0 0 52px; /* 對齊文字 */
-}
-
-
-/* --- 3. ⭐️ 測驗設定區 (quiz.html) ⭐️ --- */
-#quiz-setup-area {
-    display: none; /* 預設隱藏 */
+/* ⭐️ 3. 測驗頁「設定區」的通用樣式 ⭐️ */
+.setup-container {
+    display: none; /* 所有設定區預設隱藏 */
     width: 90%;
     max-width: 500px;
     margin: 40px auto;
@@ -136,12 +102,20 @@ h1 { color: #444; }
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     text-align: center;
+    position: relative; /* 為了 "返回" 按鈕定位 */
 }
-#quiz-setup-area h1 {
+.setup-container h1 {
     font-size: 22px;
     color: #333;
     margin-top: 0;
     margin-bottom: 20px;
+}
+/* (設定區的 .home-button) */
+.setup-container .home-button {
+    position: absolute; 
+    top: 15px;
+    right: 15px;
+    margin-top: 0;
 }
 .mode-container {
     background-color: #f9f9f9;
@@ -170,13 +144,12 @@ h1 { color: #444; }
 
 /* --- 4. ⭐️ 測驗主體區 (quiz.html) ⭐️ --- */
 #quiz-main-area {
-    display: none; /* 預設隱藏 */
+    display: none; 
     width: 100%;
     max-width: 500px; 
-    /* ⭐️ 關鍵：改回 flex，才能顯示 */
-    display: none;
     flex-direction: column;
     align-items: center;
+    position: relative; /* 為了 "返回" 按鈕定位 */
 }
 
 /* ⭐️ 新增：考試進度條 */
@@ -189,8 +162,6 @@ h1 { color: #444; }
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    /* ⭐️ 改回 flex，才能正常顯示 */
-    display: none;
     justify-content: space-between;
     font-size: 14px;
     font-weight: bold;
@@ -198,23 +169,16 @@ h1 { color: #444; }
     box-sizing: border-box;
 }
 
-/* (返回按鈕) */
-.home-button {
-    display: inline-block;
-    margin-top: 15px; 
-    padding: 8px 15px;
-    background-color: #f0f0f0;
-    color: #555;
-    text-decoration: none;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-    transition: all 0.2s ease;
+/* (測驗區的 .home-button) */
+#quiz-main-area .home-button {
+    margin-bottom: 0; /* 移除多餘的 margin */
+    position: absolute;
+    top: -5px; /* 移到進度條上方 */
+    right: 0;
 }
-.home-button:hover { background-color: #e0e0e0; }
 
 /* (翻轉卡片樣式 - 不變) */
-.flashcard-container { perspective: 1000px; margin: 20px; }
+.flashcard-container { perspective: 1000px; margin: 20px; margin-top: 40px; }
 .flashcard {
     width: 320px;
     min-height: 220px;
@@ -336,7 +300,7 @@ button#next-button:disabled {
 }
 #answer-input.incorrect {
     background-color: #ffe6e6;
-    border-color: #e57373;
+    border-color: #e573a3;
 }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -381,12 +345,12 @@ button.mcq-option.correct {
 }
 button.mcq-option.incorrect {
     background-color: #ffe6e6;
-    border-color: #e57373;
+    border-color: #e573a3;
     color: #c62828;
     opacity: 1; 
 }
 
-/* --- 7. ⭐️ 新增：考試結果區 ⭐️ --- */
+/* --- 7. ⭐️ 考試結果區 ⭐️ --- */
 #exam-results-area {
     display: none; /* 預設隱藏 */
     width: 90%;
