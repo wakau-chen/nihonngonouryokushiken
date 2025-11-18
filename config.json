@@ -119,7 +119,7 @@
                   ]
                 },
                 {
-                  "id": "doben17_quiz_review",
+                  "id": "doben17_quiz_def",
                   "type": "review",
                   "name": "輸入測驗 (日=>中)",
                   "enabled": true,
