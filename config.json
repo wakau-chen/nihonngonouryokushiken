@@ -117,7 +117,7 @@
               "type": "quiz",
               "name": "輸入測驗 (中=>日)",
               "enabled": true,
-              "q_field": "ciinese",
+              "q_field": "chinese",
               "a_field": "japanese",
               "back_fields": [
                 { "label": "日文", "key": "japanese" },
