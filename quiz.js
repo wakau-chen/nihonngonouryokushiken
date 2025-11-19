@@ -100,7 +100,7 @@ async function initializeQuiz() {
         return;
     }
     
-    // ⭐️ 2. 收集所有列表配置 (用於多選 - 這是修復空白頁的關鍵) ⭐️
+    // ⭐️ 2. 收集所有列表配置 (用於多選)
     allListConfigs = {};
     if (config.catalog) {
         config.catalog.forEach(item => findListById([item]));
@@ -117,9 +117,7 @@ async function initializeQuiz() {
     }
     
     const listConfig = allListConfigs[listName];
-    // ⭐️ 修正 1: 處理 listConfig 找不到時的錯誤 (避免後續代碼崩潰) ⭐️
     if (!listConfig) {
-        // 如果 listConfig 找不到，我們不能繼續，直接顯示錯誤
         modeChoiceTitle.textContent = `錯誤：找不到單字庫 ID: ${listName}`;
         modeChoiceArea.style.display = 'block';
         return;
@@ -189,7 +187,7 @@ async function initializeQuiz() {
         // 情況 A: 綜合測驗區的流程 (多選)
         listIdsToLoad = selectedIdsFromUrl.split(',');
         modeConfig = listConfig.modes.find(m => m.id === modeId);
-        // ⭐️ 確保 multiSelectEntryConfig 被設置 (供 setupMultiModeChoice 使用)
+        // 確保 multiSelectEntryConfig 被設置
         multiSelectEntryConfig = listConfig;
     } else {
         // 情況 B: 既有的單一列表啟動流程
@@ -275,10 +273,8 @@ async function initializeQuiz() {
             // ⭐️ FIX 1: 設置 practiceExamChoiceArea 的返回按鈕連結 ⭐️
             const practiceExamReturnBtn = practiceExamChoiceArea.querySelector('.button-return');
             if (practiceExamReturnBtn) {
-                // 如果是單一列表，返回模式選擇頁；如果是多選，返回 RESUME_MULTI 模式選擇頁
-                 practiceExamReturnBtn.href = selectedIdsFromUrl 
-                    ? `quiz.html?list=${listName}&mode_id=RESUME_MULTI&selected_ids=${selectedIdsFromUrl}`
-                    : `quiz.html?list=${listName}`;
+                 // 單一列表返回模式選擇頁 (不帶 mode_id)
+                practiceExamReturnBtn.href = `quiz.html?list=${listName}`;
             }
 
             // 處理練習與考試按鈕
@@ -298,6 +294,7 @@ async function initializeQuiz() {
                 // ⭐️ FIX 2: 確保考試設定頁的返回按鈕指向練習/考試選擇區 ⭐️
                 const examSetupReturnBtn = examSetupArea.querySelector('.button-return');
                 if (examSetupReturnBtn) {
+                    // targetUrl 此時已經是正確的練習/考試選擇頁 URL
                     examSetupReturnBtn.href = targetUrl;
                 }
             };
@@ -632,6 +629,19 @@ function handleGlobalKey(event) {
              handleButtonPress();
         }
         return; 
+    }
+    
+    // ⭐️ MCQ 數字鍵答題 ⭐️
+    if (currentMode === 'mcq' && !nextButton.disabled) {
+        const optionIndex = parseInt(event.key);
+        if (optionIndex >= 1 && optionIndex <= 4) {
+            event.preventDefault();
+            const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
+            if (optionIndex <= optionButtons.length) {
+                optionButtons[optionIndex - 1].click();
+            }
+            return;
+        }
     }
 
     // 2. "Shift" 鍵
