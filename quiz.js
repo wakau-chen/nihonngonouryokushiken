@@ -652,7 +652,7 @@ function handleGlobalKey(event) {
         const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
         if (optionIndex !== undefined) {
-            event.preventDefault(); // ⭐️ FIX: 確保阻止瀏覽器預設行為
+            event.preventDefault(); // ⭐️ 確保阻止瀏覽器預設行為
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             
             // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
