@@ -294,7 +294,6 @@ async function initializeQuiz() {
                 // ⭐️ FIX 2: 確保考試設定頁的返回按鈕指向練習/考試選擇區 ⭐️
                 const examSetupReturnBtn = examSetupArea.querySelector('.button-return');
                 if (examSetupReturnBtn) {
-                    // targetUrl 此時已經是正確的練習/考試選擇頁 URL
                     examSetupReturnBtn.href = targetUrl;
                 }
             };
@@ -735,10 +734,12 @@ function generateMcqOptions() {
         [options[i], options[j]] = [options[j], options[i]];
     }
     mcqOptionsArea.innerHTML = ''; 
-    options.forEach(option => {
+    
+    // ⭐️ 修正：添加數字編號 ⭐️
+    options.forEach((option, index) => {
         const button = document.createElement('button');
         button.className = 'mcq-option';
-        button.textContent = option;
+        button.textContent = `${index + 1}. ${option}`; // 添加編號
         button.dataset.answer = option; 
         button.addEventListener('click', handleMcqAnswer);
         mcqOptionsArea.appendChild(button);
