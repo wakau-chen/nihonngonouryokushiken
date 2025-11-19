@@ -276,7 +276,7 @@
             {
               "name": "單字",
               "type": "category",
-              "id": "lesson17_vocab",
+              "id": "lesson17_vocab_category",
               "enabled": true,
               "items": [
                 {
@@ -311,7 +311,6 @@
                         { "label": "意思", "key": "definition" }
                       ]
                     },
-                    // ⭐️ 新增：選擇測驗 (中=>日) 模式 ⭐️
                     {
                       "id": "doben17_vocab_mcq_def",
                       "type": "mcq",
