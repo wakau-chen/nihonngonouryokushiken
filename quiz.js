@@ -638,7 +638,10 @@ function handleGlobalKey(event) {
         // 修正：將數字鍵替換為 QWER 鍵，並映射到索引 0-3
         const keyMap = {
             'q': 0, 'w': 1, 'e': 2, 'r': 3,
-            'Q': 0, 'W': 1, 'E': 2, 'R': 3
+            'Q': 0, 'W': 1, 'E': 2, 'R': 3,
+            // 由於用戶可能仍在使用數字鍵，我們保留數字鍵的映射，並讓它在 QWER 邏輯中執行
+            '1': 0, '2': 1, '3': 2, '4': 3,
+            'Numpad1': 0, 'Numpad2': 1, 'Numpad3': 2, 'Numpad4': 3
         };
         
         const key = event.key;
