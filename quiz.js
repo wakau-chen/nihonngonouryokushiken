@@ -59,6 +59,9 @@ let currentMode = 'review';
 let touchStartX = 0;
 let touchStartY = 0;
 
+// ⭐️ 核心狀態：儲存正確答案的索引 (0, 1, 2, or 3) ⭐️
+let correctOptionIndex = -1; 
+
 // 全局狀態
 let allListConfigs = {}; 
 let selectedListIDs = []; 
@@ -440,7 +443,7 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ 修正：將監聽器綁定到 document 級別 (最穩定的選擇) ⭐️
+    // ⭐️ FIX: 將監聽器綁定到 document 級別 (最穩定的選擇) ⭐️
     document.addEventListener('keydown', handleGlobalKey);
     
     if (operationToggle) {
@@ -653,13 +656,13 @@ function handleGlobalKey(event) {
         const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
         if (optionIndex !== undefined) {
-            event.preventDefault(); // 確保阻止瀏覽器預設行為
+            event.preventDefault(); // ⭐️ 確保阻止瀏覽器預設行為
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             
             // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
             if (optionIndex < optionButtons.length) {
-                // ⭐️ 核心修正：直接使用 click() 觸發事件
-                optionButtons[optionIndex].click(); 
+                // ⭐️ 核心修正：直接呼叫處理函式 ⭐️
+                handleMcqAnswer(optionButtons[optionIndex]); 
             }
             return;
         }
@@ -763,15 +766,16 @@ function generateMcqOptions() {
         button.className = 'mcq-option';
         button.textContent = `${index + 1}. ${option}`; // 添加編號
         button.dataset.answer = option; 
-        button.addEventListener('click', handleMcqAnswer);
+        
+        // ⭐️ 修正：點擊時，將按鈕元素本身傳遞給處理函式 ⭐️
+        button.addEventListener('click', (event) => handleMcqAnswer(event.target));
         mcqOptionsArea.appendChild(button);
     });
 }
-function handleMcqAnswer(event) {
-    // console.log("MCQ Option Clicked! Answer:", selectedAnswer); // 診斷輸出
-    
-    // ⭐️ 修正：如果 event 不是 Event，它就是 button 元素 ⭐️
-    const selectedButton = event.target || event; 
+
+// ⭐️ 核心修正：handleMcqAnswer 接受按鈕元素作為參數 ⭐️
+function handleMcqAnswer(selectedButton) {
+    // 這裡我們直接使用傳入的按鈕，而不是 event.target
     const selectedAnswer = selectedButton.dataset.answer;
     
     const allButtons = mcqOptionsArea.querySelectorAll('button');
