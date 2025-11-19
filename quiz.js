@@ -645,7 +645,7 @@ function handleGlobalKey(event) {
         const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
         if (optionIndex !== undefined) {
-            event.preventDefault();
+            event.preventDefault(); // ⭐️ FIX: 確保阻止瀏覽器預設行為
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             
             // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
@@ -748,13 +748,11 @@ function generateMcqOptions() {
     }
     mcqOptionsArea.innerHTML = ''; 
     
-    // ⭐️ 修正：添加數字編號 (QWER 對應 1, 2, 3, 4) ⭐️
+    // ⭐️ 修正：添加數字編號 ⭐️
     options.forEach((option, index) => {
         const button = document.createElement('button');
         button.className = 'mcq-option';
-        
-        // 顯示為 1. 2. 3. 4.
-        button.textContent = `${index + 1}. ${option}`; 
+        button.textContent = `${index + 1}. ${option}`; // 添加編號
         button.dataset.answer = option; 
         button.addEventListener('click', handleMcqAnswer);
         mcqOptionsArea.appendChild(button);
