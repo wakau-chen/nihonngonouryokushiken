@@ -19,7 +19,7 @@
               "type": "review",
               "name": "翻卡複習 (中/日互翻)",
               "enabled": true,
-              "q_field": "kanji", 
+              "q_field": "kanji",
               "a_field": "definition",
               "back_fields": [
                 { "label": "意思", "key": "definition" },
@@ -239,7 +239,7 @@
               "id": "lesson17_text",
               "enabled": true,
               "items": [
-                 {
+                {
                   "name": "課文段落",
                   "type": "list",
                   "id": "doben17",
@@ -282,7 +282,7 @@
                 {
                   "name": "單字測驗",
                   "type": "list",
-                  "id": "doben17_vocab", 
+                  "id": "doben17_vocab",
                   "enabled": true,
                   "modes": [
                     {
@@ -317,7 +317,7 @@
                       "name": "選擇測驗 (中=>日)",
                       "enabled": true,
                       "q_field": "definition",
-                      "a_field": "kanji", 
+                      "a_field": "kanji",
                       "back_fields": [
                         { "label": "日文", "key": "kanji" },
                         { "label": "平假名", "key": "hiragana" },
@@ -331,17 +331,105 @@
           ]
         },
         {
-          "name": "第18課", 
+          "name": "第18課",
           "type": "category",
           "id": "lesson18",
           "enabled": true,
           "items": [
             {
-              "name": "課文單字 (準備中)",
-              "type": "list",
-              "id": "doben18_text",
-              "enabled": false,
-              "modes": []
+              "name": "課文",
+              "type": "category",
+              "id": "lesson18_text",
+              "enabled": true,
+              "items": [
+                {
+                  "name": "課文段落",
+                  "type": "list",
+                  "id": "doben18",
+                  "enabled": true,
+                  "modes": [
+                    {
+                      "id": "doben18_text_review",
+                      "type": "review",
+                      "name": "翻卡複習 (中=>日)",
+                      "enabled": true,
+                      "q_field": "chinese",
+                      "a_field": "japanese",
+                      "back_fields": [
+                        { "label": "日文", "key": "japanese" },
+                        { "label": "中文", "key": "chinese" }
+                      ]
+                    },
+                    {
+                      "id": "doben18_quiz_japanese",
+                      "type": "quiz",
+                      "name": "輸入測驗 (中=>日)",
+                      "enabled": true,
+                      "q_field": "chinese",
+                      "a_field": "japanese",
+                      "back_fields": [
+                        { "label": "日文", "key": "japanese" },
+                        { "label": "中文", "key": "chinese" }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "單字",
+              "type": "category",
+              "id": "lesson18_vocab_category",
+              "enabled": true,
+              "items": [
+                {
+                  "name": "單字測驗",
+                  "type": "list",
+                  "id": "doben18_vocab",
+                  "enabled": true,
+                  "modes": [
+                    {
+                      "id": "doben18_vocab_review",
+                      "type": "review",
+                      "name": "翻卡複習 (中=>日)",
+                      "enabled": true,
+                      "q_field": "definition",
+                      "a_field": "kanji",
+                      "back_fields": [
+                        { "label": "日文", "key": "kanji" },
+                        { "label": "平假名", "key": "hiragana" },
+                        { "label": "意思", "key": "definition" }
+                      ]
+                    },
+                    {
+                      "id": "doben18_vocab_quiz",
+                      "type": "quiz",
+                      "name": "輸入測驗 (中=>日)",
+                      "enabled": true,
+                      "q_field": "definition",
+                      "a_field": "kanji",
+                      "back_fields": [
+                        { "label": "日文", "key": "kanji" },
+                        { "label": "平假名", "key": "hiragana" },
+                        { "label": "意思", "key": "definition" }
+                      ]
+                    },
+                    {
+                      "id": "doben18_vocab_mcq_def",
+                      "type": "mcq",
+                      "name": "選擇測驗 (中=>日)",
+                      "enabled": true,
+                      "q_field": "definition",
+                      "a_field": "kanji",
+                      "back_fields": [
+                        { "label": "日文", "key": "kanji" },
+                        { "label": "平假名", "key": "hiragana" },
+                        { "label": "意思", "key": "definition" }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
