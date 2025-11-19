@@ -13,7 +13,7 @@ const operationToggle = document.getElementById('operation-toggle');
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
 const examSetupArea = document.getElementById('exam-setup-area'); 
-const mainArea = document.getElementById('quiz-main-area');
+const mainArea = document.getElementById('quiz-main-area'); // 獲取 mainArea 元素
 const resultsArea = document.getElementById('exam-results-area');
 
 // 獲取「按鈕」和「標題」
@@ -440,7 +440,7 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ 修正：將監聽器綁定到 document 級別 ⭐️
+    // ⭐️ 修正：將監聽器綁定到 document 級別 (最穩定的選擇) ⭐️
     document.addEventListener('keydown', handleGlobalKey);
     
     if (operationToggle) {
@@ -454,6 +454,7 @@ function setupApp() {
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
         
+        // 將焦點設回輸入框 (Quiz 模式)
         if (answerInput) answerInput.focus();
         
     } else if (currentMode === 'mcq') {
@@ -564,15 +565,24 @@ function checkAnswer() {
     }
 
     const normalizedInput = normalizeString(userInputRaw);
-    const normalizedAnswer = normalizeString(currentCorrectAnswer);
-
-    if (normalizedInput === normalizedAnswer) {
+    
+    // ⭐️ 修正：支持多重答案比對 ⭐️
+    let isCorrect = false;
+    let correctAnswers = currentCorrectAnswer.split('/');
+    
+    isCorrect = correctAnswers.some(answer => {
+        return normalizeString(answer) === normalizedInput;
+    });
+    
+    if (isCorrect) {
+        // 為了顯示正確，我們使用第一個正確答案填入
+        answerInput.value = correctAnswers[0].trim();
+        
         answerInput.classList.add('correct');
         answerInput.classList.remove('incorrect');
         answerInput.disabled = true; 
         nextButton.textContent = "下一張"; 
         nextButton.disabled = false;
-        answerInput.value = currentCorrectAnswer; 
         flipCard(); 
     } else {
         answerInput.classList.add('incorrect');
@@ -617,8 +627,10 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (移除 QWER 邏輯) ⭐️ ---
 function handleGlobalKey(event) {
+    // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
+    
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
-
+    
     // 1. "Enter" 鍵
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -736,7 +748,7 @@ function generateMcqOptions() {
     });
 }
 function handleMcqAnswer(event) {
-    const selectedButton = event.target; // 回復使用 event.target
+    const selectedButton = event.target; // 使用標準事件 target
     const selectedAnswer = selectedButton.dataset.answer;
     
     const allButtons = mcqOptionsArea.querySelectorAll('button');
