@@ -9,6 +9,10 @@ const mcqOptionsArea = document.getElementById('mcq-options-section');
 const examProgress = document.getElementById('exam-progress-bar');
 const operationToggle = document.getElementById('operation-toggle');
 
+// ⭐️ FIX: 確保給予變數賦值 ⭐️
+const giveUpButton = document.getElementById('give-up-button');
+
+
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
@@ -39,9 +43,6 @@ const multiModeButtonContainer = document.getElementById('multi-mode-button-cont
 // 獲取單列表摘要元素
 const singleListSummary = document.getElementById('single-list-summary');
 
-// ⭐️ 新增：獲取自訂輸入元素 ⭐️
-const qCustomRadio = document.getElementById('qCustomRadio');
-const qCustomInput = document.getElementById('qCustomInput');
 
 // 考試模式變數
 let isExamMode = false;
@@ -51,7 +52,7 @@ let examIncorrectCount = 0;
 let testedIndices = new Set();
 let currentCardMarkedWrong = false;
 
-// ⭐️ 新增：儲存錯題的單字數據 ⭐️
+// ⭐️ 儲存錯題的單字數據 ⭐️
 let examIncorrectWords = []; 
 let currentCardData = {}; // 儲存當前卡片數據
 
@@ -576,7 +577,7 @@ async function loadNextCard() {
         nextButton.textContent = "檢查答案"; 
         nextButton.disabled = false;
         if (answerInput) answerInput.focus(); 
-        if (giveUpButton) giveUpButton.style.display = 'inline-block'; // 啟用「我不會」
+        if (giveUpButton) giveUpButton.disabled = false; // 啟用「我不會」
         
     } else if (currentMode === 'mcq') {
         generateMcqOptions();
