@@ -613,10 +613,7 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
-    // ⭐️ 診斷輸出：確認按鍵事件是否被捕捉到 ⭐️
-    // ⚠️ 註：Alerts 會阻止腳本執行，請測試後將此行註釋掉。
-    // alert("Key pressed: " + event.key + ", Mode: " + currentMode + ", Code: " + event.code); 
-    console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code);
+    // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
     
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
     
