@@ -9,10 +9,6 @@ const mcqOptionsArea = document.getElementById('mcq-options-section');
 const examProgress = document.getElementById('exam-progress-bar');
 const operationToggle = document.getElementById('operation-toggle');
 
-// ⭐️ 新增：獲取「我不會」按鈕 ⭐️
-const giveUpButton = document.getElementById('give-up-button');
-
-
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
@@ -43,6 +39,9 @@ const multiModeButtonContainer = document.getElementById('multi-mode-button-cont
 // 獲取單列表摘要元素
 const singleListSummary = document.getElementById('single-list-summary');
 
+// ⭐️ 新增：獲取自訂輸入元素 ⭐️
+const qCustomRadio = document.getElementById('qCustomRadio');
+const qCustomInput = document.getElementById('qCustomInput');
 
 // 考試模式變數
 let isExamMode = false;
@@ -51,6 +50,10 @@ let examCurrentQuestion = 0;
 let examIncorrectCount = 0;
 let testedIndices = new Set();
 let currentCardMarkedWrong = false;
+
+// ⭐️ 新增：儲存錯題的單字數據 ⭐️
+let examIncorrectWords = []; 
+let currentCardData = {}; // 儲存當前卡片數據
 
 // 全局變數
 let QUESTION_FIELD = '';
@@ -413,14 +416,27 @@ function startGame() {
     mainArea.style.display = 'flex'; 
 
     const selectedLength = document.querySelector('input[name="exam-length"]:checked').value;
+    
+    // ⭐️ 修正：處理自訂輸入邏輯 ⭐️
     if (selectedLength === 'all') {
         examTotalQuestions = vocabulary.length;
+    } else if (selectedLength === 'custom') {
+        // 讀取自訂輸入框的值
+        let customValue = parseInt(qCustomInput.value);
+        if (isNaN(customValue) || customValue <= 0) {
+            alert('請輸入有效的自訂題數！');
+            examSetupArea.style.display = 'block';
+            mainArea.style.display = 'none';
+            return;
+        }
+        examTotalQuestions = customValue;
     } else {
         examTotalQuestions = parseInt(selectedLength);
     }
     
     if (examTotalQuestions > vocabulary.length) {
         examTotalQuestions = vocabulary.length;
+        alert(`題數超過單字庫總數，已自動設定為最大題數：${vocabulary.length} 題。`);
     }
 
     examCurrentQuestion = 0;
@@ -447,7 +463,7 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ 修正：將監聽器綁定到 document 級別 ⭐️
+    // ⭐️ 修正：將監聽器綁定到 document 級別 (最穩定的選擇) ⭐️
     document.addEventListener('keydown', handleGlobalKey);
     
     // ⭐️ 綁定「我不會」按鈕事件 ⭐️
@@ -560,7 +576,7 @@ async function loadNextCard() {
         nextButton.textContent = "檢查答案"; 
         nextButton.disabled = false;
         if (answerInput) answerInput.focus(); 
-        if (giveUpButton) giveUpButton.disabled = false; // 啟用「我不會」
+        if (giveUpButton) giveUpButton.style.display = 'inline-block'; // 啟用「我不會」
         
     } else if (currentMode === 'mcq') {
         generateMcqOptions();
@@ -613,6 +629,8 @@ function checkAnswer() {
         if (isExamMode && !currentCardMarkedWrong) {
             examIncorrectCount++;
             currentCardMarkedWrong = true;
+            updateExamProgress();
+            
             // ⭐️ 紀錄錯題 ⭐️
             examIncorrectWords.push({ 
                 question: currentCardData[QUESTION_FIELD], 
@@ -685,6 +703,8 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (移除 QWER 邏輯) ⭐️ ---
 function handleGlobalKey(event) {
+    // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
+    
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
 
     // 1. "Enter" 鍵
