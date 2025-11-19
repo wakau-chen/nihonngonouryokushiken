@@ -613,7 +613,6 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
-    // ⭐️ 調試輸出 ⭐️
     // console.log("Key pressed:", event.key, "Mode:", currentMode); 
     
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
@@ -633,21 +632,25 @@ function handleGlobalKey(event) {
         return; 
     }
     
-    // ⭐️ MCQ 數字鍵答題 ⭐️
+    // ⭐️ MCQ 數字鍵答題 (QWER 支持) ⭐️
     if (currentMode === 'mcq' && !nextButton.disabled) {
-        // ⭐️ 修正：同時檢查標準數字鍵 ('1'-'4') 和數字鍵盤區 ('Numpad1'-'Numpad4')
-        const validKeys = {
-            '1': 1, '2': 2, '3': 3, '4': 4,
-            'Numpad1': 1, 'Numpad2': 2, 'Numpad3': 3, 'Numpad4': 4
+        
+        // 修正：將數字鍵替換為 QWER 鍵，並映射到索引 0-3
+        const keyMap = {
+            'q': 0, 'w': 1, 'e': 2, 'r': 3,
+            'Q': 0, 'W': 1, 'E': 2, 'R': 3
         };
         
-        const optionNumber = validKeys[event.key];
+        const key = event.key;
+        const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
-        if (optionNumber !== undefined) {
+        if (optionIndex !== undefined) {
             event.preventDefault();
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
-            if (optionNumber <= optionButtons.length) {
-                optionButtons[optionNumber - 1].click();
+            
+            // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
+            if (optionIndex < optionButtons.length) {
+                optionButtons[optionIndex].click(); // 點擊對應索引的按鈕
             }
             return;
         }
@@ -745,11 +748,13 @@ function generateMcqOptions() {
     }
     mcqOptionsArea.innerHTML = ''; 
     
-    // ⭐️ 修正：添加數字編號 ⭐️
+    // ⭐️ 修正：添加數字編號 (QWER 對應 1, 2, 3, 4) ⭐️
     options.forEach((option, index) => {
         const button = document.createElement('button');
         button.className = 'mcq-option';
-        button.textContent = `${index + 1}. ${option}`; // 添加編號
+        
+        // 顯示為 1. 2. 3. 4.
+        button.textContent = `${index + 1}. ${option}`; 
         button.dataset.answer = option; 
         button.addEventListener('click', handleMcqAnswer);
         mcqOptionsArea.appendChild(button);
