@@ -632,9 +632,10 @@ function handleGlobalKey(event) {
     
     // ⭐️ MCQ 數字鍵答題 ⭐️
     if (currentMode === 'mcq' && !nextButton.disabled) {
-        const optionIndex = parseInt(event.key);
-        if (optionIndex >= 1 && optionIndex <= 4) {
+        // 修正：直接檢查 event.key 是否為數字 '1' 到 '4'
+        if (['1', '2', '3', '4'].includes(event.key)) {
             event.preventDefault();
+            const optionIndex = parseInt(event.key);
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             if (optionIndex <= optionButtons.length) {
                 optionButtons[optionIndex - 1].click();
