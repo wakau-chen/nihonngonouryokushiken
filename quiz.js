@@ -617,7 +617,7 @@ function handleGlobalKey(event) {
     // console.log("Key pressed:", event.key, "Mode:", currentMode); 
     
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
-
+    
     // 1. "Enter" 鍵
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -635,13 +635,19 @@ function handleGlobalKey(event) {
     
     // ⭐️ MCQ 數字鍵答題 ⭐️
     if (currentMode === 'mcq' && !nextButton.disabled) {
-        // 修正：直接檢查 event.key 是否為數字 '1' 到 '4'，同時支持標準鍵和數字鍵盤
-        if (['1', '2', '3', '4'].includes(event.key)) {
+        // ⭐️ 修正：同時檢查標準數字鍵 ('1'-'4') 和數字鍵盤區 ('Numpad1'-'Numpad4')
+        const validKeys = {
+            '1': 1, '2': 2, '3': 3, '4': 4,
+            'Numpad1': 1, 'Numpad2': 2, 'Numpad3': 3, 'Numpad4': 4
+        };
+        
+        const optionNumber = validKeys[event.key];
+        
+        if (optionNumber !== undefined) {
             event.preventDefault();
-            const optionIndex = parseInt(event.key);
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
-            if (optionIndex <= optionButtons.length) {
-                optionButtons[optionIndex - 1].click();
+            if (optionNumber <= optionButtons.length) {
+                optionButtons[optionNumber - 1].click();
             }
             return;
         }
