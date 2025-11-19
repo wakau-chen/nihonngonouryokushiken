@@ -613,7 +613,10 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
-    // console.log("Key pressed:", event.key, "Mode:", currentMode); 
+    // ⭐️ 診斷輸出：確認按鍵事件是否被捕捉到 ⭐️
+    // ⚠️ 註：Alerts 會阻止腳本執行，請測試後將此行註釋掉。
+    // alert("Key pressed: " + event.key + ", Mode: " + currentMode + ", Code: " + event.code); 
+    console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code);
     
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
     
@@ -639,7 +642,7 @@ function handleGlobalKey(event) {
         const keyMap = {
             'q': 0, 'w': 1, 'e': 2, 'r': 3,
             'Q': 0, 'W': 1, 'E': 2, 'R': 3,
-            // 由於用戶可能仍在使用數字鍵，我們保留數字鍵的映射，並讓它在 QWER 邏輯中執行
+            // 包含數字鍵和數字鍵盤區，確保最大的兼容性
             '1': 0, '2': 1, '3': 2, '4': 3,
             'Numpad1': 0, 'Numpad2': 1, 'Numpad3': 2, 'Numpad4': 3
         };
@@ -648,7 +651,7 @@ function handleGlobalKey(event) {
         const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
         if (optionIndex !== undefined) {
-            event.preventDefault(); // ⭐️ FIX: 確保阻止瀏覽器預設行為
+            event.preventDefault(); // ⭐️ 確保阻止瀏覽器預設行為
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             
             // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
