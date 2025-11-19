@@ -290,11 +290,12 @@
                       "type": "review",
                       "name": "翻卡複習 (中=>日)",
                       "enabled": true,
-                      "q_field": "chinese",
-                      "a_field": "japanese",
+                      "q_field": "definition",
+                      "a_field": "kanji",
                       "back_fields": [
-                        { "label": "日文", "key": "japanese" },
-                        { "label": "中文", "key": "chinese" }
+                        { "label": "日文", "key": "kanji" },
+                        { "label": "平假名", "key": "hiragana" },
+                        { "label": "意思", "key": "definition" }
                       ]
                     },
                     {
@@ -302,11 +303,12 @@
                       "type": "quiz",
                       "name": "輸入測驗 (中=>日)",
                       "enabled": true,
-                      "q_field": "chinese",
-                      "a_field": "japanese",
+                      "q_field": "definition",
+                      "a_field": "kannji",
                       "back_fields": [
-                        { "label": "日文", "key": "japanese" },
-                        { "label": "中文", "key": "chinese" }
+                        { "label": "日文", "key": "kanji" },
+                        { "label": "平假名", "key": "hiragana" },
+                        { "label": "意思", "key": "definition" }
                       ]
                     }
                   ]
