@@ -13,7 +13,7 @@ const operationToggle = document.getElementById('operation-toggle');
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
 const examSetupArea = document.getElementById('exam-setup-area'); 
-const mainArea = document.getElementById('quiz-main-area'); // 獲取 mainArea 元素
+const mainArea = document.getElementById('quiz-main-area');
 const resultsArea = document.getElementById('exam-results-area');
 
 // 獲取「按鈕」和「標題」
@@ -58,9 +58,6 @@ let currentCorrectAnswer = "";
 let currentMode = 'review'; 
 let touchStartX = 0;
 let touchStartY = 0;
-
-// ⭐️ 核心狀態：儲存正確答案的索引 (0, 1, 2, or 3) ⭐️
-let correctOptionIndex = -1; 
 
 // 全局狀態
 let allListConfigs = {}; 
@@ -443,7 +440,7 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ FIX: 將監聽器綁定到 document 級別 (最穩定的選擇) ⭐️
+    // ⭐️ 修正：將監聽器綁定到 document 級別 ⭐️
     document.addEventListener('keydown', handleGlobalKey);
     
     if (operationToggle) {
@@ -457,7 +454,6 @@ function setupApp() {
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
         
-        // 將焦點設回輸入框 (Quiz 模式)
         if (answerInput) answerInput.focus();
         
     } else if (currentMode === 'mcq') {
@@ -619,12 +615,10 @@ function handleButtonPress() {
     }
 }
 
-// --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
+// --- 8. ⭐️ 處理 Enter / Shift 鍵 (移除 QWER 邏輯) ⭐️ ---
 function handleGlobalKey(event) {
-    // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
-    
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
-    
+
     // 1. "Enter" 鍵
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -638,34 +632,6 @@ function handleGlobalKey(event) {
              handleButtonPress();
         }
         return; 
-    }
-    
-    // ⭐️ MCQ 數字鍵答題 (QWER 支持) ⭐️
-    if (currentMode === 'mcq' && !nextButton.disabled) {
-        
-        // 修正：將數字鍵替換為 QWER 鍵，並映射到索引 0-3
-        const keyMap = {
-            'q': 0, 'w': 1, 'e': 2, 'r': 3,
-            'Q': 0, 'W': 1, 'E': 2, 'R': 3,
-            // 包含數字鍵和數字鍵盤區，確保最大的兼容性
-            '1': 0, '2': 1, '3': 2, '4': 3,
-            'Numpad1': 0, 'Numpad2': 1, 'Numpad3': 2, 'Numpad4': 3
-        };
-        
-        const key = event.key;
-        const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
-        
-        if (optionIndex !== undefined) {
-            event.preventDefault(); // ⭐️ 確保阻止瀏覽器預設行為
-            const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
-            
-            // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
-            if (optionIndex < optionButtons.length) {
-                // ⭐️ 核心修正：直接呼叫處理函式 ⭐️
-                handleMcqAnswer(optionButtons[optionIndex]); 
-            }
-            return;
-        }
     }
 
     // 2. "Shift" 鍵
@@ -734,7 +700,7 @@ function triggerNextCardAction() {
     }
 }
 
-// --- 11. MCQ 相關函式 (不變) ---
+// --- 11. MCQ 相關函式 (移除編號) ---
 function generateMcqOptions() {
     const correctAnswer = currentCorrectAnswer;
     let distractors = [];
@@ -760,22 +726,17 @@ function generateMcqOptions() {
     }
     mcqOptionsArea.innerHTML = ''; 
     
-    // ⭐️ 修正：添加數字編號 ⭐️
-    options.forEach((option, index) => {
+    options.forEach((option) => {
         const button = document.createElement('button');
         button.className = 'mcq-option';
-        button.textContent = `${index + 1}. ${option}`; // 添加編號
+        button.textContent = option; // 移除編號前綴
         button.dataset.answer = option; 
-        
-        // ⭐️ 修正：點擊時，將按鈕元素本身傳遞給處理函式 ⭐️
-        button.addEventListener('click', (event) => handleMcqAnswer(event.target));
+        button.addEventListener('click', handleMcqAnswer); // 使用標準事件監聽器
         mcqOptionsArea.appendChild(button);
     });
 }
-
-// ⭐️ 核心修正：handleMcqAnswer 接受按鈕元素作為參數 ⭐️
-function handleMcqAnswer(selectedButton) {
-    // 這裡我們直接使用傳入的按鈕，而不是 event.target
+function handleMcqAnswer(event) {
+    const selectedButton = event.target; // 回復使用 event.target
     const selectedAnswer = selectedButton.dataset.answer;
     
     const allButtons = mcqOptionsArea.querySelectorAll('button');
