@@ -73,6 +73,14 @@ let selectedListIDs = [];
 let multiSelectEntryConfig = null;
 let config = null; // 儲存 config.json 數據
 
+// ⭐️ 新增輔助函式：Fisher-Yates 洗牌演算法 ⭐️
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 // ⭐️ 輔助函式：遞迴收集所有 list ID
 function findListById(items) {
     if (!items) return;
@@ -440,9 +448,14 @@ function startGame() {
         alert(`題數超過單字庫總數，已自動設定為最大題數：${vocabulary.length} 題。`);
     }
 
+    // ⭐️ 核心修正：進入考試前先洗牌 (Shuffling) ⭐️
+    // 這樣不論選擇「全部」或「部分」題數，都會是隨機順序
+    shuffleArray(vocabulary);
+
     examCurrentQuestion = 0;
     examIncorrectCount = 0;
-    testedIndices.clear();
+    // 考試模式已經洗牌，不再需要 testedIndices
+    // testedIndices.clear();
     updateExamProgress();
     
     // ⭐️ 重置錯題紀錄 ⭐️
@@ -526,14 +539,9 @@ async function loadNextCard() {
         updateExamProgress();
         currentCardMarkedWrong = false; 
         
-        if (examTotalQuestions === vocabulary.length) {
-            newIndex = examCurrentQuestion - 1; 
-        } else {
-            do { 
-                newIndex = Math.floor(Math.random() * vocabulary.length); 
-            } while (testedIndices.has(newIndex));
-        }
-        testedIndices.add(newIndex);
+        // ⭐️ 修正邏輯：因為 vocabulary 已經在 startGame 裡洗牌過了，
+        // ⭐️ 所以直接依序取前 examTotalQuestions 個即可。
+        newIndex = examCurrentQuestion - 1;
         
     } else {
         const oldIndex = currentCardIndex;
