@@ -440,12 +440,12 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ 修正：將監聽器綁定到 mainArea，並賦予焦點 ⭐️
-    if (mainArea) {
-        mainArea.addEventListener('keydown', handleGlobalKey);
-        mainArea.focus(); // 設置焦點
-    }
+    // ⭐️ FIX: 將監聽器綁定到 document 級別，避免焦點丟失 ⭐️
+    document.addEventListener('keydown', handleGlobalKey);
     
+    // 移除 mainArea.focus()，因為現在我們使用 document 監聽器
+    // if (mainArea) { mainArea.focus(); } 
+
     if (operationToggle) {
         operationToggle.addEventListener('click', toggleOperationNotes);
     }
@@ -456,6 +456,10 @@ function setupApp() {
         const answerLabelData = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD);
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
+        
+        // 將焦點設回輸入框 (Quiz 模式)
+        if (answerInput) answerInput.focus();
+        
     } else if (currentMode === 'mcq') {
         if(quizInputArea) quizInputArea.style.display = 'none';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'grid'; 
@@ -617,6 +621,7 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
+    // ⭐️ 診斷輸出：確認按鍵事件是否被捕捉到 ⭐️
     // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
     
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
@@ -652,7 +657,7 @@ function handleGlobalKey(event) {
         const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
         if (optionIndex !== undefined) {
-            event.preventDefault(); // ⭐️ 確保阻止瀏覽器預設行為
+            event.preventDefault(); // ⭐️ FIX: 確保阻止瀏覽器預設行為
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             
             // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
