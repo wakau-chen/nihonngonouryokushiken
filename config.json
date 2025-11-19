@@ -234,39 +234,47 @@
           "enabled": true,
           "items": [
             {
-              "name": "課文段落",
-              "type": "list",
-              "id": "doben17",
+              "name": "課文",
+              "type": "category",
+              "id": "lesson17_text",
               "enabled": true,
-              "modes": [
-                {
-                  "id": "doben17_text_review",
-                  "type": "review",
-                  "name": "翻卡複習 (中=>日)",
+              "items": [
+                 {
+                  "name": "課文段落",
+                  "type": "list",
+                  "id": "doben17",
                   "enabled": true,
-                  "q_field": "chinese",
-                  "a_field": "japanese",
-                  "back_fields": [
-                    { "label": "日文", "key": "japanese" },
-                    { "label": "中文", "key": "chinese" }
-                  ]
-                },
-                {
-                  "id": "doben17_quiz_japanese",
-                  "type": "quiz",
-                  "name": "輸入測驗 (中=>日)",
-                  "enabled": true,
-                  "q_field": "chinese",
-                  "a_field": "japanese",
-                  "back_fields": [
-                    { "label": "日文", "key": "japanese" },
-                    { "label": "中文", "key": "chinese" }
+                  "modes": [
+                    {
+                      "id": "doben17_text_review",
+                      "type": "review",
+                      "name": "翻卡複習 (中=>日)",
+                      "enabled": true,
+                      "q_field": "chinese",
+                      "a_field": "japanese",
+                      "back_fields": [
+                        { "label": "日文", "key": "japanese" },
+                        { "label": "中文", "key": "chinese" }
+                      ]
+                    },
+                    {
+                      "id": "doben17_quiz_japanese",
+                      "type": "quiz",
+                      "name": "輸入測驗 (中=>日)",
+                      "enabled": true,
+                      "q_field": "chinese",
+                      "a_field": "japanese",
+                      "back_fields": [
+                        { "label": "日文", "key": "japanese" },
+                        { "label": "中文", "key": "chinese" }
+                      ]
+                    }
                   ]
                 }
               ]
             },
             {
-              "name": "單字列表",
+              "name": "單字",
               "type": "list",
               "id": "doben17_vocab", 
               "enabled": true,
