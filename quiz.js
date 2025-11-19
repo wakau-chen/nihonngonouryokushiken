@@ -652,7 +652,7 @@ function handleGlobalKey(event) {
         const optionIndex = keyMap[key]; // 獲取索引 (0, 1, 2, 3)
         
         if (optionIndex !== undefined) {
-            event.preventDefault(); // ⭐️ FIX: 確保阻止瀏覽器預設行為
+            event.preventDefault(); // ⭐️ 確保阻止瀏覽器預設行為
             const optionButtons = mcqOptionsArea.querySelectorAll('.mcq-option');
             
             // 由於索引是 0-based，我們檢查是否在按鈕數量的範圍內
@@ -775,4 +775,71 @@ function handleMcqAnswer(event) {
     allButtons.forEach(button => button.disabled = true);
 
     if (normalizeString(selectedAnswer) === normalizeString(currentCorrectAnswer)) {
-        selectedButton.classList.add('
+        selectedButton.classList.add('correct');
+    } else {
+        selectedButton.classList.add('incorrect');
+        allButtons.forEach(button => {
+            if (normalizeString(button.dataset.answer) === normalizeString(currentCorrectAnswer)) {
+                button.classList.add('correct');
+            }
+        });
+        
+        if (isExamMode && !currentCardMarkedWrong) {
+            examIncorrectCount++;
+            currentCardMarkedWrong = true;
+            updateExamProgress();
+        }
+    }
+    
+    nextButton.disabled = false;
+    flipCard();
+}
+
+// --- 12. 考試專用函式 (不變) ---
+function updateExamProgress() {
+    if (!isExamMode) {
+        if(examProgress) examProgress.style.display = 'none';
+        return;
+    }
+    
+    if(examProgress) examProgress.style.display = 'flex';
+    let score = 'N/A';
+    if (examCurrentQuestion > 0) {
+        const correctCount = (examCurrentQuestion - examIncorrectCount);
+        score = Math.round((correctCount / examCurrentQuestion) * 100);
+    }
+    
+    examProgress.innerHTML = `
+        <span>題數: ${examCurrentQuestion} / ${examTotalQuestions}</span>
+        <span>答錯: ${examIncorrectCount}</span>
+        <span>分數: ${score === 'N/A' ? 'N/A' : score + '%'}</span>
+    `;
+}
+function showExamResults() {
+    if(mainArea) mainArea.style.display = 'none';
+    if(resultsArea) resultsArea.style.display = 'block';
+
+    const correctCount = examTotalQuestions - examIncorrectCount;
+    const finalScore = Math.round((correctCount / examTotalQuestions) * 100);
+    let message = '';
+    if (finalScore == 100) message = '太完美了！ (Perfect!)';
+    else if (finalScore >= 80) message = '非常厲害！ (Great Job!)';
+    else if (finalScore >= 60) message = '不錯喔！ (Good!)';
+    else message = '再加油！ (Keep Trying!)';
+    
+    resultsArea.innerHTML = `
+        <h1>考試結束！</h1>
+        <div class="results-summary">
+            <h2>${message}</h2>
+            <div class="final-score">${finalScore}%</div>
+            <p>總題數: ${examTotalQuestions}</p>
+            <p>答對: ${correctCount}</p>
+            <p>答錯: ${examIncorrectCount}</p>
+        </div>
+        <a href="javascript:location.reload()" class="option-button review-mode">再考一次</a>
+        <a href="index.html" class="home-button">返回主頁面</a>
+    `;
+}
+
+// --- ⭐️ 啟動程式 ⭐️ ---
+initializeQuiz();
