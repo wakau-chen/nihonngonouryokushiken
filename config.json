@@ -275,32 +275,40 @@
             },
             {
               "name": "單字",
-              "type": "list",
-              "id": "doben17_vocab", 
+              "type": "category",
+              "id": "lesson17_vocab",
               "enabled": true,
-              "modes": [
+              "items": [
                 {
-                  "id": "doben17_vocab_review",
-                  "type": "review",
-                  "name": "翻卡複習 (中=>日)",
+                  "name": "單字測驗",
+                  "type": "list",
+                  "id": "doben17_vocab", 
                   "enabled": true,
-                  "q_field": "chinese",
-                  "a_field": "japanese",
-                  "back_fields": [
-                    { "label": "日文", "key": "japanese" },
-                    { "label": "中文", "key": "chinese" }
-                  ]
-                },
-                {
-                  "id": "doben17_vocab_quiz",
-                  "type": "quiz",
-                  "name": "輸入測驗 (中=>日)",
-                  "enabled": true,
-                  "q_field": "chinese",
-                  "a_field": "japanese",
-                  "back_fields": [
-                    { "label": "日文", "key": "japanese" },
-                    { "label": "中文", "key": "chinese" }
+                  "modes": [
+                    {
+                      "id": "doben17_vocab_review",
+                      "type": "review",
+                      "name": "翻卡複習 (中=>日)",
+                      "enabled": true,
+                      "q_field": "chinese",
+                      "a_field": "japanese",
+                      "back_fields": [
+                        { "label": "日文", "key": "japanese" },
+                        { "label": "中文", "key": "chinese" }
+                      ]
+                    },
+                    {
+                      "id": "doben17_vocab_quiz",
+                      "type": "quiz",
+                      "name": "輸入測驗 (中=>日)",
+                      "enabled": true,
+                      "q_field": "chinese",
+                      "a_field": "japanese",
+                      "back_fields": [
+                        { "label": "日文", "key": "japanese" },
+                        { "label": "中文", "key": "chinese" }
+                      ]
+                    }
                   ]
                 }
               ]
