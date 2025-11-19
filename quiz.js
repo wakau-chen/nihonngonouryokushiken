@@ -635,7 +635,7 @@ function handleGlobalKey(event) {
     
     // ⭐️ MCQ 數字鍵答題 ⭐️
     if (currentMode === 'mcq' && !nextButton.disabled) {
-        // 修正：直接檢查 event.key 是否為數字 '1' 到 '4'
+        // 修正：直接檢查 event.key 是否為數字 '1' 到 '4'，同時支持標準鍵和數字鍵盤
         if (['1', '2', '3', '4'].includes(event.key)) {
             event.preventDefault();
             const optionIndex = parseInt(event.key);
