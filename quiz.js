@@ -13,7 +13,7 @@ const operationToggle = document.getElementById('operation-toggle');
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
 const examSetupArea = document.getElementById('exam-setup-area'); 
-const mainArea = document.getElementById('quiz-main-area');
+const mainArea = document.getElementById('quiz-main-area'); // 獲取 mainArea 元素
 const resultsArea = document.getElementById('exam-results-area');
 
 // 獲取「按鈕」和「標題」
@@ -440,7 +440,11 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    document.addEventListener('keydown', handleGlobalKey);
+    // ⭐️ 修正：將監聽器綁定到 mainArea，並賦予焦點 ⭐️
+    if (mainArea) {
+        mainArea.addEventListener('keydown', handleGlobalKey);
+        mainArea.focus(); // 設置焦點
+    }
     
     if (operationToggle) {
         operationToggle.addEventListener('click', toggleOperationNotes);
@@ -613,7 +617,6 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
-    // ⭐️ 診斷輸出：確認按鍵事件是否被捕捉到 ⭐️
     // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
     
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
@@ -763,6 +766,8 @@ function generateMcqOptions() {
     });
 }
 function handleMcqAnswer(event) {
+    // console.log("MCQ Option Clicked! Answer:", selectedAnswer); // 診斷輸出
+    
     const selectedButton = event.target;
     const selectedAnswer = selectedButton.dataset.answer;
     
@@ -770,71 +775,4 @@ function handleMcqAnswer(event) {
     allButtons.forEach(button => button.disabled = true);
 
     if (normalizeString(selectedAnswer) === normalizeString(currentCorrectAnswer)) {
-        selectedButton.classList.add('correct');
-    } else {
-        selectedButton.classList.add('incorrect');
-        allButtons.forEach(button => {
-            if (normalizeString(button.dataset.answer) === normalizeString(currentCorrectAnswer)) {
-                button.classList.add('correct');
-            }
-        });
-        
-        if (isExamMode && !currentCardMarkedWrong) {
-            examIncorrectCount++;
-            currentCardMarkedWrong = true;
-            updateExamProgress();
-        }
-    }
-    
-    nextButton.disabled = false;
-    flipCard();
-}
-
-// --- 12. 考試專用函式 (不變) ---
-function updateExamProgress() {
-    if (!isExamMode) {
-        if(examProgress) examProgress.style.display = 'none';
-        return;
-    }
-    
-    if(examProgress) examProgress.style.display = 'flex';
-    let score = 'N/A';
-    if (examCurrentQuestion > 0) {
-        const correctCount = (examCurrentQuestion - examIncorrectCount);
-        score = Math.round((correctCount / examCurrentQuestion) * 100);
-    }
-    
-    examProgress.innerHTML = `
-        <span>題數: ${examCurrentQuestion} / ${examTotalQuestions}</span>
-        <span>答錯: ${examIncorrectCount}</span>
-        <span>分數: ${score === 'N/A' ? 'N/A' : score + '%'}</span>
-    `;
-}
-function showExamResults() {
-    if(mainArea) mainArea.style.display = 'none';
-    if(resultsArea) resultsArea.style.display = 'block';
-
-    const correctCount = examTotalQuestions - examIncorrectCount;
-    const finalScore = Math.round((correctCount / examTotalQuestions) * 100);
-    let message = '';
-    if (finalScore == 100) message = '太完美了！ (Perfect!)';
-    else if (finalScore >= 80) message = '非常厲害！ (Great Job!)';
-    else if (finalScore >= 60) message = '不錯喔！ (Good!)';
-    else message = '再加油！ (Keep Trying!)';
-    
-    resultsArea.innerHTML = `
-        <h1>考試結束！</h1>
-        <div class="results-summary">
-            <h2>${message}</h2>
-            <div class="final-score">${finalScore}%</div>
-            <p>總題數: ${examTotalQuestions}</p>
-            <p>答對: ${correctCount}</p>
-            <p>答錯: ${examIncorrectCount}</p>
-        </div>
-        <a href="javascript:location.reload()" class="option-button review-mode">再考一次</a>
-        <a href="index.html" class="home-button">返回主頁面</a>
-    `;
-}
-
-// --- ⭐️ 啟動程式 ⭐️ ---
-initializeQuiz();
+        selectedButton.classList.add('
