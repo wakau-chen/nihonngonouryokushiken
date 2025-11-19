@@ -9,6 +9,10 @@ const mcqOptionsArea = document.getElementById('mcq-options-section');
 const examProgress = document.getElementById('exam-progress-bar');
 const operationToggle = document.getElementById('operation-toggle');
 
+// ⭐️ 新增：獲取「我不會」按鈕 ⭐️
+const giveUpButton = document.getElementById('give-up-button');
+
+
 // 獲取「區域」元素
 const modeChoiceArea = document.getElementById('mode-choice-area');
 const practiceExamChoiceArea = document.getElementById('practice-exam-choice-area');
@@ -47,9 +51,6 @@ let examCurrentQuestion = 0;
 let examIncorrectCount = 0;
 let testedIndices = new Set();
 let currentCardMarkedWrong = false;
-
-// ⭐️ 新增：儲存錯題的單字數據 ⭐️
-let examIncorrectWords = []; 
 
 // 全局變數
 let QUESTION_FIELD = '';
@@ -425,7 +426,10 @@ function startGame() {
     examCurrentQuestion = 0;
     examIncorrectCount = 0;
     testedIndices.clear();
-    updateExamProgress(); 
+    updateExamProgress();
+    
+    // ⭐️ 重置錯題紀錄 ⭐️
+    examIncorrectWords = [];
     
     setupApp();
 }
@@ -443,16 +447,21 @@ function setupApp() {
         cardContainer.addEventListener('touchend', handleTouchEnd, false);
     }
     
-    // ⭐️ 修正：將監聽器綁定到 document 級別 (最穩定的選擇) ⭐️
+    // ⭐️ 修正：將監聽器綁定到 document 級別 ⭐️
     document.addEventListener('keydown', handleGlobalKey);
     
-    if (operationToggle) {
-        operationToggle.addEventListener('click', toggleOperationNotes);
+    // ⭐️ 綁定「我不會」按鈕事件 ⭐️
+    if (giveUpButton) {
+        giveUpButton.addEventListener('click', revealAnswer);
     }
     
     if (currentMode === 'quiz') {
         if(quizInputArea) quizInputArea.style.display = 'block';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'none';
+        
+        // 顯示「我不會」按鈕
+        if(giveUpButton) giveUpButton.style.display = 'inline-block';
+        
         const answerLabelData = BACK_CARD_FIELDS.find(f => f.key === ANSWER_FIELD);
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
@@ -462,9 +471,11 @@ function setupApp() {
     } else if (currentMode === 'mcq') {
         if(quizInputArea) quizInputArea.style.display = 'none';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'grid'; 
+        if(giveUpButton) giveUpButton.style.display = 'none'; // MCQ 模式不需要「我不會」
     } else { // review 模式
         if(quizInputArea) quizInputArea.style.display = 'none';
         if(mcqOptionsArea) mcqOptionsArea.style.display = 'none';
+        if(giveUpButton) giveUpButton.style.display = 'none';
     }
     
     loadNextCard();
@@ -491,12 +502,13 @@ async function loadNextCard() {
     }
     
     let card;
+    let newIndex = currentCardIndex; // 默認使用當前索引
+
     if (isExamMode) {
         examCurrentQuestion++;
         updateExamProgress();
         currentCardMarkedWrong = false; 
-
-        let newIndex;
+        
         if (examTotalQuestions === vocabulary.length) {
             newIndex = examCurrentQuestion - 1; 
         } else {
@@ -505,19 +517,22 @@ async function loadNextCard() {
             } while (testedIndices.has(newIndex));
         }
         testedIndices.add(newIndex);
-        card = vocabulary[newIndex];
-
+        
     } else {
         const oldIndex = currentCardIndex;
         if (vocabulary.length <= 1) { currentCardIndex = 0; }
         else {
             do { currentCardIndex = Math.floor(Math.random() * vocabulary.length); }
             while (currentCardIndex === oldIndex);
+            newIndex = currentCardIndex;
         }
-        card = vocabulary[currentCardIndex];
     }
     
+    card = vocabulary[newIndex];
     if (!card) return; 
+
+    // ⭐️ 儲存目前卡片的完整數據，以便錯題紀錄使用 ⭐️
+    currentCardData = card;
 
     cardFront.textContent = card[QUESTION_FIELD] || "";
     currentCorrectAnswer = card[ANSWER_FIELD] || "";
@@ -545,6 +560,7 @@ async function loadNextCard() {
         nextButton.textContent = "檢查答案"; 
         nextButton.disabled = false;
         if (answerInput) answerInput.focus(); 
+        if (giveUpButton) giveUpButton.disabled = false; // 啟用「我不會」
         
     } else if (currentMode === 'mcq') {
         generateMcqOptions();
@@ -570,7 +586,7 @@ function checkAnswer() {
     
     // ⭐️ 修正：支持多重答案比對 ⭐️
     let isCorrect = false;
-    let correctAnswers = currentCorrectAnswer.split('/');
+    let correctAnswers = currentCorrectAnswer.split('/').map(s => s.trim());
     
     isCorrect = correctAnswers.some(answer => {
         return normalizeString(answer) === normalizedInput;
@@ -585,8 +601,10 @@ function checkAnswer() {
         answerInput.disabled = true; 
         nextButton.textContent = "下一張"; 
         nextButton.disabled = false;
+        if (giveUpButton) giveUpButton.style.display = 'none'; // 隱藏「我不會」按鈕
         flipCard(); 
     } else {
+        // 錯誤輸入後，顯示「我不會」按鈕
         answerInput.classList.add('incorrect');
         answerInput.classList.remove('correct');
         answerInput.classList.add('shake');
@@ -595,10 +613,48 @@ function checkAnswer() {
         if (isExamMode && !currentCardMarkedWrong) {
             examIncorrectCount++;
             currentCardMarkedWrong = true;
-            updateExamProgress();
+            // ⭐️ 紀錄錯題 ⭐️
+            examIncorrectWords.push({ 
+                question: currentCardData[QUESTION_FIELD], 
+                answer: currentCorrectAnswer 
+            });
         }
+        
+        // ⭐️ 錯誤後顯示「我不會」按鈕，讓用戶可以跳過 ⭐️
+        if (giveUpButton) giveUpButton.style.display = 'inline-block';
     }
 }
+
+// ⭐️ 新增函式：直接顯示答案（處理「我不會」按鈕點擊） ⭐️
+function revealAnswer() {
+    if (currentMode === 'quiz' && !flashcard.classList.contains('is-flipped')) {
+        
+        // 如果是考試模式且尚未標記錯誤，則紀錄錯題
+        if (isExamMode && !currentCardMarkedWrong) {
+            examIncorrectCount++;
+            currentCardMarkedWrong = true;
+            updateExamProgress();
+            
+            // ⭐️ 紀錄錯題 ⭐️
+            examIncorrectWords.push({ 
+                question: currentCardData[QUESTION_FIELD], 
+                answer: currentCorrectAnswer 
+            });
+        }
+        
+        // 顯示答案
+        answerInput.value = currentCorrectAnswer.split('/')[0].trim(); // 顯示第一個答案
+        answerInput.classList.remove('incorrect');
+        answerInput.disabled = true;
+        
+        // 翻卡並調整按鈕狀態
+        flipCard();
+        nextButton.textContent = "下一張";
+        nextButton.disabled = false;
+        if (giveUpButton) giveUpButton.style.display = 'none';
+    }
+}
+
 
 // --- 7. 處理按鈕點擊 (修正 review 模式下的按鈕狀態變更時機) ---
 function handleButtonPress() {
@@ -607,7 +663,7 @@ function handleButtonPress() {
     if (currentMode === 'quiz') {
         if (buttonState === "檢查答案") {
             checkAnswer();
-        } else { 
+        } else { // buttonState === "下一張"
             loadNextCard();
         }
     } else if (currentMode === 'review') {
@@ -627,12 +683,10 @@ function handleButtonPress() {
     }
 }
 
-// --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
+// --- 8. ⭐️ 處理 Enter / Shift 鍵 (移除 QWER 邏輯) ⭐️ ---
 function handleGlobalKey(event) {
-    // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
-    
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
-    
+
     // 1. "Enter" 鍵
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -769,7 +823,11 @@ function handleMcqAnswer(event) {
         if (isExamMode && !currentCardMarkedWrong) {
             examIncorrectCount++;
             currentCardMarkedWrong = true;
-            updateExamProgress();
+            // ⭐️ 紀錄錯題 ⭐️
+            examIncorrectWords.push({ 
+                question: currentCardData[QUESTION_FIELD], 
+                answer: currentCorrectAnswer 
+            });
         }
     }
     
@@ -777,7 +835,7 @@ function handleMcqAnswer(event) {
     flipCard();
 }
 
-// --- 12. 考試專用函式 (不變) ---
+// --- 12. 考試專用函式 (更新錯題列表顯示) ---
 function updateExamProgress() {
     if (!isExamMode) {
         if(examProgress) examProgress.style.display = 'none';
@@ -809,6 +867,21 @@ function showExamResults() {
     else if (finalScore >= 60) message = '不錯喔！ (Good!)';
     else message = '再加油！ (Keep Trying!)';
     
+    // ⭐️ 錯題列表渲染 ⭐️
+    let incorrectListHtml = '';
+    if (examIncorrectWords.length > 0) {
+        incorrectListHtml = '<h2>📚 錯誤清單</h2><ul class="incorrect-list">';
+        examIncorrectWords.forEach((word, index) => {
+            incorrectListHtml += `
+                <li>
+                    <strong>${index + 1}. 問題:</strong> ${word.question} <br>
+                    <strong>答案:</strong> <span style="color: #c62828;">${word.answer}</span>
+                </li>
+            `;
+        });
+        incorrectListHtml += '</ul>';
+    }
+    
     resultsArea.innerHTML = `
         <h1>考試結束！</h1>
         <div class="results-summary">
@@ -818,6 +891,7 @@ function showExamResults() {
             <p>答對: ${correctCount}</p>
             <p>答錯: ${examIncorrectCount}</p>
         </div>
+        ${incorrectListHtml}
         <a href="javascript:location.reload()" class="option-button review-mode">再考一次</a>
         <a href="index.html" class="home-button">返回主頁面</a>
     `;
