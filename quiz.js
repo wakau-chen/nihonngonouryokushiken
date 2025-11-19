@@ -48,6 +48,9 @@ let examIncorrectCount = 0;
 let testedIndices = new Set();
 let currentCardMarkedWrong = false;
 
+// ⭐️ 新增：儲存錯題的單字數據 ⭐️
+let examIncorrectWords = []; 
+
 // 全局變數
 let QUESTION_FIELD = '';
 let ANSWER_FIELD = '';
@@ -454,7 +457,6 @@ function setupApp() {
         const answerLabel = answerLabelData ? answerLabelData.label : "答案";
         answerInput.placeholder = `請輸入 ${answerLabel}`;
         
-        // 將焦點設回輸入框 (Quiz 模式)
         if (answerInput) answerInput.focus();
         
     } else if (currentMode === 'mcq') {
@@ -625,7 +627,7 @@ function handleButtonPress() {
     }
 }
 
-// --- 8. ⭐️ 處理 Enter / Shift 鍵 (移除 QWER 邏輯) ⭐️ ---
+// --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
     // console.log("Key pressed: ", event.key, "Mode: ", currentMode, "Code: ", event.code); 
     
