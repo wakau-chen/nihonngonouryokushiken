@@ -613,6 +613,9 @@ function handleButtonPress() {
 
 // --- 8. ⭐️ 處理 Enter / Shift 鍵 (已修正) ⭐️ ---
 function handleGlobalKey(event) {
+    // ⭐️ 調試輸出 ⭐️
+    // console.log("Key pressed:", event.key, "Mode:", currentMode); 
+    
     const isTyping = (currentMode === 'quiz' && document.activeElement === answerInput);
 
     // 1. "Enter" 鍵
