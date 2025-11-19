@@ -1,5 +1,5 @@
 {
-  "siteTitle": "我的日文單字庫",
+  "siteTitle": "日文練習",
   "catalog": [
     {
       "name": "綜合測驗區",
@@ -10,9 +10,9 @@
         {
           "name": "自選多庫測驗入口",
           "type": "list",
-          "id": "MULTI_SELECT_ENTRY", 
+          "id": "MULTI_SELECT_ENTRY",
           "enabled": true,
-          "available_lists": ["N3", "N4"], 
+          "available_lists": ["N3", "N4"],
           "modes": [
             {
               "id": "multi_quiz_review",
@@ -228,43 +228,59 @@
       "enabled": true,
       "items": [
         {
-          "name": "第17課 課文",
-          "type": "list",
-          "id": "doben17",
+          "name": "第17課",
+          "type": "category",
+          "id": "lesson17",
           "enabled": true,
-          "modes": [
+          "items": [
             {
-              "id": "doben17_text_review",
-              "type": "review",
-              "name": "翻卡複習 (中=>日)",
+              "name": "課文",
+              "type": "list",
+              "id": "doben17",
               "enabled": true,
-              "q_field": "chinese",
-              "a_field": "japanese",
-              "back_fields": [
-                { "label": "日文", "key": "japanese" },
-                { "label": "中文", "key": "chinese" }
-              ]
-            },
-            {
-              "id": "doben17_quiz_japanese",
-              "type": "quiz",
-              "name": "輸入測驗 (中=>日)",
-              "enabled": true,
-              "q_field": "chinese",
-              "a_field": "japanese",
-              "back_fields": [
-                { "label": "日文", "key": "japanese" },
-                { "label": "中文", "key": "chinese" }
+              "modes": [
+                {
+                  "id": "doben17_text_review",
+                  "type": "review",
+                  "name": "翻卡複習 (中=>日)",
+                  "enabled": true,
+                  "q_field": "chinese",
+                  "a_field": "japanese",
+                  "back_fields": [
+                    { "label": "日文", "key": "japanese" },
+                    { "label": "中文", "key": "chinese" }
+                  ]
+                },
+                {
+                  "id": "doben17_quiz_japanese",
+                  "type": "quiz",
+                  "name": "輸入測驗 (中=>日)",
+                  "enabled": true,
+                  "q_field": "chinese",
+                  "a_field": "japanese",
+                  "back_fields": [
+                    { "label": "日文", "key": "japanese" },
+                    { "label": "中文", "key": "chinese" }
+                  ]
+                }
               ]
             }
           ]
         },
         {
-          "name": "第18課 (準備中)",
-          "type": "list",
-          "id": "doben18_text",
-          "enabled": false,
-          "modes": []
+          "name": "第18課", 
+          "type": "category",
+          "id": "lesson18",
+          "enabled": true,
+          "items": [
+            {
+              "name": "課文單字 (準備中)",
+              "type": "list",
+              "id": "doben18_text",
+              "enabled": false,
+              "modes": []
+            }
+          ]
         }
       ]
     }
